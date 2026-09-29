@@ -315,10 +315,12 @@ const KiraAssistant = () => {
     try {
       const response = await fetch('/api/loan-guide/chat', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ message: cleanedQuestion }) });
       const payload = await response.json().catch(() => ({}));
-      const reply = response.ok && typeof payload.answer === 'string' ? payload.answer : 'KIRA is temporarily unavailable. Please try again later.';
+      const reply = response.ok && typeof payload.answer === 'string'
+        ? payload.answer
+        : (typeof payload.error === 'string' ? payload.error : `KIRA is unavailable (service returned ${response.status}). Please try again later.`);
       setMessages((current) => [...current, { role: 'assistant', text: reply }]);
     } catch {
-      setMessages((current) => [...current, { role: 'assistant', text: 'KIRA is temporarily unavailable. Please try again later.' }]);
+      setMessages((current) => [...current, { role: 'assistant', text: 'KIRA could not reach the website service. Check your connection, then refresh and try again.' }]);
     } finally {
       setIsSending(false);
     }
