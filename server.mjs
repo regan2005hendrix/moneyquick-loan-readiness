@@ -176,4 +176,9 @@ const projectDirectory = path.dirname(fileURLToPath(import.meta.url));
 app.use(express.static(path.join(projectDirectory, 'dist')));
 app.get('/{*path}', (_request, response) => response.sendFile(path.join(projectDirectory, 'dist', 'index.html')));
 
-app.listen(port, () => console.log(`KIRA server listening on http://127.0.0.1:${port}`));
+// The same Express app runs locally and as a Vercel serverless function.
+// Only start a listening server when this file is executed directly.
+const isDirectRun = Boolean(process.argv[1]) && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url);
+if (isDirectRun) app.listen(port, () => console.log(`KIRA server listening on http://127.0.0.1:${port}`));
+
+export default app;
