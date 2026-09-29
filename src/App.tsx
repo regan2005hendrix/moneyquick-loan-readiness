@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import type { User } from '@supabase/supabase-js';
-import { isSupabaseConfigured, supabase } from './supabase';
+import type { User } from 'firebase/auth';
+import { createUserWithEmailAndPassword, onAuthStateChanged, sendPasswordResetEmail, signInWithEmailAndPassword, signInWithPopup, signOut as firebaseSignOut, updateProfile } from 'firebase/auth';
+import { firebaseAuth, googleProvider, isFirebaseConfigured } from './firebase';
 
 const ArrowRight = ({ size = 20, className = '' }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden="true">
@@ -150,23 +151,23 @@ const ProfileMenu = ({ user, onSignOut, onProfileUpdated }: { user: User; onSign
   const [address, setAddress] = useState('');
   const [notice, setNotice] = useState('');
   const [saving, setSaving] = useState(false);
-  const displayName = user.user_metadata.full_name || user.user_metadata.name || user.email?.split('@')[0] || 'Account';
+  const displayName = fullName || user.displayName || user.email?.split('@')[0] || 'Account';
 
   useEffect(() => {
-    setFullName(user.user_metadata.full_name || user.user_metadata.name || '');
-    setPhone(user.user_metadata.phone || user.phone || '');
-    setAddress(user.user_metadata.address || '');
+    setFullName(user.displayName || '');
+    setPhone(user.phoneNumber || localStorage.getItem(`moneyquick-phone-${user.uid}`) || '');
+    setAddress(localStorage.getItem(`moneyquick-address-${user.uid}`) || '');
   }, [user]);
 
   const saveProfile = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (!supabase) return;
     setSaving(true);
     setNotice('');
     try {
-      const { data, error } = await supabase.auth.updateUser({ data: { full_name: formatFullName(fullName), phone: phone.trim(), address: address.trim() } });
-      if (error) throw error;
-      if (data.user) onProfileUpdated(data.user);
+      await updateProfile(user, { displayName: formatFullName(fullName) });
+      localStorage.setItem(`moneyquick-phone-${user.uid}`, phone.trim());
+      localStorage.setItem(`moneyquick-address-${user.uid}`, address.trim());
+      onProfileUpdated(user);
       setNotice('Profile saved.');
       setOpen(false);
       setEditing(false);
@@ -476,25 +477,25 @@ const AuthScreen = ({ onSignedIn }: { onSignedIn: (user: User) => void }) => {
   ];
   const authErrorMessage = (error: unknown) => {
     const message = error instanceof Error ? error.message : String(error || '');
-    if (/failed to fetch|networkerror|load failed|network request failed/i.test(message)) return 'Cannot reach the sign-in service. Check that the Supabase Project URL and publishable key in .env belong to an active Supabase project, then restart the app.';
-    if (/invalid login credentials/i.test(message)) return 'That email and password are not registered yet. Select “Create an account” first.';
-    if (/unsupported provider|provider is not enabled/i.test(message)) return 'Google sign-in is temporarily unavailable. Please use email sign-in or try again later.';
+    if (/auth\/unauthorized-domain/i.test(message)) return 'This website address is not authorised in Firebase yet. Add moneyquick-loan-readiness.vercel.app under Firebase Authentication → Settings → Authorised domains.';
+    if (/auth\/popup-closed-by-user/i.test(message)) return 'Google sign-in was cancelled before it finished.';
+    if (/auth\/invalid-credential|auth\/user-not-found|auth\/wrong-password/i.test(message)) return 'That email and password are not registered yet. Select “Create an account” first.';
+    if (/auth\/email-already-in-use/i.test(message)) return 'An account already exists with this email. Select “Sign in” instead.';
+    if (/failed to fetch|networkerror|load failed|network request failed/i.test(message)) return 'Cannot reach Firebase Authentication. Check your connection and try again.';
     console.error('Secure sign-in failed:', error);
     return 'Secure sign-in is temporarily unavailable. Please try again later.';
   };
 
   const submitEmailAuth = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (!supabase) return;
+    if (!firebaseAuth) return;
     setBusy(true);
     setNotice('');
     try {
       const result = mode === 'signIn'
-        ? await supabase.auth.signInWithPassword({ email, password })
-        : await supabase.auth.signUp({ email, password, options: { emailRedirectTo: window.location.origin } });
-      if (result.error) { setNotice(authErrorMessage(result.error)); return; }
-      if (result.data.user && mode === 'signIn') onSignedIn(result.data.user);
-      else setNotice('Check your email to confirm your account, then sign in.');
+        ? await signInWithEmailAndPassword(firebaseAuth, email, password)
+        : await createUserWithEmailAndPassword(firebaseAuth, email, password);
+      onSignedIn(result.user);
     } catch (error) {
       setNotice(authErrorMessage(error));
     } finally {
@@ -503,12 +504,12 @@ const AuthScreen = ({ onSignedIn }: { onSignedIn: (user: User) => void }) => {
   };
 
   const signInWithGoogle = async () => {
-    if (!supabase) return;
+    if (!firebaseAuth) return;
     setBusy(true);
     setNotice('');
     try {
-      const { error } = await supabase.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: window.location.origin } });
-      if (error) setNotice(authErrorMessage(error));
+      const result = await signInWithPopup(firebaseAuth, googleProvider);
+      onSignedIn(result.user);
     } catch (error) {
       setNotice(authErrorMessage(error));
     } finally {
@@ -517,11 +518,11 @@ const AuthScreen = ({ onSignedIn }: { onSignedIn: (user: User) => void }) => {
   };
 
   const resetPassword = async () => {
-    if (!supabase || !email) { setNotice('Enter your email address first, then select Forgot password.'); return; }
+    if (!firebaseAuth || !email) { setNotice('Enter your email address first, then select Forgot password.'); return; }
     setBusy(true);
     try {
-      const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo: window.location.origin });
-      setNotice(error ? authErrorMessage(error) : 'Password-reset instructions were sent if an account exists for this email.');
+      await sendPasswordResetEmail(firebaseAuth, email, { url: window.location.origin });
+      setNotice('Password-reset instructions were sent if an account exists for this email.');
     } catch (error) {
       setNotice(authErrorMessage(error));
     } finally {
@@ -529,14 +530,14 @@ const AuthScreen = ({ onSignedIn }: { onSignedIn: (user: User) => void }) => {
     }
   };
 
-  if (!isSupabaseConfigured) return <div className="relative min-h-screen overflow-hidden bg-background"><Atmosphere strong /><main className="relative z-10 mx-auto flex min-h-screen max-w-xl items-center px-5 py-10"><section className="w-full rounded-[32px] border border-white/80 bg-white/75 p-7 shadow-[0_24px_70px_rgba(7,20,47,0.10)] backdrop-blur sm:p-10"><div className="text-xs font-bold uppercase tracking-[0.18em] text-accent">Sign-in unavailable</div><h1 className="mt-3 text-3xl font-bold tracking-[-0.04em] text-primary">We’re having a problem.</h1><p className="mt-4 text-sm leading-6 text-muted-foreground">Secure sign-in is temporarily unavailable. Please try again later or contact support.</p></section></main></div>;
+  if (!isFirebaseConfigured) return <div className="relative min-h-screen overflow-hidden bg-background"><Atmosphere strong /><main className="relative z-10 mx-auto flex min-h-screen max-w-xl items-center px-5 py-10"><section className="w-full rounded-[32px] border border-white/80 bg-white/75 p-7 shadow-[0_24px_70px_rgba(7,20,47,0.10)] backdrop-blur sm:p-10"><div className="text-xs font-bold uppercase tracking-[0.18em] text-accent">Sign-in unavailable</div><h1 className="mt-3 text-3xl font-bold tracking-[-0.04em] text-primary">We’re having a problem.</h1><p className="mt-4 text-sm leading-6 text-muted-foreground">Firebase Authentication is not configured for this website yet.</p></section></main></div>;
 
   return <div className="relative min-h-screen overflow-hidden bg-background"><Atmosphere strong /><main className="relative z-10 mx-auto flex min-h-screen max-w-md items-center px-5 py-10"><section className="w-full rounded-[32px] border border-white/80 bg-white/75 p-7 shadow-[0_24px_70px_rgba(7,20,47,0.10)] backdrop-blur sm:p-10"><div className="flex items-center gap-3"><div className="flex h-11 w-11 items-center justify-center rounded-full bg-primary text-sm font-bold text-white">MQ</div><div><div className="font-bold text-primary">MONEYQUICK</div><div className="text-xs text-muted-foreground">A secure place to prepare</div></div></div><h1 className="mt-8 text-3xl font-bold tracking-[-0.04em] text-primary">{mode === 'signIn' ? 'Welcome back' : 'Create your account'}</h1><p className="mt-2 text-sm leading-6 text-muted-foreground">Sign in to save and continue your loan readiness journey.</p><button type="button" disabled={busy} onClick={signInWithGoogle} className="mt-7 flex w-full items-center justify-center gap-3 rounded-2xl border border-border bg-white px-4 py-3.5 text-sm font-semibold text-primary transition hover:border-accent hover:bg-highlight disabled:opacity-50"><span className="text-lg font-bold text-[#4285F4]">G</span>Continue with Google</button><div className="my-6 flex items-center gap-3 text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground"><span className="h-px flex-1 bg-border" />or use email<span className="h-px flex-1 bg-border" /></div><form onSubmit={submitEmailAuth} className="space-y-4"><label className="block text-xs font-bold uppercase tracking-[0.12em] text-muted-foreground">Email<input required type="email" autoComplete="email" value={email} onChange={(event) => setEmail(event.target.value)} className="mt-2 w-full rounded-2xl border border-border bg-background px-4 py-3.5 text-base font-medium text-primary outline-none transition focus:border-accent focus:ring-4 focus:ring-highlight" /></label><label className="block text-xs font-bold uppercase tracking-[0.12em] text-muted-foreground">Password<div className="relative mt-2"><input required minLength={8} type={showPassword ? 'text' : 'password'} autoComplete={mode === 'signIn' ? 'current-password' : 'new-password'} value={password} onChange={(event) => setPassword(event.target.value)} className="w-full rounded-2xl border border-border bg-background px-4 py-3.5 pr-12 text-base font-medium text-primary outline-none transition focus:border-accent focus:ring-4 focus:ring-highlight" /><button type="button" onClick={() => setShowPassword((value) => !value)} aria-label={showPassword ? 'Hide password' : 'Show password'} className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full p-2 text-muted-foreground transition hover:bg-highlight hover:text-accent"><Eye open={showPassword} /></button></div></label>{mode === 'signUp' ? <div className="rounded-2xl bg-highlight/75 p-4"><div className="text-xs font-bold uppercase tracking-[0.13em] text-accent">Create a stronger password</div><div className="mt-3 grid grid-cols-2 gap-2">{passwordRules.map(([label, complete]) => <div key={String(label)} className={`flex items-center gap-2 text-xs font-semibold ${complete ? 'text-accent' : 'text-muted-foreground'}`}><span className={`flex h-4 w-4 items-center justify-center rounded-full text-[9px] ${complete ? 'bg-accent text-white' : 'bg-white text-muted-foreground'}`}>{complete ? '✓' : '•'}</span>{label}</div>)}</div></div> : null}<PrimaryButton type="submit" disabled={busy} onClick={() => undefined} className="w-full">{busy ? 'Please wait' : mode === 'signIn' ? 'Sign in' : 'Create account'}</PrimaryButton></form>{mode === 'signIn' ? <button type="button" onClick={resetPassword} className="mt-4 text-sm font-semibold text-accent hover:underline">Forgot password?</button> : null}<p className="mt-6 text-sm text-muted-foreground">{mode === 'signIn' ? 'New here?' : 'Already have an account?'} <button type="button" onClick={() => { setMode(mode === 'signIn' ? 'signUp' : 'signIn'); setNotice(''); setPassword(''); }} className="font-semibold text-accent hover:underline">{mode === 'signIn' ? 'Create an account' : 'Sign in'}</button></p>{notice ? <p role="alert" className="mt-5 rounded-2xl bg-highlight px-4 py-3 text-sm leading-6 text-primary">{notice}</p> : null}</section></main></div>;
 };
 
 export default function App() {
   const [authUser, setAuthUser] = useState<User | null>(null);
-  const [authLoading, setAuthLoading] = useState(isSupabaseConfigured);
+  const [authLoading, setAuthLoading] = useState(isFirebaseConfigured);
   const [currentStep, setCurrentStep] = useState<Step>('landing');
   const [monthlyRevenue, setMonthlyRevenue] = useState(250000);
   const [monthlyExpenses, setMonthlyExpenses] = useState(90000);
@@ -561,36 +562,15 @@ export default function App() {
   const [confirmationNotice, setConfirmationNotice] = useState('');
 
   useEffect(() => {
-    if (!supabase) { setAuthLoading(false); return; }
-    let mounted = true;
-    const timeoutId = window.setTimeout(() => {
-      if (mounted) setAuthLoading(false);
-    }, 8000);
-    supabase.auth.getUser()
-      .then(({ data, error }) => {
-        if (!mounted) return;
-        if (error) console.error('Unable to restore the secure session:', error);
-        setAuthUser(data.user);
-        setAuthLoading(false);
-      })
-      .catch((error: unknown) => {
-        if (!mounted) return;
-        console.error('Unable to restore the secure session:', error);
-        setAuthUser(null);
-        setAuthLoading(false);
-      })
-      .finally(() => window.clearTimeout(timeoutId));
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (mounted) {
-        setAuthUser(session?.user ?? null);
-        setAuthLoading(false);
-        window.clearTimeout(timeoutId);
-      }
+    if (!firebaseAuth) { setAuthLoading(false); return; }
+    const unsubscribe = onAuthStateChanged(firebaseAuth, (user) => {
+      setAuthUser(user);
+      setAuthLoading(false);
     });
-    return () => { mounted = false; window.clearTimeout(timeoutId); subscription.unsubscribe(); };
+    return unsubscribe;
   }, []);
 
-  const signOut = async () => { if (supabase) await supabase.auth.signOut(); setAuthUser(null); };
+  const signOut = async () => { if (firebaseAuth) await firebaseSignOut(firebaseAuth); setAuthUser(null); };
 
   const netMonthly = Math.max(0, monthlyRevenue - monthlyExpenses);
   const maxCapacity = Math.min(8000000, Math.max(1000000, Math.round((netMonthly * 36) / 100000) * 100000));
