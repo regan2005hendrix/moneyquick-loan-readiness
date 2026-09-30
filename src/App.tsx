@@ -280,13 +280,15 @@ const kiraAnswers = [
 
 const answerKiraQuestion = (question: string) => {
   const normalized = question.toLowerCase().replace(/[^\da-z\s]/g, ' ').replace(/\s+/g, ' ').trim();
-  if (/^(hi|hello|hey|hii|good morning|good afternoon|good evening)\b/.test(normalized)) return 'Hello! I’m KIRA, the website guide. I can help you understand this website’s loan outlook, EMI, documents, and application steps.';
+  if (!normalized) return 'Please ask about this website’s loan outlook, EMI, documents, or application steps.';
   if (normalized.includes('who are you') || normalized.includes('your name') || normalized.includes('what are you')) return 'I’m KIRA, the in-product guide for this website. I explain the loan outlook, illustrative EMI, required documents, and next steps using only this website’s information.';
   if (normalized.includes('what do you do') || normalized.includes('what is your work') || normalized.includes('how can you help') || normalized.includes('what can you do')) return 'I help you understand the information and steps on this website. I do not make lending decisions, provide outside advice, or handle personal or banking details.';
   if (normalized.includes('thank')) return 'You’re welcome! I’m here to explain the website’s loan-readiness steps.';
-  if (normalized.includes('emi') && (normalized.includes('calculat') || normalized.includes('work'))) return kiraAnswers[0].answer;
-  if (normalized.includes('document') && (normalized.includes('need') || normalized.includes('why'))) return kiraAnswers[1].answer;
-  if (normalized.includes('after') && normalized.includes('apply')) return kiraAnswers[2].answer;
+  if (normalized.includes('emi') || (normalized.includes('interest') && normalized.includes('rate'))) return kiraAnswers[0].answer;
+  if (normalized.includes('document') || normalized.includes('pan') || normalized.includes('aadhaar') || normalized.includes('bank statement')) return kiraAnswers[1].answer;
+  if ((normalized.includes('after') && normalized.includes('apply')) || normalized.includes('next step') || normalized.includes('application')) return kiraAnswers[2].answer;
+  if (normalized.includes('loan outlook') || normalized.includes('loan amount') || normalized.includes('loan purpose') || normalized.includes('tenure') || normalized.includes('loan readiness')) return 'The loan outlook on this website is illustrative. You choose a loan amount, purpose, tenure, and illustrative annual interest rate. It is an estimate only, not a lender quote or approval.';
+  if (/^(hi|hello|hey|hii|good morning|good afternoon|good evening)\b/.test(normalized)) return 'Hello! I’m KIRA, the website guide. I can help you understand this website’s loan outlook, EMI, documents, and application steps.';
   return 'I can answer basic questions about KIRA and these website topics: the illustrative EMI, why documents are needed, and what happens after you apply.';
 };
 
@@ -306,24 +308,16 @@ const KiraAssistant = () => {
     'What happens after I apply?',
   ] as const;
 
-  const askGuide = async (nextQuestion: string) => {
+  const askGuide = (nextQuestion: string) => {
     const cleanedQuestion = nextQuestion.trim();
     if (!cleanedQuestion || isSending) return;
     setMessages((current) => [...current, { role: 'user', text: cleanedQuestion }]);
     setQuestion('');
     setIsSending(true);
-    try {
-      const response = await fetch('/api/loan-guide/chat', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ message: cleanedQuestion }) });
-      const payload = await response.json().catch(() => ({}));
-      const reply = response.ok && typeof payload.answer === 'string'
-        ? payload.answer
-        : (typeof payload.error === 'string' ? payload.error : `KIRA is unavailable (service returned ${response.status}). Please try again later.`);
-      setMessages((current) => [...current, { role: 'assistant', text: reply }]);
-    } catch {
-      setMessages((current) => [...current, { role: 'assistant', text: 'KIRA could not reach the website service. Check your connection, then refresh and try again.' }]);
-    } finally {
+    window.setTimeout(() => {
+      setMessages((current) => [...current, { role: 'assistant', text: answerKiraQuestion(cleanedQuestion) }]);
       setIsSending(false);
-    }
+    }, 180);
   };
 
   return (
