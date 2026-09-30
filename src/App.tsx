@@ -246,8 +246,6 @@ const Topbar = ({ step, onReset, onNavigate, user, onSignOut, onProfileUpdated }
           <a href="/terms" target="_blank" rel="noopener noreferrer" className="text-[11px] font-semibold text-muted-foreground transition hover:text-primary">Terms</a>
         </div>
       </div>
-      </div>
-      </div>
     </header>
   );
 };
