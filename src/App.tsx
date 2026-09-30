@@ -85,7 +85,7 @@ const businessIndustries = [
   'Creative and media',
   'Financial and insurance services',
   'Wholesale and distribution',
-  'Other — not listed',
+  'Other, not listed',
 ] as const;
 const loanCategories = [
   ['Business / MSME loan', 'For expansion, equipment, inventory or longer-term business investment.'],
@@ -116,7 +116,7 @@ const PrimaryButton = ({ children, onClick, className = '', type = 'button', dis
     type={type}
     disabled={disabled}
     onClick={onClick}
-    className={`group inline-flex items-center justify-center gap-3 rounded-[16px] bg-primary px-7 py-4 font-semibold text-primary-foreground shadow-[0_12px_30px_rgba(7,20,47,0.12)] transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-[#0b2148] hover:shadow-[0_18px_40px_rgba(7,20,47,0.16)] active:translate-y-0 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 ${className}`}
+    className={`group inline-flex items-center justify-center gap-3 rounded-lg bg-primary px-7 py-4 font-semibold text-primary-foreground shadow-sm transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-[#0b2148] active:translate-y-0 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 ${className}`}
   >
     <span>{children}</span>
     <ArrowRight size={18} className="transition-transform duration-300 group-hover:translate-x-1.5" />
@@ -127,7 +127,7 @@ const SecondaryButton = ({ children, onClick, className = '', icon = null }: Sec
   <button
     type="button"
     onClick={onClick}
-    className={`group inline-flex items-center justify-center gap-2 rounded-[16px] bg-surface px-6 py-3.5 font-semibold text-primary transition-all duration-300 hover:-translate-y-0.5 hover:bg-highlight active:scale-[0.98] ${className}`}
+    className={`group inline-flex items-center justify-center gap-2 rounded-lg bg-surface px-6 py-3.5 font-semibold text-primary transition-all duration-300 hover:-translate-y-0.5 hover:bg-highlight active:scale-[0.98] ${className}`}
   >
     {children}
     {icon}
@@ -136,10 +136,8 @@ const SecondaryButton = ({ children, onClick, className = '', icon = null }: Sec
 
 const Atmosphere = ({ strong = false }) => (
   <div className={`pointer-events-none fixed inset-0 z-0 overflow-hidden ${strong ? 'opacity-100' : 'opacity-80'}`} aria-hidden="true">
-    <div className="absolute -right-48 -top-48 h-[620px] w-[620px] rounded-full bg-[radial-gradient(circle,rgba(11,143,131,0.12),transparent_67%)] blur-[18px]" />
-    <div className="absolute -bottom-56 -left-48 h-[700px] w-[700px] rounded-full bg-[radial-gradient(circle,rgba(216,199,165,0.17),transparent_68%)] blur-[24px]" />
-    <div className="absolute inset-0 bg-[linear-gradient(120deg,transparent_0%,rgba(255,255,255,0.2)_44%,transparent_70%)]" />
-    <div className="absolute inset-0 opacity-[0.11] [background-image:radial-gradient(rgba(7,20,47,0.12)_0.65px,transparent_0.65px)] [background-size:20px_20px]" />
+    <div className="absolute inset-0 bg-background" />
+    <div className="absolute inset-0 opacity-[0.05] [background-image:radial-gradient(rgba(7,20,47,0.12)_0.65px,transparent_0.65px)] [background-size:20px_20px]" />
   </div>
 );
 
@@ -180,7 +178,7 @@ const ProfileMenu = ({ user, onSignOut, onProfileUpdated }: { user: User; onSign
   };
 
   const details = [['Email', user.email || 'Not available'], ['Contact', phone || 'Not added'], ['Address', address || 'Not added']];
-  return <div className="relative"><button type="button" onClick={() => { setOpen((value) => !value); setEditing(false); }} aria-expanded={open} className="flex items-center gap-2 rounded-full border border-white/70 bg-white/75 py-1.5 pl-1.5 pr-3 text-left shadow-[0_10px_26px_rgba(7,20,47,0.06)] transition hover:bg-white"><span className="flex h-8 w-8 items-center justify-center rounded-full bg-accent text-xs font-bold text-white">{displayName.charAt(0).toUpperCase()}</span><span className="hidden max-w-28 truncate text-sm font-semibold text-primary sm:block">{displayName}</span><span className="text-xs text-muted-foreground">⌄</span></button>{open ? <div className="absolute right-0 top-[calc(100%+10px)] w-[min(380px,calc(100vw-2rem))] overflow-hidden rounded-[26px] border border-white/80 bg-[#F7F5EF] shadow-[0_24px_60px_rgba(7,20,47,0.18)]"><div className="bg-primary px-5 pb-5 pt-6 text-white"><div className="flex items-center gap-3"><span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/15 text-base font-bold">{displayName.charAt(0).toUpperCase()}</span><div className="min-w-0"><div className="truncate text-lg font-bold">{displayName}</div><div className="truncate text-xs text-white/65">Your secure account</div></div></div></div><div className="p-5">{editing ? <form onSubmit={saveProfile} className="space-y-3"><label className="block text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground">Profile name<input value={fullName} onChange={(event) => setFullName(formatFullName(event.target.value))} placeholder="Your full name" className="mt-1.5 w-full rounded-xl border border-border bg-white px-3 py-2.5 text-sm font-medium text-primary outline-none focus:border-accent focus:ring-4 focus:ring-highlight" /></label><label className="block text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground">Contact number<input value={phone} onChange={(event) => setPhone(event.target.value.replace(/[^0-9+\s-]/g, ''))} inputMode="tel" placeholder="Your mobile number" className="mt-1.5 w-full rounded-xl border border-border bg-white px-3 py-2.5 text-sm font-medium text-primary outline-none focus:border-accent focus:ring-4 focus:ring-highlight" /></label><label className="block text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground">Address<textarea value={address} onChange={(event) => setAddress(event.target.value)} placeholder="Your address" rows={3} className="mt-1.5 w-full resize-none rounded-xl border border-border bg-white px-3 py-2.5 text-sm font-medium text-primary outline-none focus:border-accent focus:ring-4 focus:ring-highlight" /></label><div className="flex justify-end gap-2 pt-1"><button type="button" onClick={() => setEditing(false)} className="rounded-full px-4 py-2 text-sm font-semibold text-muted-foreground hover:bg-white">Cancel</button><button type="submit" disabled={saving} className="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-white disabled:opacity-50">{saving ? 'Saving…' : 'Save changes'}</button></div></form> : <><div className="text-xs font-bold uppercase tracking-[0.15em] text-accent">Account details</div><div className="mt-3 divide-y divide-border-light">{details.map(([label, value]) => <div key={label} className="py-3 first:pt-0"><div className="text-[10px] font-bold uppercase tracking-[0.12em] text-muted-foreground">{label}</div><div className="mt-1 break-words text-sm font-semibold text-primary">{value}</div></div>)}</div><button type="button" onClick={() => setEditing(true)} className="mt-5 w-full rounded-full bg-highlight px-4 py-2.5 text-sm font-bold text-accent transition hover:bg-accent hover:text-white">Edit profile</button></>}{notice ? <p role="status" className="mt-3 rounded-xl bg-highlight px-3 py-2 text-xs font-medium text-primary">{notice}</p> : null}<button type="button" onClick={onSignOut} className="mt-3 w-full rounded-full px-4 py-2 text-sm font-semibold text-muted-foreground transition hover:bg-white hover:text-primary">Sign out</button></div></div> : null}</div>;
+  return <div className="relative"><button type="button" onClick={() => { setOpen((value) => !value); setEditing(false); }} aria-expanded={open} className="flex items-center gap-2 rounded-lg border border-white/70 bg-white/75 py-1.5 pl-1.5 pr-3 text-left shadow-sm transition hover:bg-white"><span className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent text-xs font-bold text-white">{displayName.charAt(0).toUpperCase()}</span><span className="hidden max-w-28 truncate text-sm font-semibold text-primary sm:block">{displayName}</span><span className="text-xs text-muted-foreground">⌄</span></button>{open ? <div className="absolute right-0 top-[calc(100%+10px)] w-[min(380px,calc(100vw-2rem))] overflow-hidden rounded-xl border border-white/80 bg-[#F7F5EF] shadow-xl"><div className="bg-primary px-5 pb-5 pt-6 text-white"><div className="flex items-center gap-3"><span className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/15 text-base font-bold">{displayName.charAt(0).toUpperCase()}</span><div className="min-w-0"><div className="truncate text-lg font-bold">{displayName}</div><div className="truncate text-xs text-white/65">Your secure account</div></div></div></div><div className="p-5">{editing ? <form onSubmit={saveProfile} className="space-y-3"><label className="block text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground">Profile name<input value={fullName} onChange={(event) => setFullName(formatFullName(event.target.value))} placeholder="Your full name" className="mt-1.5 w-full rounded-lg border border-border bg-white px-3 py-2.5 text-sm font-medium text-primary outline-none focus:border-accent focus:ring-4 focus:ring-highlight" /></label><label className="block text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground">Contact number<input value={phone} onChange={(event) => setPhone(event.target.value.replace(/[^0-9+\s-]/g, ''))} inputMode="tel" placeholder="Your mobile number" className="mt-1.5 w-full rounded-lg border border-border bg-white px-3 py-2.5 text-sm font-medium text-primary outline-none focus:border-accent focus:ring-4 focus:ring-highlight" /></label><label className="block text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground">Address<textarea value={address} onChange={(event) => setAddress(event.target.value)} placeholder="Your address" rows={3} className="mt-1.5 w-full resize-none rounded-lg border border-border bg-white px-3 py-2.5 text-sm font-medium text-primary outline-none focus:border-accent focus:ring-4 focus:ring-highlight" /></label><div className="flex justify-end gap-2 pt-1"><button type="button" onClick={() => setEditing(false)} className="rounded-lg px-4 py-2 text-sm font-semibold text-muted-foreground hover:bg-white">Cancel</button><button type="submit" disabled={saving} className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white disabled:opacity-50">{saving ? 'Saving…' : 'Save changes'}</button></div></form> : <><div className="text-xs font-bold uppercase tracking-[0.15em] text-accent">Account details</div><div className="mt-3 divide-y divide-border-light">{details.map(([label, value]) => <div key={label} className="py-3 first:pt-0"><div className="text-[10px] font-bold uppercase tracking-[0.12em] text-muted-foreground">{label}</div><div className="mt-1 break-words text-sm font-semibold text-primary">{value}</div></div>)}</div><button type="button" onClick={() => setEditing(true)} className="mt-5 w-full rounded-lg bg-highlight px-4 py-2.5 text-sm font-bold text-accent transition hover:bg-accent hover:text-white">Edit profile</button></>}{notice ? <p role="status" className="mt-3 rounded-lg bg-highlight px-3 py-2 text-xs font-medium text-primary">{notice}</p> : null}<button type="button" onClick={onSignOut} className="mt-3 w-full rounded-lg px-4 py-2 text-sm font-semibold text-muted-foreground transition hover:bg-white hover:text-primary">Sign out</button></div></div> : null}</div>;
 };
 
 const Topbar = ({ step, onReset, onNavigate, user, onSignOut, onProfileUpdated }: { step: Step; onReset: () => void; onNavigate: (step: Step) => void; user: User; onSignOut: () => void; onProfileUpdated: (user: User) => void }) => {
@@ -203,30 +201,30 @@ const Topbar = ({ step, onReset, onNavigate, user, onSignOut, onProfileUpdated }
   return (
     <header className="relative z-30 flex w-full items-center justify-between px-5 py-5 sm:px-8 lg:px-12">
       <div className="flex items-center gap-3">
-        <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-[11px] font-bold tracking-[-0.04em] text-white shadow-[0_8px_18px_rgba(7,20,47,0.12)]">LR</div>
+        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-[11px] font-bold tracking-[-0.04em] text-white shadow-sm">LR</div>
         <div>
           <div className="text-[15px] font-semibold tracking-[-0.02em] text-primary">MONEYQUICK</div>
-          <div className="hidden text-[10px] uppercase tracking-[0.22em] text-muted-foreground sm:block">Know before you apply</div>
+          <div className="hidden text-[10px] uppercase tracking-[0.22em] text-muted-foreground sm:block">Professional loan readiness</div>
         </div>
       </div>
 
       <div className="flex items-center gap-2">
         <ProfileMenu user={user} onSignOut={onSignOut} onProfileUpdated={onProfileUpdated} />
         {step !== 'landing' && step !== 'calculating' ? (
-          <button type="button" onClick={onReset} className="hidden rounded-full px-4 py-2 text-sm font-medium text-muted-foreground transition hover:bg-white/70 hover:text-primary sm:inline-flex">Start over</button>
+          <button type="button" onClick={onReset} className="hidden rounded-lg px-4 py-2 text-sm font-medium text-muted-foreground transition hover:bg-white/70 hover:text-primary sm:inline-flex">Start over</button>
         ) : null}
         <div className="relative">
           <button
             type="button"
             onClick={() => setPreviewOpen((v) => !v)}
             aria-expanded={previewOpen}
-            className="inline-flex items-center gap-2 rounded-full border border-white/70 bg-white/75 px-4 py-2.5 text-sm font-semibold text-primary shadow-[0_10px_26px_rgba(7,20,47,0.06)] backdrop-blur-sm transition hover:-translate-y-0.5 hover:bg-white"
+            className="inline-flex items-center gap-2 rounded-lg border border-white/70 bg-white/75 px-4 py-2.5 text-sm font-semibold text-primary shadow-sm backdrop-blur-sm transition hover:-translate-y-0.5 hover:bg-white"
           >
             Preview screens
             <span className={`text-xs transition-transform ${previewOpen ? 'rotate-180' : ''}`}>⌄</span>
           </button>
           {previewOpen && (
-            <div className="absolute right-0 top-[calc(100%+10px)] w-[min(290px,calc(100vw-2rem))] overflow-hidden rounded-[22px] border border-white/80 bg-[rgba(247,245,239,0.97)] p-2 shadow-[0_24px_60px_rgba(7,20,47,0.16)] backdrop-blur-xl">
+            <div className="absolute right-0 top-[calc(100%+10px)] w-[min(290px,calc(100vw-2rem))] overflow-hidden rounded-xl border border-white/80 bg-[rgba(247,245,239,0.97)] p-2 shadow-xl backdrop-blur-xl">
               <div className="px-3 pb-2 pt-2 text-[10px] font-bold uppercase tracking-[0.16em] text-muted-foreground">Jump to any screen</div>
               <div className="grid grid-cols-2 gap-1">
                 {previewItems.map(([target, label], i) => (
@@ -234,7 +232,7 @@ const Topbar = ({ step, onReset, onNavigate, user, onSignOut, onProfileUpdated }
                     key={target}
                     type="button"
                     onClick={() => { onNavigate(target); setPreviewOpen(false); }}
-                    className={`rounded-xl px-3 py-2 text-left text-xs font-semibold transition hover:bg-highlight hover:text-accent ${step === target ? 'bg-highlight text-accent' : 'text-primary'}`}
+                    className={`rounded-lg px-3 py-2 text-left text-xs font-semibold transition hover:bg-highlight hover:text-accent ${step === target ? 'bg-highlight text-accent' : 'text-primary'}`}
                   >
                     <span className="mr-1 text-[10px] text-muted-foreground">{String(i + 1).padStart(2, '0')}</span>{label}
                   </button>
@@ -249,8 +247,8 @@ const Topbar = ({ step, onReset, onNavigate, user, onSignOut, onProfileUpdated }
 };
 
 const BackButton = ({ onClick }: { onClick: () => void }) => (
-  <button type="button" onClick={onClick} className="group mb-8 inline-flex items-center gap-2 rounded-full py-2 pr-3 text-sm font-semibold text-muted-foreground transition hover:text-primary">
-    <span className="flex h-9 w-9 items-center justify-center rounded-full border border-border bg-white/60 transition group-hover:border-primary group-hover:bg-white"><ChevronLeft size={16} /></span>
+  <button type="button" onClick={onClick} className="group mb-8 inline-flex items-center gap-2 rounded-lg py-2 pr-3 text-sm font-semibold text-muted-foreground transition hover:text-primary">
+    <span className="flex h-9 w-9 items-center justify-center rounded-lg border border-border bg-white/60 transition group-hover:border-primary group-hover:bg-white"><ChevronLeft size={16} /></span>
     Back
   </button>
 );
@@ -323,14 +321,14 @@ const KiraAssistant = () => {
   return (
     <div className="fixed bottom-5 right-5 z-50 flex flex-col items-end sm:bottom-7 sm:right-7">
       {open && (
-        <div className="mb-3 w-[min(390px,calc(100vw-2rem))] overflow-hidden rounded-[22px] border border-white/70 bg-[rgba(247,245,239,0.94)] p-4 shadow-[0_24px_70px_rgba(7,20,47,0.16)] backdrop-blur-xl animate-soft-in">
+        <div className="mb-3 w-[min(390px,calc(100vw-2rem))] overflow-hidden rounded-xl border border-white/70 bg-[rgba(247,245,239,0.94)] p-4 shadow-xl backdrop-blur-xl">
           <div className="mb-4 flex items-center justify-between">
-            <div className="flex items-center gap-2 font-semibold text-primary"><span className="flex h-8 w-8 items-center justify-center rounded-full bg-highlight text-accent"><Sparkles size={15} /></span> KIRA</div>
-            <button type="button" aria-label="Close KIRA" onClick={() => setOpen(false)} className="flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground transition hover:bg-surface hover:text-primary">×</button>
+            <div className="flex items-center gap-2 font-semibold text-primary"><span className="flex h-8 w-8 items-center justify-center rounded-lg bg-highlight text-accent"><Sparkles size={15} /></span> KIRA</div>
+            <button type="button" aria-label="Close KIRA" onClick={() => setOpen(false)} className="flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground transition hover:bg-surface hover:text-primary">×</button>
           </div>
-          <div className="max-h-[310px] space-y-3 overflow-y-auto pr-1" aria-live="polite">{messages.map((message, index) => <div key={`${message.role}-${index}`} className={`rounded-2xl px-3.5 py-3 text-sm leading-6 ${message.role === 'user' ? 'ml-8 bg-primary text-white' : 'mr-3 bg-highlight text-primary'}`}>{message.text}</div>)}{isSending ? <div className="mr-3 rounded-2xl bg-highlight px-3.5 py-3 text-sm text-muted-foreground">KIRA is typing…</div> : null}</div>
-          <div className="mt-3 flex flex-wrap gap-2">{questions.map((item) => <button key={item} type="button" disabled={isSending} onClick={() => askGuide(item)} className="rounded-full border border-border bg-white/70 px-3 py-2 text-xs font-semibold text-primary transition hover:border-accent hover:text-accent disabled:opacity-50">{item}</button>)}</div>
-          <form className="mt-3 flex gap-2" onSubmit={(event) => { event.preventDefault(); askGuide(question); }}><input value={question} maxLength={1000} disabled={isSending} onChange={(event) => setQuestion(event.target.value)} placeholder="Ask a question…" className="min-w-0 flex-1 rounded-xl border border-border bg-white px-3 py-2.5 text-sm text-primary outline-none transition placeholder:text-muted-foreground focus:border-accent focus:ring-4 focus:ring-highlight disabled:opacity-60" /><button type="submit" disabled={isSending || !question.trim()} className="inline-flex items-center justify-center rounded-xl bg-primary px-3 text-sm font-bold text-white transition hover:bg-[#0b2148] disabled:opacity-50" aria-label="Send question"><ArrowRight size={18} /></button></form>
+          <div className="max-h-[310px] space-y-3 overflow-y-auto pr-1" aria-live="polite">{messages.map((message, index) => <div key={`${message.role}-${index}`} className={`rounded-xl px-3.5 py-3 text-sm leading-6 ${message.role === 'user' ? 'ml-8 bg-primary text-white' : 'mr-3 bg-highlight text-primary'}`}>{message.text}</div>)}{isSending ? <div className="mr-3 rounded-xl bg-highlight px-3.5 py-3 text-sm text-muted-foreground">KIRA is typing…</div> : null}</div>
+          <div className="mt-3 flex flex-wrap gap-2">{questions.map((item) => <button key={item} type="button" disabled={isSending} onClick={() => askGuide(item)} className="rounded-lg border border-border bg-white/70 px-3 py-2 text-xs font-semibold text-primary transition hover:border-accent hover:text-accent disabled:opacity-50">{item}</button>)}</div>
+          <form className="mt-3 flex gap-2" onSubmit={(event) => { event.preventDefault(); askGuide(question); }}><input value={question} maxLength={1000} disabled={isSending} onChange={(event) => setQuestion(event.target.value)} placeholder="Ask a question…" className="min-w-0 flex-1 rounded-lg border border-border bg-white px-3 py-2.5 text-sm text-primary outline-none transition placeholder:text-muted-foreground focus:border-accent focus:ring-4 focus:ring-highlight disabled:opacity-60" /><button type="submit" disabled={isSending || !question.trim()} className="inline-flex items-center justify-center rounded-lg bg-primary px-3 text-sm font-bold text-white transition hover:bg-[#0b2148] disabled:opacity-50" aria-label="Send question"><ArrowRight size={18} /></button></form>
           <p className="mt-3 text-[11px] leading-4 text-muted-foreground">KIRA answers basic greetings and questions about this website only.</p>
         </div>
       )}
@@ -339,9 +337,9 @@ const KiraAssistant = () => {
         onMouseEnter={() => setHover(true)}
         onMouseLeave={() => setHover(false)}
         onClick={() => setOpen((v) => !v)}
-        className="group flex items-center gap-2 rounded-full border border-white/80 bg-primary px-4 py-3 text-white shadow-[0_14px_36px_rgba(7,20,47,0.22)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-[#0b2148]"
+        className="group flex items-center gap-2 rounded-lg border border-white/80 bg-primary px-4 py-3 text-white shadow-md transition-all duration-300 hover:-translate-y-0.5 hover:bg-[#0b2148]"
       >
-        <span className="flex h-7 w-7 items-center justify-center rounded-full bg-highlight text-accent"><Sparkles size={14} /></span>
+        <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-highlight text-accent"><Sparkles size={14} /></span>
         <span className="text-sm font-semibold">{hover && !open ? 'How can I help?' : 'Ask KIRA'}</span>
       </button>
     </div>
@@ -415,28 +413,28 @@ const DocumentReadinessAssistant = ({ onReadyCountChange }: { onReadyCountChange
   useEffect(() => { onReadyCountChange?.(readyCount); }, [onReadyCountChange, readyCount]);
 
   return (
-    <div className="rounded-[28px] border border-white/80 bg-surface/90 p-6 shadow-[0_18px_42px_rgba(7,20,47,0.05)] sm:p-7">
+    <div className="rounded-xl border border-white/80 bg-surface/90 p-6 shadow-sm sm:p-7">
       <div className="flex items-start justify-between gap-4">
-        <div className="flex items-center gap-3"><span className="flex h-10 w-10 items-center justify-center rounded-full bg-background text-accent"><FileText size={18} /></span><div><div className="text-xs font-bold uppercase tracking-[0.16em] text-muted-foreground">Document readiness</div><div className="text-lg font-bold text-primary">Upload what you have</div></div></div>
-        <span className="rounded-full bg-white/75 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.12em] text-accent">{readyCount} / {documentChecklist.length} ready</span>
+        <div className="flex items-center gap-3"><span className="flex h-10 w-10 items-center justify-center rounded-lg bg-background text-accent"><FileText size={18} /></span><div><div className="text-xs font-bold uppercase tracking-[0.16em] text-muted-foreground">Document readiness</div><div className="text-lg font-bold text-primary">Upload what you have</div></div></div>
+        <span className="rounded-lg bg-white/75 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.12em] text-accent">{readyCount} / {documentChecklist.length} ready</span>
       </div>
       <p className="mt-4 text-xs leading-5 text-muted-foreground">Upload one PDF, JPG, PNG or WebP file for each required document. Aadhaar and PAN are checked independently.</p>
-      <label className="mt-4 flex cursor-pointer items-start gap-3 rounded-2xl bg-white/70 p-4 text-xs leading-5 text-muted-foreground"><input type="checkbox" checked={hasConsented} onChange={(event) => setHasConsented(event.target.checked)} className="mt-0.5 h-4 w-4 accent-[#0B8F83]" /><span>I consent to upload these documents for this application.</span></label>
+      <label className="mt-4 flex cursor-pointer items-start gap-3 rounded-xl bg-white/70 p-4 text-xs leading-5 text-muted-foreground"><input type="checkbox" checked={hasConsented} onChange={(event) => setHasConsented(event.target.checked)} className="mt-0.5 h-4 w-4 accent-[#0B8F83]" /><span>I consent to upload these documents for this application.</span></label>
       <div className="mt-5 space-y-3">
         {documentChecklist.map((item) => {
           const review = reviews[item.id];
           const isAnalyzing = review.status === 'analyzing';
           const isReady = review.status === 'ready';
           const needsReview = review.status === 'needs_review';
-          return <div key={item.id} className={`rounded-[20px] border p-4 transition-all duration-300 ${isReady ? 'border-accent/25 bg-highlight/55' : needsReview ? 'border-warning/25 bg-warning/5' : 'border-white/80 bg-white/65'}`}>
-            <div className="flex items-start justify-between gap-3"><div className="flex min-w-0 gap-3"><span className={`mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${isReady ? 'bg-accent text-white' : needsReview ? 'bg-warning/15 text-warning' : 'bg-background text-muted-foreground'}`}>{isReady ? <Check size={14} /> : isAnalyzing ? <span className="h-3 w-3 rounded-full border-2 border-accent border-t-transparent animate-spin" /> : <FileText size={14} />}</span><div className="min-w-0"><div className="text-sm font-semibold text-primary">{item.title}</div><div className="mt-1 text-xs leading-5 text-muted-foreground">{review.fileName ? review.fileName : item.description}</div></div></div><span className={`shrink-0 text-[10px] font-bold uppercase tracking-[0.1em] ${isReady ? 'text-accent' : needsReview ? 'text-warning' : isAnalyzing ? 'text-accent' : 'text-muted-foreground'}`}>{isReady ? 'Ready' : needsReview ? 'Review needed' : isAnalyzing ? 'Checking' : 'Not uploaded'}</span></div>
+          return <div key={item.id} className={`rounded-lg border p-4 transition-all duration-300 ${isReady ? 'border-accent/25 bg-highlight/55' : needsReview ? 'border-warning/25 bg-warning/5' : 'border-white/80 bg-white/65'}`}>
+            <div className="flex items-start justify-between gap-3"><div className="flex min-w-0 gap-3"><span className={`mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${isReady ? 'bg-accent text-white' : needsReview ? 'bg-warning/15 text-warning' : 'bg-background text-muted-foreground'}`}>{isReady ? <Check size={14} /> : isAnalyzing ? <span className="h-3 w-3 rounded-full border-2 border-accent border-t-transparent animate-spin" /> : <FileText size={14} />}</span><div className="min-w-0"><div className="text-sm font-semibold text-primary">{item.title}</div><div className="mt-1 text-xs leading-5 text-muted-sforeground">{review.fileName ? review.fileName : item.description}</div></div></div><span className={`shrink-0 text-[10px] font-bold uppercase tracking-[0.1em] ${isReady ? 'text-accent' : needsReview ? 'text-warning' : isAnalyzing ? 'text-accent' : 'text-muted-foreground'}`}>{isReady ? 'Ready' : needsReview ? 'Review needed' : isAnalyzing ? 'Checking' : 'Not uploaded'}</span></div>
             {review.status !== 'not_started' ? <p className={`mt-3 text-xs leading-5 ${needsReview ? 'text-warning' : 'text-muted-foreground'}`}>{review.note}</p> : null}
-            <div className="mt-4 flex flex-wrap items-center gap-2"><label className={`inline-flex items-center gap-2 rounded-full px-3 py-2 text-xs font-semibold transition ${isAnalyzing || !hasConsented ? 'cursor-not-allowed bg-surface text-muted-foreground' : 'cursor-pointer bg-primary text-white hover:bg-[#0b2148]'}`}><input type="file" accept={item.accept} disabled={isAnalyzing || !hasConsented} onChange={(event) => reviewFile(item.id, event.target.files?.[0])} className="sr-only" />{isAnalyzing ? 'Checking document…' : !hasConsented ? 'Give consent to upload' : review.fileName ? 'Choose another file' : 'Upload & check'}</label>{review.fileName ? <button type="button" onClick={() => resetReview(item.id)} disabled={isAnalyzing} className="rounded-full px-3 py-2 text-xs font-semibold text-muted-foreground transition hover:bg-white hover:text-primary disabled:opacity-50">Remove</button> : null}</div>
+            <div className="mt-4 flex flex-wrap items-center gap-2"><label className={`inline-flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-semibold transition ${isAnalyzing || !hasConsented ? 'cursor-not-allowed bg-surface text-muted-foreground' : 'cursor-pointer bg-primary text-white hover:bg-[#0b2148]'}`}><input type="file" accept={item.accept} disabled={isAnalyzing || !hasConsented} onChange={(event) => reviewFile(item.id, event.target.files?.[0])} className="sr-only" />{isAnalyzing ? 'Checking document…' : !hasConsented ? 'Give consent to upload' : review.fileName ? 'Choose another file' : 'Upload & check'}</label>{review.fileName ? <button type="button" onClick={() => resetReview(item.id)} disabled={isAnalyzing} className="rounded-lg px-3 py-2 text-xs font-semibold text-muted-foreground transition hover:bg-white hover:text-primary disabled:opacity-50">Remove</button> : null}</div>
           </div>;
         })}
       </div>
       {readyCount === documentChecklist.length ? (
-        <div className="mt-6 rounded-[22px] border border-accent/20 bg-highlight/65 p-5">
+        <div className="mt-6 rounded-xl border border-accent/20 bg-highlight/65 p-5">
           <div className="text-xs font-bold uppercase tracking-[0.16em] text-accent">Three-step verification</div>
           <p className="mt-2 text-sm leading-6 text-primary">All five uploads are complete. Your documents move through these stages:</p>
           <div className="mt-4 grid gap-3 sm:grid-cols-3">
@@ -445,7 +443,7 @@ const DocumentReadinessAssistant = ({ onReadyCountChange }: { onReadyCountChange
               ['02', 'Human expert', 'A trained expert reviews the submitted documents.'],
               ['03', 'Moderator', 'Final quality and process review.'],
             ].map(([number, title, description]) => (
-              <div key={number} className="rounded-2xl bg-white/75 p-4">
+              <div key={number} className="rounded-lg bg-white/75 p-4">
                 <div className="text-xs font-bold text-accent">{number}</div>
                 <div className="mt-2 text-sm font-bold text-primary">{title}</div>
                 <div className="mt-1 text-xs leading-5 text-muted-foreground">{description}</div>
@@ -712,13 +710,13 @@ export default function App() {
 
       <main className="relative z-10 mx-auto flex w-full max-w-[1440px] flex-1 px-5 pb-16 sm:px-8 lg:px-12">
         {currentStep === 'landing' && (
-          <section className="grid w-full items-center gap-10 py-8 lg:min-h-[calc(100vh-92px)] lg:grid-cols-[1.08fr_0.92fr] lg:gap-10 lg:py-8 animate-soft-in">
+          <section className="grid w-full items-center gap-10 py-8 lg:min-h-[calc(100vh-92px)] lg:grid-cols-[1.08fr_0.92fr] lg:gap-10 lg:py-8">
             <div className="max-w-2xl self-center">
-              <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-accent/10 bg-highlight/70 px-4 py-2 text-[11px] font-bold uppercase tracking-[0.18em] text-accent">
+              <div className="mb-6 inline-flex items-center gap-2 rounded-lg border border-accent/10 bg-highlight/70 px-4 py-2 text-[11px] font-bold uppercase tracking-[0.18em] text-accent">
                 <span className="h-2 w-2 rounded-full bg-accent shadow-[0_0_0_5px_rgba(11,143,131,0.08)]" /> For self-employed professionals
               </div>
-              <h1 className="max-w-[680px] text-5xl font-bold leading-[0.98] tracking-[-0.055em] text-primary sm:text-6xl lg:text-[68px]">Know before you apply.</h1>
-              <p className="mt-7 max-w-xl text-lg leading-8 text-muted-foreground sm:text-[20px]">Get an indicative borrowing range, understand what you may need, and see what happens next — before committing to a full application.</p>
+              <h1 className="max-w-[680px] text-5xl font-bold leading-[0.98] tracking-[-0.055em] text-primary sm:text-6xl lg:text-[68px]">Ready for your loan.</h1>
+              <p className="mt-7 max-w-xl text-lg leading-8 text-muted-foreground sm:text-[20px]">Get a professional borrowing range, identify necessary documents, and understand the process before starting a formal application.</p>
               <div className="mt-9 flex flex-wrap items-center gap-4">
                 <PrimaryButton onClick={() => go('income')} className="px-7 py-4">Check my MONEYQUICK outlook</PrimaryButton>
                 <span className="text-sm font-medium text-muted-foreground">About 2 minutes · No commitment</span>
@@ -773,7 +771,7 @@ export default function App() {
                   <div className="rounded-[18px] bg-background p-4"><div className="text-xs text-muted-foreground">Illustrative EMI</div><div className="mt-1 text-xl font-bold text-primary">{formatCurrency(estimatedEmi)}<span className="ml-1 text-xs font-medium text-muted-foreground">/mo</span></div></div>
                   <div className="rounded-[18px] bg-background p-4"><div className="text-xs text-muted-foreground">Business age</div><div className="mt-1 text-xl font-bold text-primary">{yearsInBusiness}{yearsInBusiness >= 4 ? '+' : ''} years</div></div>
                 </div>
-                <div className="mt-5 flex items-center gap-2 rounded-full bg-highlight px-4 py-2.5 text-sm font-semibold text-accent"><CheckCircle size={16} /> Indicative view — subject to verification</div>
+                <div className="mt-5 flex items-center gap-2 rounded-lg bg-highlight px-4 py-2.5 text-sm font-semibold text-accent"><CheckCircle size={16} /> Indicative view, subject to verification</div>
                 <div className="mt-5 border-t border-border-light pt-4 text-center text-[10px] leading-5 text-muted-foreground">Based on the information you provide. Final eligibility is subject to verification and lender assessment.</div>
               </div>
             </div>
@@ -781,7 +779,7 @@ export default function App() {
         )}
 
         {currentStep === 'income' && (
-          <section className="mx-auto w-full max-w-4xl py-10 sm:py-14 animate-soft-in">
+          <section className="mx-auto w-full max-w-4xl py-10 sm:py-14">
             <BackButton onClick={() => go('landing')} />
             <Progress current={1} />
             <h2 className="max-w-3xl text-4xl font-bold leading-[1.02] tracking-[-0.045em] text-primary sm:text-5xl lg:text-6xl">Let's look at your cash flow.</h2>
@@ -813,7 +811,7 @@ export default function App() {
         )}
 
         {currentStep === 'business' && (
-          <section className="mx-auto w-full max-w-4xl py-10 sm:py-14 animate-soft-in">
+          <section className="mx-auto w-full max-w-4xl py-10 sm:py-14">
             <BackButton onClick={() => go('income')} />
             <Progress current={2} />
             <h2 className="max-w-3xl text-4xl font-bold leading-[1.02] tracking-[-0.045em] text-primary sm:text-5xl lg:text-6xl">Tell us about your business.</h2>
@@ -859,12 +857,12 @@ export default function App() {
               <div className="flex gap-4"><div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-background text-accent"><Info size={17} /></div><div><div className="text-sm font-bold uppercase tracking-[0.14em] text-primary">Why this matters</div><p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">Business history and stability help us understand which parts of your loan picture may need closer verification later.</p></div></div>
             </div>
 
-            <div className="mt-8 flex items-center justify-between gap-4"><span className="hidden text-sm font-medium text-muted-foreground sm:block">We’ll compare your request with the indicative range — not make a final credit decision.</span><PrimaryButton onClick={() => go('requirement')} disabled={!canProceedWithBasicEligibility}>Continue</PrimaryButton></div>
+            <div className="mt-8 flex items-center justify-between gap-4"><span className="hidden text-sm font-medium text-muted-foreground sm:block">We’ll compare your request with the indicative range, not make a final credit decision.</span><PrimaryButton onClick={() => go('requirement')} disabled={!canProceedWithBasicEligibility}>Continue</PrimaryButton></div>
           </section>
         )}
 
         {currentStep === 'requirement' && (
-          <section className="mx-auto w-full max-w-4xl py-10 sm:py-14 animate-soft-in">
+          <section className="mx-auto w-full max-w-4xl py-10 sm:py-14">
             <BackButton onClick={() => go('business')} />
             <Progress current={3} total={3} label="Loan requirement · Step 3 of 3" />
             <div className="max-w-3xl">
