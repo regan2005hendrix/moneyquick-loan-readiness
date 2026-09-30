@@ -201,7 +201,7 @@ const Topbar = ({ step, onReset, onNavigate, user, onSignOut, onProfileUpdated }
   return (
     <header className="relative z-30 flex w-full items-center justify-between px-5 py-5 sm:px-8 lg:px-12">
       <div className="flex items-center gap-3">
-        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-[11px] font-bold tracking-[-0.04em] text-white shadow-sm">LR</div>
+        <img src="/3b6903f8-23e4-4c03-9082-3fe23e47cd11.png" alt="MONEYQUICK Logo" className="h-9 w-auto object-contain" />
         <div>
           <div className="text-[15px] font-semibold tracking-[-0.02em] text-primary">MONEYQUICK</div>
           <div className="hidden text-[10px] uppercase tracking-[0.22em] text-muted-foreground sm:block">Professional loan readiness</div>
