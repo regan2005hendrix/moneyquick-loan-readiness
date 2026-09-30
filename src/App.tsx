@@ -693,6 +693,12 @@ export default function App() {
       />
 
       <main className="relative z-10 mx-auto flex w-full max-w-[1440px] flex-1 px-5 pb-16 sm:px-8 lg:px-12">
+        {currentStep === 'privacy' && (
+          <PrivacyPolicy onNavigate={go} />
+        )}
+        {currentStep === 'terms' && (
+          <TermsAndConditions onNavigate={go} />
+        )}
         {currentStep === 'landing' && (
           <section className="grid w-full items-center gap-10 py-8 lg:min-h-[calc(100vh-92px)] lg:grid-cols-[1.08fr_0.92fr] lg:gap-10 lg:py-8">
             <div className="max-w-2xl self-center">
