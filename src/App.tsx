@@ -241,6 +241,12 @@ const Topbar = ({ step, onReset, onNavigate, user, onSignOut, onProfileUpdated }
             </div>
           )}
         </div>
+        <div className="hidden items-center gap-3 ml-2 border-l border-border pl-3 sm:flex">
+          <a href="/privacy" target="_blank" rel="noopener noreferrer" className="text-[11px] font-semibold text-muted-foreground transition hover:text-primary">Privacy</a>
+          <a href="/terms" target="_blank" rel="noopener noreferrer" className="text-[11px] font-semibold text-muted-foreground transition hover:text-primary">Terms</a>
+        </div>
+      </div>
+      </div>
       </div>
     </header>
   );
@@ -806,7 +812,7 @@ export default function App() {
               <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between"><div><div className="text-xs font-bold uppercase tracking-[0.16em] text-accent">Estimated monthly surplus</div><p className="mt-1 text-sm text-muted-foreground">A simple view of what remains after typical business expenses.</p></div><div className="text-3xl font-bold tracking-[-0.04em] text-primary sm:text-4xl">{formatCurrency(netMonthly)}</div></div>
             </div>
 
-            <div className="mt-8 flex items-center justify-between gap-4"><span className="hidden text-sm font-medium text-muted-foreground sm:block">An estimate is fine — you can review everything before applying.</span><PrimaryButton onClick={() => go('business')}>Continue</PrimaryButton></div>
+            <div className="mt-8 flex items-center justify-between gap-4"><span className="hidden text-sm font-medium text-muted-foreground sm:block">An estimate is fine, you can review everything before applying.</span><PrimaryButton onClick={() => go('business')}>Continue</PrimaryButton></div>
           </section>
         )}
 
