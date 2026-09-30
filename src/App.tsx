@@ -2,6 +2,8 @@ import React, { useEffect, useMemo, useState } from 'react';
 import type { User } from 'firebase/auth';
 import { createUserWithEmailAndPassword, onAuthStateChanged, sendPasswordResetEmail, signInWithEmailAndPassword, signInWithPopup, signOut as firebaseSignOut, updateProfile } from 'firebase/auth';
 import { firebaseAuth, googleProvider, isFirebaseConfigured } from './firebase';
+import PrivacyPolicy from './pages/PrivacyPolicy';
+import TermsAndConditions from './pages/TermsAndConditions';
 
 const ArrowRight = ({ size = 20, className = '' }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden="true">
@@ -94,7 +96,7 @@ const loanCategories = [
   ['Personal or vehicle loan', 'For eligible personal expenses or a vehicle purchase; lender terms vary by purpose.'],
 ] as const;
 
-type Step = 'landing' | 'income' | 'business' | 'requirement' | 'calculating' | 'snapshot' | 'handoff' | 'application' | 'submitted' | 'verification' | 'assessment' | 'decision';
+type Step = 'landing' | 'income' | 'business' | 'requirement' | 'calculating' | 'snapshot' | 'handoff' | 'application' | 'submitted' | 'verification' | 'assessment' | 'decision' | 'privacy' | 'terms';
 
 type PrimaryButtonProps = {
   children: React.ReactNode;
@@ -181,23 +183,7 @@ const ProfileMenu = ({ user, onSignOut, onProfileUpdated }: { user: User; onSign
   return <div className="relative"><button type="button" onClick={() => { setOpen((value) => !value); setEditing(false); }} aria-expanded={open} className="flex items-center gap-2 rounded-lg border border-white/70 bg-white/75 py-1.5 pl-1.5 pr-3 text-left shadow-sm transition hover:bg-white"><span className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent text-xs font-bold text-white">{displayName.charAt(0).toUpperCase()}</span><span className="hidden max-w-28 truncate text-sm font-semibold text-primary sm:block">{displayName}</span><span className="text-xs text-muted-foreground">⌄</span></button>{open ? <div className="absolute right-0 top-[calc(100%+10px)] w-[min(380px,calc(100vw-2rem))] overflow-hidden rounded-xl border border-white/80 bg-[#F7F5EF] shadow-xl"><div className="bg-primary px-5 pb-5 pt-6 text-white"><div className="flex items-center gap-3"><span className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/15 text-base font-bold">{displayName.charAt(0).toUpperCase()}</span><div className="min-w-0"><div className="truncate text-lg font-bold">{displayName}</div><div className="truncate text-xs text-white/65">Your secure account</div></div></div></div><div className="p-5">{editing ? <form onSubmit={saveProfile} className="space-y-3"><label className="block text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground">Profile name<input value={fullName} onChange={(event) => setFullName(formatFullName(event.target.value))} placeholder="Your full name" className="mt-1.5 w-full rounded-lg border border-border bg-white px-3 py-2.5 text-sm font-medium text-primary outline-none focus:border-accent focus:ring-4 focus:ring-highlight" /></label><label className="block text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground">Contact number<input value={phone} onChange={(event) => setPhone(event.target.value.replace(/[^0-9+\s-]/g, ''))} inputMode="tel" placeholder="Your mobile number" className="mt-1.5 w-full rounded-lg border border-border bg-white px-3 py-2.5 text-sm font-medium text-primary outline-none focus:border-accent focus:ring-4 focus:ring-highlight" /></label><label className="block text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground">Address<textarea value={address} onChange={(event) => setAddress(event.target.value)} placeholder="Your address" rows={3} className="mt-1.5 w-full resize-none rounded-lg border border-border bg-white px-3 py-2.5 text-sm font-medium text-primary outline-none focus:border-accent focus:ring-4 focus:ring-highlight" /></label><div className="flex justify-end gap-2 pt-1"><button type="button" onClick={() => setEditing(false)} className="rounded-lg px-4 py-2 text-sm font-semibold text-muted-foreground hover:bg-white">Cancel</button><button type="submit" disabled={saving} className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white disabled:opacity-50">{saving ? 'Saving…' : 'Save changes'}</button></div></form> : <><div className="text-xs font-bold uppercase tracking-[0.15em] text-accent">Account details</div><div className="mt-3 divide-y divide-border-light">{details.map(([label, value]) => <div key={label} className="py-3 first:pt-0"><div className="text-[10px] font-bold uppercase tracking-[0.12em] text-muted-foreground">{label}</div><div className="mt-1 break-words text-sm font-semibold text-primary">{value}</div></div>)}</div><button type="button" onClick={() => setEditing(true)} className="mt-5 w-full rounded-lg bg-highlight px-4 py-2.5 text-sm font-bold text-accent transition hover:bg-accent hover:text-white">Edit profile</button></>}{notice ? <p role="status" className="mt-3 rounded-lg bg-highlight px-3 py-2 text-xs font-medium text-primary">{notice}</p> : null}<button type="button" onClick={onSignOut} className="mt-3 w-full rounded-lg px-4 py-2 text-sm font-semibold text-muted-foreground transition hover:bg-white hover:text-primary">Sign out</button></div></div> : null}</div>;
 };
 
-const Topbar = ({ step, onReset, onNavigate, user, onSignOut, onProfileUpdated }: { step: Step; onReset: () => void; onNavigate: (step: Step) => void; user: User; onSignOut: () => void; onProfileUpdated: (user: User) => void }) => {
-  const [previewOpen, setPreviewOpen] = useState(false);
-  const previewItems: Array<[Step, string]> = [
-    ['landing', 'Home'],
-    ['income', 'Cash flow'],
-    ['business', 'Business'],
-    ['requirement', 'Loan requirement'],
-    ['calculating', 'Calculation'],
-    ['snapshot', 'Loan outlook'],
-    ['handoff', 'Next step'],
-    ['application', 'Application'],
-    ['submitted', 'Submitted'],
-    ['verification', 'Verification'],
-    ['assessment', 'Assessment'],
-    ['decision', 'Decision'],
-  ];
-
+const Topbar = ({ step, onReset, onNavigate, user, onSignOut, onProfileUpdated, theme, toggleTheme }: { step: Step; onReset: () => void; onNavigate: (step: Step) => void; user: User; onSignOut: () => void; onProfileUpdated: (user: User) => void; theme: 'light' | 'dark'; toggleTheme: () => void }) => {
   return (
     <header className="relative z-30 flex w-full items-center justify-between px-5 py-5 sm:px-8 lg:px-12">
       <div className="flex items-center gap-3">
@@ -209,41 +195,21 @@ const Topbar = ({ step, onReset, onNavigate, user, onSignOut, onProfileUpdated }
       </div>
 
       <div className="flex items-center gap-2">
+        <button
+          type="button"
+          onClick={toggleTheme}
+          className="flex h-9 w-9 items-center justify-center rounded-lg border border-border bg-background text-primary shadow-sm transition hover:bg-highlight"
+          aria-label="Toggle theme"
+        >
+          {theme === 'light' ? '🌙' : '☀️'}
+        </button>
         <ProfileMenu user={user} onSignOut={onSignOut} onProfileUpdated={onProfileUpdated} />
-        {step !== 'landing' && step !== 'calculating' ? (
+        {step !== 'landing' && step !== 'calculating' && step !== 'privacy' && step !== 'terms' ? (
           <button type="button" onClick={onReset} className="hidden rounded-lg px-4 py-2 text-sm font-medium text-muted-foreground transition hover:bg-white/70 hover:text-primary sm:inline-flex">Start over</button>
         ) : null}
-        <div className="relative">
-          <button
-            type="button"
-            onClick={() => setPreviewOpen((v) => !v)}
-            aria-expanded={previewOpen}
-            className="inline-flex items-center gap-2 rounded-lg border border-white/70 bg-white/75 px-4 py-2.5 text-sm font-semibold text-primary shadow-sm backdrop-blur-sm transition hover:-translate-y-0.5 hover:bg-white"
-          >
-            Preview screens
-            <span className={`text-xs transition-transform ${previewOpen ? 'rotate-180' : ''}`}>⌄</span>
-          </button>
-          {previewOpen && (
-            <div className="absolute right-0 top-[calc(100%+10px)] w-[min(290px,calc(100vw-2rem))] overflow-hidden rounded-xl border border-white/80 bg-[rgba(247,245,239,0.97)] p-2 shadow-xl backdrop-blur-xl">
-              <div className="px-3 pb-2 pt-2 text-[10px] font-bold uppercase tracking-[0.16em] text-muted-foreground">Jump to any screen</div>
-              <div className="grid grid-cols-2 gap-1">
-                {previewItems.map(([target, label], i) => (
-                  <button
-                    key={target}
-                    type="button"
-                    onClick={() => { onNavigate(target); setPreviewOpen(false); }}
-                    className={`rounded-lg px-3 py-2 text-left text-xs font-semibold transition hover:bg-highlight hover:text-accent ${step === target ? 'bg-highlight text-accent' : 'text-primary'}`}
-                  >
-                    <span className="mr-1 text-[10px] text-muted-foreground">{String(i + 1).padStart(2, '0')}</span>{label}
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
         <div className="hidden items-center gap-3 ml-2 border-l border-border pl-3 sm:flex">
-          <a href="/privacy" target="_blank" rel="noopener noreferrer" className="text-[11px] font-semibold text-muted-foreground transition hover:text-primary">Privacy</a>
-          <a href="/terms" target="_blank" rel="noopener noreferrer" className="text-[11px] font-semibold text-muted-foreground transition hover:text-primary">Terms</a>
+          <button onClick={() => onNavigate('privacy')} className="text-[11px] font-semibold text-muted-foreground transition hover:text-primary">Privacy</button>
+          <button onClick={() => onNavigate('terms')} className="text-[11px] font-semibold text-muted-foreground transition hover:text-primary">Terms</button>
         </div>
       </div>
     </header>
@@ -537,6 +503,7 @@ export default function App() {
   const [authUser, setAuthUser] = useState<User | null>(null);
   const [authLoading, setAuthLoading] = useState(isFirebaseConfigured);
   const [currentStep, setCurrentStep] = useState<Step>('landing');
+  const [theme, setTheme] = useState<'light' | 'dark'>('light');
   const [monthlyRevenue, setMonthlyRevenue] = useState(250000);
   const [monthlyExpenses, setMonthlyExpenses] = useState(90000);
   const [yearsInBusiness, setYearsInBusiness] = useState(3);
@@ -567,6 +534,10 @@ export default function App() {
     });
     return unsubscribe;
   }, []);
+
+  const toggleTheme = () => {
+    setTheme((prev) => (prev === 'light' ? 'dark' : 'light'));
+  };
 
   const signOut = async () => { if (firebaseAuth) await firebaseSignOut(firebaseAuth); setAuthUser(null); };
 
@@ -710,7 +681,16 @@ export default function App() {
   return (
     <div className="min-h-screen overflow-x-hidden bg-background text-foreground selection:bg-highlight selection:text-primary">
       <Atmosphere strong={currentStep === 'landing' || currentStep === 'snapshot'} />
-      <Topbar step={currentStep} onReset={() => go('landing')} onNavigate={go} user={authUser} onSignOut={signOut} onProfileUpdated={setAuthUser} />
+      <Topbar
+        step={currentStep}
+        onReset={() => go('landing')}
+        onNavigate={go}
+        user={authUser}
+        onSignOut={signOut}
+        onProfileUpdated={setAuthUser}
+        theme={theme}
+        toggleTheme={toggleTheme}
+      />
 
       <main className="relative z-10 mx-auto flex w-full max-w-[1440px] flex-1 px-5 pb-16 sm:px-8 lg:px-12">
         {currentStep === 'landing' && (
