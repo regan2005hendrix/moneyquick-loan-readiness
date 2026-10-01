@@ -231,33 +231,27 @@ const Progress = ({ current, total = 2, label }: { current: number; total?: numb
   </div>
 );
 
-const kiraAnswers = [
-  {
-    matches: ['emi', 'calculated'],
-    answer: 'Your illustrative EMI is calculated from the requested loan amount, tenure, and illustrative annual interest rate shown on this website. It is only an estimate, not a lender quote or approval.',
-  },
-  {
-    matches: ['documents'],
-    answer: 'Documents help you prepare for the lender’s formal verification. This website accepts PAN, Aadhaar, business bank statements, income and business proof, and optional business registration. Final verification is completed by the lender.',
-  },
-  {
-    matches: ['after', 'apply'],
-    answer: 'After you continue, the information you entered carries into the application flow. The lender then verifies your information, completes assessment, and makes the final decision.',
-  },
-] as const;
-
 const answerKiraQuestion = (question: string) => {
   const normalized = question.toLowerCase().replace(/[^\da-z\s]/g, ' ').replace(/\s+/g, ' ').trim();
-  if (!normalized) return 'Please ask about this website’s loan outlook, EMI, documents, or application steps.';
+  const restricted = /(password|otp|pin|api key|secret|aadhaar number|pan number|account number|bank account|personal detail|address|phone number|email address|jailbreak|prompt|instruction|hack|bypass|source code)/;
+  if (restricted.test(normalized)) return 'For your safety, please do not share personal, banking, identity, or security details here. I can only explain MoneyQuick’s website steps and document checklist.';
+  if (/^(hi|hello|hey|hii|good morning|good afternoon|good evening)\b/.test(normalized)) return 'Hello! I’m KIRA, the website guide. I can help you understand this website’s loan outlook, EMI, documents, and application steps.';
   if (normalized.includes('who are you') || normalized.includes('your name') || normalized.includes('what are you')) return 'I’m KIRA, the in-product guide for this website. I explain the loan outlook, illustrative EMI, required documents, and next steps using only this website’s information.';
   if (normalized.includes('what do you do') || normalized.includes('what is your work') || normalized.includes('how can you help') || normalized.includes('what can you do')) return 'I help you understand the information and steps on this website. I do not make lending decisions, provide outside advice, or handle personal or banking details.';
   if (normalized.includes('thank')) return 'You’re welcome! I’m here to explain the website’s loan-readiness steps.';
-  if (normalized.includes('emi') || (normalized.includes('interest') && normalized.includes('rate'))) return kiraAnswers[0].answer;
-  if (normalized.includes('document') || normalized.includes('pan') || normalized.includes('aadhaar') || normalized.includes('bank statement')) return kiraAnswers[1].answer;
-  if ((normalized.includes('after') && normalized.includes('apply')) || normalized.includes('next step') || normalized.includes('application')) return kiraAnswers[2].answer;
-  if (normalized.includes('loan outlook') || normalized.includes('loan amount') || normalized.includes('loan purpose') || normalized.includes('tenure') || normalized.includes('loan readiness')) return 'The loan outlook on this website is illustrative. You choose a loan amount, purpose, tenure, and illustrative annual interest rate. It is an estimate only, not a lender quote or approval.';
-  if (/^(hi|hello|hey|hii|good morning|good afternoon|good evening)\b/.test(normalized)) return 'Hello! I’m KIRA, the website guide. I can help you understand this website’s loan outlook, EMI, documents, and application steps.';
-  return 'I can answer basic questions about KIRA and these website topics: the illustrative EMI, why documents are needed, and what happens after you apply.';
+  if (normalized.includes('emi') || normalized.includes('monthly payment') || normalized.includes('calculate')) return 'Your illustrative EMI is calculated from the loan amount, selected tenure, and illustrative annual interest rate entered on this website. It is an estimate only, not a lender quote, approval, or final repayment schedule.';
+  if (normalized.includes('interest') || normalized.includes('rate') || normalized.includes('percentage')) return 'The annual rate shown on MoneyQuick is illustrative and is used to calculate your estimated EMI. A lender determines final pricing, eligibility, and loan terms after its own verification.';
+  if (normalized.includes('tenure') || normalized.includes('year') || normalized.includes('month') || normalized.includes('duration')) return 'Tenure is the repayment period you select for the illustrative loan calculation. Changing the tenure changes the estimated EMI. The lender confirms any final repayment period after assessment.';
+  if (normalized.includes('amount') || normalized.includes('borrow') || normalized.includes('loan outlook')) return 'Your loan outlook is an illustrative view based on the amount, purpose, tenure, and rate you select here. It is not a credit decision or a guarantee that a lender will approve that amount.';
+  if (normalized.includes('pan')) return 'Upload a clear PAN card image or PDF in the PAN card section. It is part of the checklist for lender verification. Do not type or share your PAN number in this chat.';
+  if (normalized.includes('aadhaar') || normalized.includes('aadhar')) return 'Upload a clear Aadhaar image or PDF in the Aadhaar card section. It is part of the checklist for lender verification. Do not type or share your Aadhaar number in this chat.';
+  if (normalized.includes('bank statement') || normalized.includes('bank')) return 'Upload a business bank statement as a clear PDF or document image. It helps you prepare for the lender’s verification. Do not share account numbers or transaction details in this chat.';
+  if (normalized.includes('income') || normalized.includes('business proof') || normalized.includes('itr') || normalized.includes('financial statement')) return 'Use the Income and business proof section for ITR, financial statements, or another appropriate income proof. The amount shown in your submitted proof should be consistent with the income value you entered earlier.';
+  if (normalized.includes('registration') || normalized.includes('gst') || normalized.includes('udyam') || normalized.includes('msme') || normalized.includes('licence')) return 'Business registration is optional when relevant. You can upload GST, Udyam/MSME, shop licence, or another business-registration document.';
+  if (normalized.includes('document') || normalized.includes('upload') || normalized.includes('file')) return 'MoneyQuick’s checklist includes PAN card, Aadhaar card, business bank statements, income and business proof, and optional business registration. Use a clear PDF, JPG, PNG, or WEBP file within the upload limit.';
+  if (normalized.includes('after') && (normalized.includes('apply') || normalized.includes('continue') || normalized.includes('next'))) return 'After you continue, your details move through the application flow. The lender verifies the information, carries out its assessment, and makes the final lending decision.';
+  if (normalized.includes('approve') || normalized.includes('eligible') || normalized.includes('decision')) return 'MoneyQuick cannot approve or decline a loan. The outlook is illustrative; the lender performs final verification, assessment, and the lending decision.';
+  return 'I can help with MoneyQuick’s illustrative loan amount, rate, tenure, EMI, document uploads, and application steps. I cannot provide bank details, personal-data help, or outside financial advice.';
 };
 
 const KiraAssistant = () => {
@@ -267,7 +261,6 @@ const KiraAssistant = () => {
   const [messages, setMessages] = useState<Array<{ role: 'user' | 'assistant'; text: string }>>([
     { role: 'assistant', text: 'Hi, I’m KIRA. I can explain this website’s loan outlook, EMI, documents, and next steps. Please do not share PAN, Aadhaar, OTPs, passwords, or bank account numbers here.' },
   ]);
-  const [isSending, setIsSending] = useState(false);
   const questions = [
     'Hi, who are you?',
     'What do you do?',
@@ -278,14 +271,14 @@ const KiraAssistant = () => {
 
   const askGuide = (nextQuestion: string) => {
     const cleanedQuestion = nextQuestion.trim();
-    if (!cleanedQuestion || isSending) return;
-    setMessages((current) => [...current, { role: 'user', text: cleanedQuestion }]);
+    if (!cleanedQuestion) return;
+    setMessages((current) => [
+      ...current,
+      { role: 'user', text: cleanedQuestion },
+      { role: 'assistant', text: answerKiraQuestion(cleanedQuestion) },
+    ]);
     setQuestion('');
-    setIsSending(true);
-    window.setTimeout(() => {
-      setMessages((current) => [...current, { role: 'assistant', text: answerKiraQuestion(cleanedQuestion) }]);
-      setIsSending(false);
-    }, 180);
+
   };
 
   return (
@@ -296,10 +289,10 @@ const KiraAssistant = () => {
             <div className="flex items-center gap-2 font-semibold text-primary"><span className="flex h-8 w-8 items-center justify-center rounded-lg bg-highlight text-accent"><Sparkles size={15} /></span> KIRA</div>
             <button type="button" aria-label="Close KIRA" onClick={() => setOpen(false)} className="flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground transition hover:bg-surface hover:text-primary">×</button>
           </div>
-          <div className="max-h-[310px] space-y-3 overflow-y-auto pr-1" aria-live="polite">{messages.map((message, index) => <div key={`${message.role}-${index}`} className={`rounded-xl px-3.5 py-3 text-sm leading-6 ${message.role === 'user' ? 'ml-8 bg-primary text-white' : 'mr-3 bg-highlight text-primary'}`}>{message.text}</div>)}{isSending ? <div className="mr-3 rounded-xl bg-highlight px-3.5 py-3 text-sm text-muted-foreground">KIRA is typing…</div> : null}</div>
-          <div className="mt-3 flex flex-wrap gap-2">{questions.map((item) => <button key={item} type="button" disabled={isSending} onClick={() => askGuide(item)} className="rounded-lg border border-border bg-white/70 px-3 py-2 text-xs font-semibold text-primary transition hover:border-accent hover:text-accent disabled:opacity-50">{item}</button>)}</div>
-          <form className="mt-3 flex gap-2" onSubmit={(event) => { event.preventDefault(); askGuide(question); }}><input value={question} maxLength={1000} disabled={isSending} onChange={(event) => setQuestion(event.target.value)} placeholder="Ask a question…" className="min-w-0 flex-1 rounded-lg border border-border bg-white px-3 py-2.5 text-sm text-primary outline-none transition placeholder:text-muted-foreground focus:border-accent focus:ring-4 focus:ring-highlight disabled:opacity-60" /><button type="submit" disabled={isSending || !question.trim()} className="inline-flex items-center justify-center rounded-lg bg-primary px-3 text-sm font-bold text-white transition hover:bg-[#0b2148] disabled:opacity-50" aria-label="Send question"><ArrowRight size={18} /></button></form>
-          <p className="mt-3 text-[11px] leading-4 text-muted-foreground">KIRA answers basic greetings and questions about this website only.</p>
+          <div className="max-h-[310px] space-y-3 overflow-y-auto pr-1" aria-live="polite">{messages.map((message, index) => <div key={`${message.role}-${index}`} className={`rounded-2xl px-3.5 py-3 text-sm leading-6 ${message.role === 'user' ? 'ml-8 bg-primary text-white' : 'mr-3 bg-highlight text-primary'}`}>{message.text}</div>)}</div>
+          <div className="mt-3 flex flex-wrap gap-2">{questions.map((item) => <button key={item} type="button" onClick={() => askGuide(item)} className="rounded-full border border-border bg-white/70 px-3 py-2 text-xs font-semibold text-primary transition hover:border-accent hover:text-accent">{item}</button>)}</div>
+          <form className="mt-3 flex gap-2" onSubmit={(event) => { event.preventDefault(); askGuide(question); }}><input value={question} maxLength={1000} onChange={(event) => setQuestion(event.target.value)} placeholder="Ask a question…" className="min-w-0 flex-1 rounded-xl border border-border bg-white px-3 py-2.5 text-sm text-primary outline-none transition placeholder:text-muted-foreground focus:border-accent focus:ring-4 focus:ring-highlight" /><button type="submit" disabled={!question.trim()} className="inline-flex items-center justify-center rounded-xl bg-primary px-3 text-sm font-bold text-white transition hover:bg-[#0b2148] disabled:opacity-50" aria-label="Send question"><ArrowRight size={18} /></button></form>
+          <p className="mt-3 text-[11px] leading-4 text-muted-foreground">KIRA is a private, built-in guide. It answers questions about this website only and does not send your chat to an AI service.</p>
         </div>
       )}
       <button
@@ -681,6 +674,7 @@ export default function App() {
   return (
     <div className="min-h-screen overflow-x-hidden bg-background text-foreground selection:bg-highlight selection:text-primary">
       <Atmosphere strong={currentStep === 'landing' || currentStep === 'snapshot'} />
+<<<<<<< Updated upstream
       <Topbar
         step={currentStep}
         onReset={() => go('landing')}
@@ -691,6 +685,9 @@ export default function App() {
         theme={theme}
         toggleTheme={toggleTheme}
       />
+=======
+      <Topbar step={currentStep} onReset={() => go('landing')} user={authUser} onSignOut={signOut} onProfileUpdated={setAuthUser} />
+>>>>>>> Stashed changes
 
       <main className="relative z-10 mx-auto flex w-full max-w-[1440px] flex-1 px-5 pb-16 sm:px-8 lg:px-12">
         {currentStep === 'privacy' && (
