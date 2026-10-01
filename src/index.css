@@ -1,9 +1,36 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 @import 'tailwindcss';
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme {
   --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
 
+  --color-background: var(--color-background);
+  --color-surface: var(--color-surface);
+  --color-foreground: var(--color-foreground);
+  --color-muted-foreground: var(--color-muted-foreground);
+
+  --color-primary: var(--color-primary);
+  --color-primary-foreground: var(--color-primary-foreground);
+
+  --color-accent: var(--color-accent);
+  --color-accent-foreground: var(--color-accent-foreground);
+  --color-highlight: var(--color-highlight);
+  --color-premium: var(--color-premium);
+  --color-positive: var(--color-positive);
+  --color-warning: var(--color-warning);
+  --color-destructive: var(--color-destructive);
+  --color-border: var(--color-border);
+  --color-border-light: var(--color-border-light);
+
+  --radius-xl: 24px;
+  --radius-lg: 18px;
+  --radius-md: 12px;
+  --radius-sm: 8px;
+}
+
+:root {
   --color-background: #F7F5EF;
   --color-surface: #EFEEE8;
   --color-foreground: #07142F;
@@ -22,33 +49,70 @@
   --color-border: #D8C7A5;
   --color-border-light: #EFEEE8;
 
-  --radius-xl: 24px;
-  --radius-lg: 18px;
-  --radius-md: 12px;
-  --radius-sm: 8px;
+  --card-bg: rgba(255, 255, 255, 0.72);
+  --card-bg-subtle: rgba(255, 255, 255, 0.52);
+  --card-bg-solid: #FFFFFF;
+  --card-border: rgba(255, 255, 255, 0.82);
+  --card-border-subtle: rgba(216, 199, 165, 0.35);
+  --card-shadow: 0 16px 40px rgba(7, 20, 47, 0.05);
+
+  color-scheme: light;
+}
+
+.dark, :root[class~="dark"], html.dark {
+  --color-background: #080D1A;
+  --color-surface: #0F172A;
+  --color-foreground: #F8FAFC;
+  --color-muted-foreground: #94A3B8;
+
+  --color-primary: #F8FAFC;
+  --color-primary-foreground: #080D1A;
+
+  --color-accent: #14B8A6;
+  --color-accent-foreground: #FFFFFF;
+  --color-highlight: rgba(20, 184, 166, 0.16);
+  --color-premium: #FBBF24;
+  --color-positive: #10B981;
+  --color-warning: #F59E0B;
+  --color-destructive: #F87171;
+  --color-border: #1E293B;
+  --color-border-light: #162032;
+
+  --card-bg: rgba(15, 23, 42, 0.82);
+  --card-bg-subtle: rgba(15, 23, 42, 0.62);
+  --card-bg-solid: #111C32;
+  --card-border: rgba(255, 255, 255, 0.08);
+  --card-border-subtle: rgba(255, 255, 255, 0.05);
+  --card-shadow: 0 20px 50px rgba(0, 0, 0, 0.45);
+
+  color-scheme: dark;
 }
 
 :root {
   background-color: var(--color-background);
   color: var(--color-foreground);
   font-family: var(--font-sans);
-  color-scheme: light;
 }
 
 html {
   scroll-behavior: smooth;
+  transition: background-color 0.25s ease, color 0.25s ease;
 }
 
 body {
   margin: 0;
   min-width: 320px;
-  background: var(--color-background);
+  background-color: var(--color-background);
+  color: var(--color-foreground);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  transition: background-color 0.25s ease, color 0.25s ease;
 }
 
 button,
-input {
+input,
+select,
+textarea {
   font: inherit;
 }
 
@@ -57,8 +121,13 @@ button {
 }
 
 ::selection {
-  background: #DDF1EC;
-  color: #07142F;
+  background: #0B8F83;
+  color: #FFFFFF;
+}
+
+.dark ::selection {
+  background: #14B8A6;
+  color: #080D1A;
 }
 
 ::-webkit-scrollbar {
@@ -75,6 +144,133 @@ button {
   border-radius: 99px;
 }
 
+.dark ::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.25);
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: rgba(148, 163, 184, 0.4);
+}
+
+/* ==========================================================================
+   Dark Mode Surface & Glass Card Adaptations
+   ========================================================================== */
+
+/* Automatically adapt translucent and white cards in dark mode */
+.dark [class*="bg-white/"]:not(.keep-white) {
+  background-color: var(--card-bg) !important;
+}
+
+.dark [class*="bg-[rgba(255,255,255"]:not(.keep-white) {
+  background-color: var(--card-bg) !important;
+}
+
+.dark [class*="border-white/"] {
+  border-color: var(--card-border) !important;
+}
+
+.dark [class*="bg-[#F7F5EF]"] {
+  background-color: #0E1626 !important;
+  border-color: #1E293B !important;
+}
+
+.dark [class*="bg-[#E8E6DF]"] {
+  background-color: #1E293B !important;
+}
+
+.dark [class*="hover:bg-white"]:hover:not(.keep-white) {
+  background-color: rgba(30, 41, 59, 0.85) !important;
+}
+
+.dark [class*="hover:bg-white/80"]:hover {
+  background-color: rgba(30, 41, 59, 0.95) !important;
+}
+
+.dark [class*="hover:bg-white/85"]:hover {
+  background-color: rgba(30, 41, 59, 0.95) !important;
+}
+
+.dark [class*="hover:bg-white/70"]:hover {
+  background-color: rgba(30, 41, 59, 0.85) !important;
+}
+
+.dark [class*="shadow-[0_"] {
+  box-shadow: var(--card-shadow) !important;
+}
+
+/* Dark mode inputs and form elements */
+.dark input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not(.keep-white),
+.dark textarea:not(.keep-white),
+.dark select:not(.keep-white) {
+  background-color: #0B1322 !important;
+  color: #F8FAFC !important;
+  border-color: #1E293B !important;
+}
+
+.dark input::placeholder,
+.dark textarea::placeholder {
+  color: #64748B !important;
+}
+
+/* Range input accent in dark mode */
+.dark input[type="range"] {
+  accent-color: #14B8A6 !important;
+}
+
+/* Checkbox accent in dark mode */
+.dark input[type="checkbox"] {
+  accent-color: #14B8A6 !important;
+}
+
+/* Brand Primary Button in dark mode */
+.dark button.bg-primary {
+  background-color: #0B8F83 !important;
+  color: #FFFFFF !important;
+}
+
+.dark button.bg-primary:hover:not(:disabled) {
+  background-color: #0D9488 !important;
+}
+
+/* Dark mode user chat message bubble */
+.dark .bg-primary.text-white {
+  background-color: #0D9488 !important;
+  color: #FFFFFF !important;
+}
+
+/* Hero card in dark mode */
+.dark div.bg-primary {
+  background-color: #0B1426 !important;
+  border-color: rgba(20, 184, 166, 0.25) !important;
+}
+
+/* Ensure text-primary is crisp and readable */
+.dark .text-primary {
+  color: #F8FAFC !important;
+}
+
+.dark .text-muted-foreground {
+  color: #94A3B8 !important;
+}
+
+/* Dropdown listbox items */
+.dark [role="listbox"] {
+  background-color: #0E1626 !important;
+  border-color: #1E293B !important;
+}
+
+.dark [role="option"]:hover {
+  background-color: rgba(30, 41, 59, 0.9) !important;
+  color: #F8FAFC !important;
+}
+
+/* SVG illustration in dark mode */
+.dark svg path[stroke="#D8C7A5"],
+.dark svg circle[stroke="#D8C7A5"] {
+  stroke: rgba(245, 158, 11, 0.35) !important;
+}
+
+/* Keyframe Animations */
 @keyframes soft-in {
   0% { opacity: 0; transform: translateY(10px) scale(0.992); }
   100% { opacity: 1; transform: translateY(0) scale(1); }

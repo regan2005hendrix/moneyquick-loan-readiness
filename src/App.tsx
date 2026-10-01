@@ -65,6 +65,24 @@ const Eye = ({ open, size = 18 }: { open: boolean; size?: number }) => (
     {open ? <><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z" /><circle cx="12" cy="12" r="2.5" /></> : <><path d="m3 3 18 18" /><path d="M10.6 6.2A10.7 10.7 0 0 1 12 6c6.5 0 10 6 10 6a18.2 18.2 0 0 1-3.1 3.8" /><path d="M6.2 6.3A18.5 18.5 0 0 0 2 12s3.5 6 10 6a10.8 10.8 0 0 0 2.2-.2" /></>}
   </svg>
 );
+const Sun = ({ size = 18, className = '' }: { size?: number; className?: string }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden="true">
+    <circle cx="12" cy="12" r="4" />
+    <path d="M12 2v2" />
+    <path d="M12 20v2" />
+    <path d="m4.93 4.93 1.41 1.41" />
+    <path d="m17.66 17.66 1.41 1.41" />
+    <path d="M2 12h2" />
+    <path d="M20 12h2" />
+    <path d="m6.34 17.66-1.41 1.41" />
+    <path d="m19.07 4.93-1.41 1.41" />
+  </svg>
+);
+const Moon = ({ size = 18, className = '' }: { size?: number; className?: string }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden="true">
+    <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" />
+  </svg>
+);
 
 const formatCurrency = (value: number) => `₹${Math.max(0, value).toLocaleString('en-IN')}`;
 const formatLakh = (value: number) => `₹${(value / 100000).toFixed(1).replace('.0', '')}L`;
@@ -137,9 +155,11 @@ const SecondaryButton = ({ children, onClick, className = '', icon = null }: Sec
 );
 
 const Atmosphere = ({ strong = false }) => (
-  <div className={`pointer-events-none fixed inset-0 z-0 overflow-hidden ${strong ? 'opacity-100' : 'opacity-80'}`} aria-hidden="true">
-    <div className="absolute inset-0 bg-background" />
-    <div className="absolute inset-0 opacity-[0.05] [background-image:radial-gradient(rgba(7,20,47,0.12)_0.65px,transparent_0.65px)] [background-size:20px_20px]" />
+  <div className={`pointer-events-none fixed inset-0 z-0 overflow-hidden transition-opacity duration-500 ${strong ? 'opacity-100' : 'opacity-80'}`} aria-hidden="true">
+    <div className="absolute inset-0 bg-background transition-colors duration-500" />
+    <div className="absolute inset-0 opacity-[0.05] dark:opacity-[0.08] [background-image:radial-gradient(rgba(7,20,47,0.12)_0.65px,transparent_0.65px)] dark:[background-image:radial-gradient(rgba(255,255,255,0.22)_0.65px,transparent_0.65px)] [background-size:20px_20px]" />
+    <div className="hidden dark:block absolute -top-40 -left-40 h-[480px] w-[480px] rounded-full bg-accent/10 blur-[130px] pointer-events-none" />
+    <div className="hidden dark:block absolute top-1/3 -right-40 h-[500px] w-[500px] rounded-full bg-[#0B8F83]/8 blur-[140px] pointer-events-none" />
   </div>
 );
 
@@ -198,10 +218,15 @@ const Topbar = ({ step, onReset, onNavigate, user, onSignOut, onProfileUpdated, 
         <button
           type="button"
           onClick={toggleTheme}
-          className="flex h-9 w-9 items-center justify-center rounded-lg border border-border bg-background text-primary shadow-sm transition hover:bg-highlight"
-          aria-label="Toggle theme"
+          className="group relative flex h-9 w-9 items-center justify-center rounded-lg border border-border bg-background text-primary shadow-sm transition-all duration-300 hover:border-accent/40 hover:bg-highlight hover:text-accent focus:outline-none focus:ring-2 focus:ring-accent/20 active:scale-95"
+          aria-label={theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}
+          title={theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}
         >
-          {theme === 'light' ? '🌙' : '☀️'}
+          {theme === 'light' ? (
+            <Moon size={16} className="text-slate-700 transition-transform duration-300 group-hover:-rotate-12" />
+          ) : (
+            <Sun size={16} className="text-amber-400 transition-transform duration-300 group-hover:rotate-45" />
+          )}
         </button>
         <ProfileMenu user={user} onSignOut={onSignOut} onProfileUpdated={onProfileUpdated} />
         {step !== 'landing' && step !== 'calculating' && step !== 'privacy' && step !== 'terms' ? (
@@ -419,7 +444,7 @@ const DocumentReadinessAssistant = ({ onReadyCountChange }: { onReadyCountChange
   );
 };
 
-const AuthScreen = ({ onSignedIn }: { onSignedIn: (user: User) => void }) => {
+const AuthScreen = ({ onSignedIn, theme, toggleTheme }: { onSignedIn: (user: User) => void; theme: 'light' | 'dark'; toggleTheme: () => void }) => {
   const [mode, setMode] = useState<'signIn' | 'signUp'>('signIn');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -489,14 +514,137 @@ const AuthScreen = ({ onSignedIn }: { onSignedIn: (user: User) => void }) => {
 
   if (!isFirebaseConfigured) return <div className="relative min-h-screen overflow-hidden bg-background"><Atmosphere strong /><main className="relative z-10 mx-auto flex min-h-screen max-w-xl items-center px-5 py-10"><section className="w-full rounded-[32px] border border-white/80 bg-white/75 p-7 shadow-[0_24px_70px_rgba(7,20,47,0.10)] backdrop-blur sm:p-10"><div className="text-xs font-bold uppercase tracking-[0.18em] text-accent">Sign-in unavailable</div><h1 className="mt-3 text-3xl font-bold tracking-[-0.04em] text-primary">We’re having a problem.</h1><p className="mt-4 text-sm leading-6 text-muted-foreground">Firebase Authentication is not configured for this website yet.</p></section></main></div>;
 
-  return <div className="relative min-h-screen overflow-hidden bg-background"><Atmosphere strong /><main className="relative z-10 mx-auto flex min-h-screen max-w-md items-center px-5 py-10"><section className="w-full rounded-[32px] border border-white/80 bg-white/75 p-7 shadow-[0_24px_70px_rgba(7,20,47,0.10)] backdrop-blur sm:p-10"><div className="flex items-center gap-3"><div className="flex h-11 w-11 items-center justify-center rounded-full bg-primary text-sm font-bold text-white">MQ</div><div><div className="font-bold text-primary">MONEYQUICK</div><div className="text-xs text-muted-foreground">A secure place to prepare</div></div></div><h1 className="mt-8 text-3xl font-bold tracking-[-0.04em] text-primary">{mode === 'signIn' ? 'Welcome back' : 'Create your account'}</h1><p className="mt-2 text-sm leading-6 text-muted-foreground">Sign in to save and continue your loan readiness journey.</p><button type="button" disabled={busy} onClick={signInWithGoogle} className="mt-7 flex w-full items-center justify-center gap-3 rounded-2xl border border-border bg-white px-4 py-3.5 text-sm font-semibold text-primary transition hover:border-accent hover:bg-highlight disabled:opacity-50"><span className="text-lg font-bold text-[#4285F4]">G</span>Continue with Google</button><div className="my-6 flex items-center gap-3 text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground"><span className="h-px flex-1 bg-border" />or use email<span className="h-px flex-1 bg-border" /></div><form onSubmit={submitEmailAuth} className="space-y-4"><label className="block text-xs font-bold uppercase tracking-[0.12em] text-muted-foreground">Email<input required type="email" autoComplete="email" value={email} onChange={(event) => setEmail(event.target.value)} className="mt-2 w-full rounded-2xl border border-border bg-background px-4 py-3.5 text-base font-medium text-primary outline-none transition focus:border-accent focus:ring-4 focus:ring-highlight" /></label><label className="block text-xs font-bold uppercase tracking-[0.12em] text-muted-foreground">Password<div className="relative mt-2"><input required minLength={8} type={showPassword ? 'text' : 'password'} autoComplete={mode === 'signIn' ? 'current-password' : 'new-password'} value={password} onChange={(event) => setPassword(event.target.value)} className="w-full rounded-2xl border border-border bg-background px-4 py-3.5 pr-12 text-base font-medium text-primary outline-none transition focus:border-accent focus:ring-4 focus:ring-highlight" /><button type="button" onClick={() => setShowPassword((value) => !value)} aria-label={showPassword ? 'Hide password' : 'Show password'} className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full p-2 text-muted-foreground transition hover:bg-highlight hover:text-accent"><Eye open={showPassword} /></button></div></label>{mode === 'signUp' ? <div className="rounded-2xl bg-highlight/75 p-4"><div className="text-xs font-bold uppercase tracking-[0.13em] text-accent">Create a stronger password</div><div className="mt-3 grid grid-cols-2 gap-2">{passwordRules.map(([label, complete]) => <div key={String(label)} className={`flex items-center gap-2 text-xs font-semibold ${complete ? 'text-accent' : 'text-muted-foreground'}`}><span className={`flex h-4 w-4 items-center justify-center rounded-full text-[9px] ${complete ? 'bg-accent text-white' : 'bg-white text-muted-foreground'}`}>{complete ? '✓' : '•'}</span>{label}</div>)}</div></div> : null}<PrimaryButton type="submit" disabled={busy} onClick={() => undefined} className="w-full">{busy ? 'Please wait' : mode === 'signIn' ? 'Sign in' : 'Create account'}</PrimaryButton></form>{mode === 'signIn' ? <button type="button" onClick={resetPassword} className="mt-4 text-sm font-semibold text-accent hover:underline">Forgot password?</button> : null}<p className="mt-6 text-sm text-muted-foreground">{mode === 'signIn' ? 'New here?' : 'Already have an account?'} <button type="button" onClick={() => { setMode(mode === 'signIn' ? 'signUp' : 'signIn'); setNotice(''); setPassword(''); }} className="font-semibold text-accent hover:underline">{mode === 'signIn' ? 'Create an account' : 'Sign in'}</button></p>{notice ? <p role="alert" className="mt-5 rounded-2xl bg-highlight px-4 py-3 text-sm leading-6 text-primary">{notice}</p> : null}</section></main></div>;
+  return (
+    <div className="relative min-h-screen overflow-hidden bg-background">
+      <Atmosphere strong />
+      <div className="absolute right-5 top-5 z-20">
+        <button
+          type="button"
+          onClick={toggleTheme}
+          className="group flex h-9 w-9 items-center justify-center rounded-lg border border-border bg-background text-primary shadow-sm transition-all duration-300 hover:border-accent/40 hover:bg-highlight hover:text-accent focus:outline-none focus:ring-2 focus:ring-accent/20 active:scale-95"
+          aria-label={theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}
+          title={theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}
+        >
+          {theme === 'light' ? (
+            <Moon size={16} className="text-slate-700 transition-transform duration-300 group-hover:-rotate-12" />
+          ) : (
+            <Sun size={16} className="text-amber-400 transition-transform duration-300 group-hover:rotate-45" />
+          )}
+        </button>
+      </div>
+      <main className="relative z-10 mx-auto flex min-h-screen max-w-md items-center px-5 py-10">
+        <section className="w-full rounded-[32px] border border-white/80 bg-white/75 p-7 shadow-[0_24px_70px_rgba(7,20,47,0.10)] backdrop-blur sm:p-10">
+          <div className="flex items-center gap-3">
+            <div className="flex h-11 w-11 items-center justify-center rounded-full bg-primary text-sm font-bold text-white">MQ</div>
+            <div>
+              <div className="font-bold text-primary">MONEYQUICK</div>
+              <div className="text-xs text-muted-foreground">A secure place to prepare</div>
+            </div>
+          </div>
+          <h1 className="mt-8 text-3xl font-bold tracking-[-0.04em] text-primary">{mode === 'signIn' ? 'Welcome back' : 'Create your account'}</h1>
+          <p className="mt-2 text-sm leading-6 text-muted-foreground">Sign in to save and continue your loan readiness journey.</p>
+          <button type="button" disabled={busy} onClick={signInWithGoogle} className="mt-7 flex w-full items-center justify-center gap-3 rounded-2xl border border-border bg-white px-4 py-3.5 text-sm font-semibold text-primary transition hover:border-accent hover:bg-highlight disabled:opacity-50">
+            <span className="text-lg font-bold text-[#4285F4]">G</span>Continue with Google
+          </button>
+          <div className="my-6 flex items-center gap-3 text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground">
+            <span className="h-px flex-1 bg-border" />or use email<span className="h-px flex-1 bg-border" />
+          </div>
+          <form onSubmit={submitEmailAuth} className="space-y-4">
+            <label className="block text-xs font-bold uppercase tracking-[0.12em] text-muted-foreground">
+              Email
+              <input required type="email" autoComplete="email" value={email} onChange={(event) => setEmail(event.target.value)} className="mt-2 w-full rounded-2xl border border-border bg-background px-4 py-3.5 text-base font-medium text-primary outline-none transition focus:border-accent focus:ring-4 focus:ring-highlight" />
+            </label>
+            <label className="block text-xs font-bold uppercase tracking-[0.12em] text-muted-foreground">
+              Password
+              <div className="relative mt-2">
+                <input required minLength={8} type={showPassword ? 'text' : 'password'} autoComplete={mode === 'signIn' ? 'current-password' : 'new-password'} value={password} onChange={(event) => setPassword(event.target.value)} className="w-full rounded-2xl border border-border bg-background px-4 py-3.5 pr-12 text-base font-medium text-primary outline-none transition focus:border-accent focus:ring-4 focus:ring-highlight" />
+                <button type="button" onClick={() => setShowPassword((value) => !value)} aria-label={showPassword ? 'Hide password' : 'Show password'} className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full p-2 text-muted-foreground transition hover:bg-highlight hover:text-accent">
+                  <Eye open={showPassword} />
+                </button>
+              </div>
+            </label>
+            {mode === 'signUp' ? (
+              <div className="rounded-2xl bg-highlight/75 p-4">
+                <div className="text-xs font-bold uppercase tracking-[0.13em] text-accent">Create a stronger password</div>
+                <div className="mt-3 grid grid-cols-2 gap-2">
+                  {passwordRules.map(([label, complete]) => (
+                    <div key={String(label)} className={`flex items-center gap-2 text-xs font-semibold ${complete ? 'text-accent' : 'text-muted-foreground'}`}>
+                      <span className={`flex h-4 w-4 items-center justify-center rounded-full text-[9px] ${complete ? 'bg-accent text-white' : 'bg-white text-muted-foreground'}`}>{complete ? '✓' : '•'}</span>
+                      {label}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : null}
+            <PrimaryButton type="submit" disabled={busy} onClick={() => undefined} className="w-full">
+              {busy ? 'Please wait' : mode === 'signIn' ? 'Sign in' : 'Create account'}
+            </PrimaryButton>
+          </form>
+          {mode === 'signIn' ? (
+            <button type="button" onClick={resetPassword} className="mt-4 text-sm font-semibold text-accent hover:underline">Forgot password?</button>
+          ) : null}
+          <p className="mt-6 text-sm text-muted-foreground">
+            {mode === 'signIn' ? 'New here?' : 'Already have an account?'}{' '}
+            <button type="button" onClick={() => { setMode(mode === 'signIn' ? 'signUp' : 'signIn'); setNotice(''); setPassword(''); }} className="font-semibold text-accent hover:underline">
+              {mode === 'signIn' ? 'Create an account' : 'Sign in'}
+            </button>
+          </p>
+          {notice ? <p role="alert" className="mt-5 rounded-2xl bg-highlight px-4 py-3 text-sm leading-6 text-primary">{notice}</p> : null}
+        </section>
+      </main>
+    </div>
+  );
 };
 
 export default function App() {
   const [authUser, setAuthUser] = useState<User | null>(null);
   const [authLoading, setAuthLoading] = useState(isFirebaseConfigured);
   const [currentStep, setCurrentStep] = useState<Step>('landing');
-  const [theme, setTheme] = useState<'light' | 'dark'>('light');
+  const [theme, setTheme] = useState<'light' | 'dark'>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('moneyquick-theme');
+      if (saved === 'light' || saved === 'dark') return saved;
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) return 'dark';
+    }
+    return 'light';
+  });
+
+  useEffect(() => {
+    const root = document.documentElement;
+    if (theme === 'dark') {
+      root.classList.add('dark');
+      root.setAttribute('data-theme', 'dark');
+      root.style.colorScheme = 'dark';
+    } else {
+      root.classList.remove('dark');
+      root.setAttribute('data-theme', 'light');
+      root.style.colorScheme = 'light';
+    }
+    try {
+      localStorage.setItem('moneyquick-theme', theme);
+    } catch {}
+    const metaThemeColor = document.querySelector('meta[name="theme-color"]');
+    if (metaThemeColor) {
+      metaThemeColor.setAttribute('content', theme === 'dark' ? '#080D1A' : '#07142F');
+    }
+  }, [theme]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    const handleChange = (e: MediaQueryListEvent) => {
+      const saved = localStorage.getItem('moneyquick-theme');
+      if (!saved) {
+        setTheme(e.matches ? 'dark' : 'light');
+      }
+    };
+    mediaQuery.addEventListener('change', handleChange);
+    return () => mediaQuery.removeEventListener('change', handleChange);
+  }, []);
+
+  const toggleTheme = () => {
+    setTheme((prev) => (prev === 'light' ? 'dark' : 'light'));
+  };
   const [monthlyRevenue, setMonthlyRevenue] = useState(250000);
   const [monthlyExpenses, setMonthlyExpenses] = useState(90000);
   const [yearsInBusiness, setYearsInBusiness] = useState(3);
@@ -527,10 +675,6 @@ export default function App() {
     });
     return unsubscribe;
   }, []);
-
-  const toggleTheme = () => {
-    setTheme((prev) => (prev === 'light' ? 'dark' : 'light'));
-  };
 
   const signOut = async () => { if (firebaseAuth) await firebaseSignOut(firebaseAuth); setAuthUser(null); };
 
@@ -669,12 +813,11 @@ export default function App() {
   ], []);
 
   if (authLoading) return <div className="relative min-h-screen bg-background"><Atmosphere strong /><div className="relative z-10 flex min-h-screen items-center justify-center text-sm font-semibold text-primary">Checking your secure session…</div></div>;
-  if (!authUser) return <AuthScreen onSignedIn={setAuthUser} />;
+  if (!authUser) return <AuthScreen onSignedIn={setAuthUser} theme={theme} toggleTheme={toggleTheme} />;
 
   return (
     <div className="min-h-screen overflow-x-hidden bg-background text-foreground selection:bg-highlight selection:text-primary">
       <Atmosphere strong={currentStep === 'landing' || currentStep === 'snapshot'} />
-<<<<<<< Updated upstream
       <Topbar
         step={currentStep}
         onReset={() => go('landing')}
@@ -685,9 +828,6 @@ export default function App() {
         theme={theme}
         toggleTheme={toggleTheme}
       />
-=======
-      <Topbar step={currentStep} onReset={() => go('landing')} user={authUser} onSignOut={signOut} onProfileUpdated={setAuthUser} />
->>>>>>> Stashed changes
 
       <main className="relative z-10 mx-auto flex w-full max-w-[1440px] flex-1 px-5 pb-16 sm:px-8 lg:px-12">
         {currentStep === 'privacy' && (
