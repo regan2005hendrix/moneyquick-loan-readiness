@@ -309,15 +309,55 @@ const KiraAssistant = () => {
   return (
     <div className="fixed bottom-5 right-5 z-50 flex flex-col items-end sm:bottom-7 sm:right-7">
       {open && (
-        <div className="mb-3 w-[min(390px,calc(100vw-2rem))] overflow-hidden rounded-xl border border-white/70 bg-[rgba(247,245,239,0.94)] p-4 shadow-xl backdrop-blur-xl">
+        <div className="kira-panel mb-3 w-[min(390px,calc(100vw-2rem))] overflow-hidden rounded-2xl border border-white/70 bg-[rgba(247,245,239,0.96)] p-4 shadow-2xl backdrop-blur-xl dark:border-white/10 dark:bg-[rgba(15,23,42,0.95)]">
           <div className="mb-4 flex items-center justify-between">
             <div className="flex items-center gap-2 font-semibold text-primary"><span className="flex h-8 w-8 items-center justify-center rounded-lg bg-highlight text-accent"><Sparkles size={15} /></span> KIRA</div>
-            <button type="button" aria-label="Close KIRA" onClick={() => setOpen(false)} className="flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground transition hover:bg-surface hover:text-primary">×</button>
+            <button type="button" aria-label="Close KIRA" onClick={() => setOpen(false)} className="flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground transition hover:bg-surface hover:text-primary dark:hover:bg-white/10 dark:hover:text-white">×</button>
           </div>
-          <div className="max-h-[310px] space-y-3 overflow-y-auto pr-1" aria-live="polite">{messages.map((message, index) => <div key={`${message.role}-${index}`} className={`rounded-2xl px-3.5 py-3 text-sm leading-6 ${message.role === 'user' ? 'ml-8 bg-primary text-white' : 'mr-3 bg-highlight text-primary'}`}>{message.text}</div>)}</div>
-          <div className="mt-3 flex flex-wrap gap-2">{questions.map((item) => <button key={item} type="button" onClick={() => askGuide(item)} className="rounded-full border border-border bg-white/70 px-3 py-2 text-xs font-semibold text-primary transition hover:border-accent hover:text-accent">{item}</button>)}</div>
-          <form className="mt-3 flex gap-2" onSubmit={(event) => { event.preventDefault(); askGuide(question); }}><input value={question} maxLength={1000} onChange={(event) => setQuestion(event.target.value)} placeholder="Ask a question…" className="min-w-0 flex-1 rounded-xl border border-border bg-white px-3 py-2.5 text-sm text-primary outline-none transition placeholder:text-muted-foreground focus:border-accent focus:ring-4 focus:ring-highlight" /><button type="submit" disabled={!question.trim()} className="inline-flex items-center justify-center rounded-xl bg-primary px-3 text-sm font-bold text-white transition hover:bg-[#0b2148] disabled:opacity-50" aria-label="Send question"><ArrowRight size={18} /></button></form>
-          <p className="mt-3 text-[11px] leading-4 text-muted-foreground">KIRA is a private, built-in guide. It answers questions about this website only and does not send your chat to an AI service.</p>
+          <div className="max-h-[310px] space-y-3 overflow-y-auto pr-1" aria-live="polite">
+            {messages.map((message, index) => (
+              <div
+                key={`${message.role}-${index}`}
+                className={`rounded-2xl px-3.5 py-3 text-sm leading-6 ${
+                  message.role === 'user'
+                    ? 'ml-8 bg-primary text-white dark:bg-accent dark:text-white'
+                    : 'kira-assistant-bubble mr-3 bg-highlight text-primary dark:border dark:border-white/10 dark:bg-white/5 dark:text-[#F8FAFC]'
+                }`}
+              >
+                {message.text}
+              </div>
+            ))}
+          </div>
+          <div className="mt-3 flex flex-wrap gap-2">
+            {questions.map((item) => (
+              <button
+                key={item}
+                type="button"
+                onClick={() => askGuide(item)}
+                className="kira-chip rounded-full border border-border bg-white/70 px-3 py-2 text-xs font-semibold text-primary transition hover:border-accent hover:text-accent dark:border-white/10 dark:bg-white/5 dark:text-foreground dark:hover:border-accent dark:hover:text-accent"
+              >
+                {item}
+              </button>
+            ))}
+          </div>
+          <form className="mt-3 flex gap-2" onSubmit={(event) => { event.preventDefault(); askGuide(question); }}>
+            <input
+              value={question}
+              maxLength={1000}
+              onChange={(event) => setQuestion(event.target.value)}
+              placeholder="Ask a question…"
+              className="min-w-0 flex-1 rounded-xl border border-border bg-white px-3 py-2.5 text-sm text-primary outline-none transition placeholder:text-muted-foreground focus:border-accent focus:ring-4 focus:ring-highlight dark:border-white/10 dark:bg-[#0B1322] dark:text-[#F8FAFC] dark:placeholder:text-muted-foreground dark:focus:border-accent"
+            />
+            <button
+              type="submit"
+              disabled={!question.trim()}
+              className="inline-flex items-center justify-center rounded-xl bg-primary px-3 text-sm font-bold text-white transition hover:bg-[#0b2148] disabled:opacity-50 dark:bg-accent dark:hover:bg-[#0D9488]"
+              aria-label="Send question"
+            >
+              <ArrowRight size={18} />
+            </button>
+          </form>
+          <p className="mt-3 text-[11px] leading-4 text-muted-foreground dark:text-slate-400">KIRA is a private, built-in guide. It answers questions about this website only and does not send your chat to an AI service.</p>
         </div>
       )}
       <button
@@ -325,7 +365,7 @@ const KiraAssistant = () => {
         onMouseEnter={() => setHover(true)}
         onMouseLeave={() => setHover(false)}
         onClick={() => setOpen((v) => !v)}
-        className="group flex items-center gap-2 rounded-lg border border-white/80 bg-primary px-4 py-3 text-white shadow-md transition-all duration-300 hover:-translate-y-0.5 hover:bg-[#0b2148]"
+        className="group flex items-center gap-2 rounded-lg border border-white/80 bg-primary px-4 py-3 text-white shadow-md transition-all duration-300 hover:-translate-y-0.5 hover:bg-[#0b2148] dark:border-white/15 dark:bg-accent dark:hover:bg-[#0D9488]"
       >
         <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-highlight text-accent"><Sparkles size={14} /></span>
         <span className="text-sm font-semibold">{hover && !open ? 'How can I help?' : 'Ask KIRA'}</span>
