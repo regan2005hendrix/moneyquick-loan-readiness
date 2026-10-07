@@ -72,7 +72,9 @@ const escapeHtml = (value) => String(value ?? '')
   .replaceAll('"', '&quot;')
   .replaceAll("'", '&#039;');
 
-app.post('/api/applications/confirmation', async (request, response) => {
+app.post(
+  ['/api/confirmation', '/confirmation', '/api/applications/confirmation', '/applications/confirmation'],
+  async (request, response) => {
   const details = request.body || {};
   const email = typeof details.email === 'string' ? details.email.trim() : '';
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return response.status(400).json({ error: 'A valid registered email address is required.' });
@@ -80,8 +82,10 @@ app.post('/api/applications/confirmation', async (request, response) => {
   const from = process.env.RESEND_FROM_EMAIL?.trim() || 'MONEYQUICK <onboarding@resend.dev>';
 
   const rows = [
+    ['Application reference', details.applicationId || 'MQ-APP-PENDING'],
     ['Applicant', details.name],
     ['Email', email],
+    ['Contact phone', details.phone || 'Not provided'],
     ['Requested amount', details.requestedAmount],
     ['Loan purpose', details.loanPurpose],
     ['Loan category', details.loanCategory],
@@ -100,8 +104,21 @@ app.post('/api/applications/confirmation', async (request, response) => {
   const emailPayload = {
     from,
     to: [email],
-    subject: 'Thank you for applying for a loan with MONEYQUICK',
-    html: `<div style="font-family:Arial,sans-serif;color:#07142f"><h2>Thank you for applying for a loan with MONEYQUICK</h2><p>We have received your application details. This is an indicative readiness submission and not a loan approval.</p><h3>Your submitted details</h3><table style="border-collapse:collapse">${htmlRows}</table><p style="margin-top:20px">Please keep this email for your records. Final verification and lending decisions are completed by the lender.</p></div>`,
+    subject: `Application Received: Your MONEYQUICK Loan Request (${details.applicationId || 'Ref Pending'})`,
+    html: `<div style="font-family:Arial,sans-serif;color:#07142f;max-width:600px;margin:0 auto;padding:20px;border:1px solid #e2e8f0;border-radius:12px">
+      <h2 style="color:#07142f;margin-bottom:8px">Thank you for applying with MONEYQUICK</h2>
+      <p style="color:#475569">We have received your loan readiness details. Your application is currently under review by our underwriting desk.</p>
+      
+      <div style="margin:20px 0;padding:16px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;">
+        <strong style="color:#166534">📞 Loan Specialist Callback Scheduled:</strong>
+        <p style="margin:6px 0 0;color:#15803d;font-size:14px">Our loan verification specialist will contact you shortly at <strong>${escapeHtml(details.phone || 'your registered number')}</strong> to guide you through verification and answer any questions.</p>
+      </div>
+
+      <h3 style="color:#07142f;margin-top:24px">Your submitted details</h3>
+      <table style="width:100%;border-collapse:collapse">${htmlRows}</table>
+      
+      <p style="margin-top:24px;font-size:13px;color:#64748b">Please keep this email for your records. Final verification and lending decisions are completed by partner lenders subject to RBI guidelines.</p>
+    </div>`,
   };
   try {
     const mailResponse = await fetch('https://api.resend.com/emails', {

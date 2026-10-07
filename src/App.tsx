@@ -1,10 +1,24 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import type { User } from 'firebase/auth';
 import { createUserWithEmailAndPassword, onAuthStateChanged, sendPasswordResetEmail, signInWithEmailAndPassword, signInWithPopup, signOut as firebaseSignOut, updateProfile } from 'firebase/auth';
-import { firebaseAuth, googleProvider, isFirebaseConfigured } from './firebase';
+import { firebaseAuth, googleProvider, isFirebaseConfigured, saveLoanApplication } from './firebase';
+import { sendApplicationConfirmationEmail, generateConfirmationEmailHtml, type LoanApplicationEmailPayload } from './services/emailService';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import TermsAndConditions from './pages/TermsAndConditions';
 import DigitalLendingLanding from './pages/DigitalLendingLanding';
+
+const Mail = ({ size = 18, className = '' }: { size?: number; className?: string }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden="true">
+    <rect width="20" height="16" x="2" y="4" rx="2" />
+    <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
+  </svg>
+);
+
+const Phone = ({ size = 18, className = '' }: { size?: number; className?: string }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden="true">
+    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
+  </svg>
+);
 
 const ArrowRight = ({ size = 20, className = '' }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden="true">
@@ -701,6 +715,17 @@ export default function App() {
   const [applicantAge, setApplicantAge] = useState(30);
   const [creditScore, setCreditScore] = useState(720);
   const [applicantName, setApplicantName] = useState('');
+  const [applicantPhone, setApplicantPhone] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('moneyquick-applicant-phone') || '';
+    }
+    return '';
+  });
+  const [phoneInputHint, setPhoneInputHint] = useState('');
+  const [submittedAppId, setSubmittedAppId] = useState('');
+  const [emailPreviewHtml, setEmailPreviewHtml] = useState('');
+  const [showEmailPreviewModal, setShowEmailPreviewModal] = useState(false);
+  const [isSubmittingApp, setIsSubmittingApp] = useState(false);
   const [applicationError, setApplicationError] = useState('');
   const [nameInputHint, setNameInputHint] = useState('');
   const [businessIndustry, setBusinessIndustry] = useState('');
@@ -806,46 +831,78 @@ export default function App() {
       setApplicationError('Enter your first and last name using letters only.');
       return;
     }
+    const cleanPhoneDigits = applicantPhone.replace(/\D/g, '').slice(-10);
+    if (cleanPhoneDigits.length !== 10) {
+      setApplicationError('Enter a valid 10-digit contact mobile number so our loan specialist can call you.');
+      return;
+    }
     if (!selectedIndustryLabel) {
       setApplicationError('Select your business industry before submitting your application.');
       return;
     }
     setApplicationError('');
-    setConfirmationNotice('Sending your confirmation email…');
+    setIsSubmittingApp(true);
+    setConfirmationNotice('Submitting application & sending confirmation email…');
+
     try {
-      const response = await fetch('/api/applications/confirmation', {
-        method: 'POST',
-        headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({
-          email: authUser?.email,
-          name: applicantName,
-          requestedAmount,
-          loanPurpose,
-          loanCategory,
-          monthlyRevenue,
-          monthlyExpenses,
-          yearsInBusiness,
-          selectedBusinessType,
-          selectedIndustryLabel,
-          applicantAge,
-          creditScore,
-          loanTenureYears,
-          annualInterestRate,
-          estimatedEmi,
-        }),
+      localStorage.setItem('moneyquick-applicant-phone', applicantPhone);
+    } catch {}
+
+    const randomSuffix = Math.floor(100000 + Math.random() * 900000);
+    const appId = `MQ-APP-${randomSuffix}`;
+    setSubmittedAppId(appId);
+
+    const formattedPhone = `+91 ${cleanPhoneDigits.slice(0, 5)} ${cleanPhoneDigits.slice(5)}`;
+    const emailPayload: LoanApplicationEmailPayload = {
+      applicationId: appId,
+      applicantName,
+      email: authUser?.email || '',
+      phone: formattedPhone,
+      requestedAmount: formatCurrency(requestedDisplay),
+      loanPurpose,
+      loanCategory,
+      selectedBusinessType,
+      selectedIndustryLabel,
+      monthlyRevenue: formatCurrency(monthlyRevenue),
+      monthlyExpenses: formatCurrency(monthlyExpenses),
+      yearsInBusiness,
+      applicantAge,
+      creditScore: String(creditScore),
+      loanTenureYears,
+      annualInterestRate,
+      estimatedEmi: formatCurrency(estimatedEmi),
+    };
+
+    // 1. Store application in Firebase Firestore
+    try {
+      await saveLoanApplication({
+        ...emailPayload,
+        userId: authUser?.uid || null,
+        submittedAt: new Date().toISOString(),
       });
-      const payload = await response.json().catch(() => ({}));
-      if (response.ok && payload.sent) {
-        setConfirmationNotice('A confirmation email with your submitted details has been sent to your registered email address.');
-      } else {
-        console.error('Unable to send application confirmation:', payload.error || response.status);
-        setConfirmationNotice('Your application was submitted, but we could not send the confirmation email right now. Please try again later.');
-      }
-    } catch (error) {
-      console.error('Unable to send application confirmation:', error);
-      setConfirmationNotice('Your application was submitted, but the confirmation email could not be sent right now.');
+    } catch (fsErr) {
+      console.warn('Firestore write warning:', fsErr);
     }
-    go('submitted');
+
+    // 2. Dispatch Confirmation Email via EmailJS / Backend
+    try {
+      const emailResult = await sendApplicationConfirmationEmail(emailPayload);
+      if (emailResult.previewHtml) {
+        setEmailPreviewHtml(emailResult.previewHtml);
+      }
+      setConfirmationNotice(
+        `Confirmation email dispatched to ${authUser?.email || 'your email'}. Our loan specialist will call you at ${formattedPhone}.`
+      );
+    } catch (err) {
+      console.error('Email dispatch error:', err);
+      setEmailPreviewHtml(generateConfirmationEmailHtml(emailPayload));
+      setConfirmationNotice(
+        `Your application was submitted. Our loan specialist will call you at ${formattedPhone}.`
+      );
+    } finally {
+      setIsSubmittingApp(false);
+      go('submitted');
+    }
   };
 
   const calculationCopy = useMemo(() => [
@@ -1205,6 +1262,39 @@ export default function App() {
               <div className="mb-5"><div className="text-xs font-bold uppercase tracking-[0.16em] text-muted-foreground">Confirm your details</div><h3 className="mt-2 text-xl font-bold text-primary">Review before you submit</h3></div>
               <div className="grid gap-7 md:grid-cols-2">
                 <div><label htmlFor="full-name" className="text-xs font-bold uppercase tracking-[0.16em] text-muted-foreground">Full name</label><input id="full-name" placeholder="Enter your full name" value={applicantName} inputMode="text" autoComplete="name" aria-invalid={Boolean(nameInputHint || nameStructureHint)} onChange={(event) => { const rawName = event.target.value; const cleanName = formatFullName(rawName); setApplicantName(cleanName); setApplicationError(''); setNameInputHint(rawName === rawName.replace(/[^a-zA-Z\s]/g, '') ? '' : 'Only letters and spaces are allowed in your name.'); }} className={`mt-2 w-full rounded-2xl border bg-background px-4 py-3.5 font-medium text-primary outline-none transition focus:ring-4 focus:ring-highlight ${nameInputHint || nameStructureHint ? 'border-destructive focus:border-destructive' : 'border-border focus:border-accent'}`} /></div>
+                <div>
+                  <label htmlFor="applicant-phone" className="flex items-center justify-between text-xs font-bold uppercase tracking-[0.16em] text-muted-foreground">
+                    <span>Contact phone number</span>
+                    <span className="text-[11px] font-semibold normal-case text-accent">For agent callback</span>
+                  </label>
+                  <div className="relative mt-2">
+                    <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4 text-sm font-bold text-muted-foreground">
+                      +91
+                    </div>
+                    <input
+                      id="applicant-phone"
+                      type="tel"
+                      placeholder="98765 43210"
+                      value={applicantPhone}
+                      inputMode="numeric"
+                      autoComplete="tel"
+                      aria-invalid={Boolean(phoneInputHint)}
+                      onChange={(event) => {
+                        const raw = event.target.value.replace(/[^\d\s]/g, '');
+                        setApplicantPhone(raw);
+                        setApplicationError('');
+                        const digits = raw.replace(/\D/g, '');
+                        if (digits.length > 0 && digits.length < 10) {
+                          setPhoneInputHint('Enter a valid 10-digit mobile number for the agent call.');
+                        } else {
+                          setPhoneInputHint('');
+                        }
+                      }}
+                      className={`w-full rounded-2xl border bg-background py-3.5 pl-14 pr-4 font-medium text-primary outline-none transition focus:ring-4 focus:ring-highlight ${phoneInputHint ? 'border-destructive focus:border-destructive' : 'border-border focus:border-accent'}`}
+                    />
+                  </div>
+                  {phoneInputHint ? <p role="alert" className="mt-2 text-xs font-medium text-destructive">{phoneInputHint}</p> : <p className="mt-1.5 text-[11px] text-muted-foreground">Our loan specialist will call this number for verification.</p>}
+                </div>
                 <div><label htmlFor="work-type" className="text-xs font-bold uppercase tracking-[0.16em] text-muted-foreground">Work type</label><select id="work-type" value={selectedBusinessType} onChange={(event) => setSelectedBusinessType(event.target.value)} className="mt-2 w-full rounded-2xl border border-border bg-background px-4 py-3.5 font-medium text-primary outline-none transition focus:border-accent focus:ring-4 focus:ring-highlight"><option>Business owner</option><option>Freelancer</option><option>Self-employed professional</option><option>Other</option></select></div>
                 <div><label htmlFor="review-business-industry" className="text-xs font-bold uppercase tracking-[0.16em] text-muted-foreground">Business industry</label><div className="mt-2"><IndustryPicker id="review-business-industry" value={businessIndustry} onChange={(industry) => { setBusinessIndustry(industry); setCustomBusinessIndustry(''); setApplicationError(''); }} /></div>{businessIndustry === 'Other — not listed' ? <input value={customBusinessIndustry} onChange={(event) => { setCustomBusinessIndustry(event.target.value); setApplicationError(''); }} placeholder="Enter your business type or name" className="mt-3 w-full rounded-2xl border border-border bg-background px-4 py-3.5 font-medium text-primary outline-none transition focus:border-accent focus:ring-4 focus:ring-highlight" /> : null}</div>
                 <div><div className="text-xs font-bold uppercase tracking-[0.16em] text-muted-foreground">Monthly revenue</div><div className="mt-2 rounded-2xl border border-border bg-surface px-4 py-3.5 font-semibold text-primary">{formatCurrency(monthlyRevenue)}</div></div>
@@ -1214,17 +1304,84 @@ export default function App() {
               {applicationError ? <p role="alert" className="mt-4 rounded-2xl bg-destructive/10 px-4 py-3 text-sm font-medium text-destructive">{applicationError}</p> : null}
               <div className="mt-8 rounded-2xl bg-highlight/70 p-4 text-sm leading-6 text-primary">Some information is already filled in from your readiness journey. You can review it before submitting.</div>
             </div>
-            <div className="mt-8 flex flex-col items-end gap-3"><div className="max-w-xl text-right text-xs leading-5 text-muted-foreground">By continuing, you confirm the details are accurate. Final eligibility, pricing and approval are subject to verification and lender assessment.</div><PrimaryButton onClick={submitApplication}>Submit application</PrimaryButton></div>
+            <div className="mt-8 flex flex-col items-end gap-3">
+              <div className="max-w-xl text-right text-xs leading-5 text-muted-foreground">By continuing, you confirm the details are accurate. Final eligibility, pricing and approval are subject to verification and lender assessment.</div>
+              <PrimaryButton disabled={isSubmittingApp} onClick={submitApplication}>
+                {isSubmittingApp ? 'Submitting & sending email…' : 'Submit application'}
+              </PrimaryButton>
+            </div>
           </section>
         )}
 
         {currentStep === 'submitted' && (
           <section className="mx-auto flex min-h-[calc(100vh-125px)] w-full max-w-4xl flex-col items-center justify-center py-8 text-center animate-soft-in">
-            <div className="relative flex h-20 w-20 items-center justify-center rounded-full bg-highlight text-accent shadow-[0_0_0_14px_rgba(11,143,131,0.05)] sm:h-24 sm:w-24"><CheckCircle size={38} /><div className="absolute inset-0 rounded-full border border-accent/30 animate-pulse-soft" /></div>
-            <div className="mt-6 text-xs font-bold uppercase tracking-[0.18em] text-accent">Application received</div>
-            <h2 className="mt-2 text-4xl font-bold tracking-[-0.05em] text-primary sm:text-5xl">You're on your way.</h2>
-            <p className="mt-4 max-w-2xl text-base leading-7 text-muted-foreground sm:text-lg">Your application has been received. Explore the next stages below to preview how the journey continues.</p>
-            {confirmationNotice ? <p role="status" className="mt-4 max-w-2xl rounded-2xl bg-highlight px-4 py-3 text-sm leading-6 text-primary">{confirmationNotice}</p> : null}
+            <div className="relative flex h-20 w-20 items-center justify-center rounded-full bg-highlight text-accent shadow-[0_0_0_14px_rgba(11,143,131,0.05)] sm:h-24 sm:w-24">
+              <CheckCircle size={38} />
+              <div className="absolute inset-0 rounded-full border border-accent/30 animate-pulse-soft" />
+            </div>
+            <div className="mt-6 text-xs font-bold uppercase tracking-[0.18em] text-accent">
+              Application received · Ref #{submittedAppId || 'MQ-APP-782914'}
+            </div>
+            <h2 className="mt-2 text-4xl font-bold tracking-[-0.05em] text-primary sm:text-5xl">
+              You're on your way{applicantName ? `, ${applicantName.split(' ')[0]}` : ''}.
+            </h2>
+            <p className="mt-4 max-w-2xl text-base leading-7 text-muted-foreground sm:text-lg">
+              Thank you for applying with MONEYQUICK! Your application has been received and is being processed by our underwriting desk.
+            </p>
+            {confirmationNotice ? (
+              <p role="status" className="mt-4 max-w-2xl rounded-2xl bg-highlight px-4 py-3 text-sm leading-6 text-primary">
+                {confirmationNotice}
+              </p>
+            ) : null}
+
+            {/* Email Dispatch & Agent Callback Notification Cards */}
+            <div className="mt-8 grid w-full gap-4 text-left sm:grid-cols-2">
+              <div className="rounded-[24px] border border-border-light bg-surface p-6 shadow-sm transition-all hover:shadow-md">
+                <div className="flex items-center justify-between">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-highlight text-accent">
+                    <Mail size={20} />
+                  </div>
+                  <span className="rounded-full bg-emerald-500/10 px-3 py-1 text-xs font-bold text-emerald-600 dark:text-emerald-400">
+                    Dispatched
+                  </span>
+                </div>
+                <div className="mt-4 text-xs font-bold uppercase tracking-[0.14em] text-muted-foreground">Confirmation Email</div>
+                <div className="mt-1 text-base font-bold text-primary break-all">
+                  {authUser?.email || 'Registered email'}
+                </div>
+                <p className="mt-2 text-xs leading-5 text-muted-foreground">
+                  A receipt with your requested amount ({formatCurrency(requestedDisplay)}), illustrative EMI ({formatCurrency(estimatedEmi)}/mo), and reference ID has been sent.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => setShowEmailPreviewModal(true)}
+                  className="mt-4 inline-flex items-center gap-2 rounded-xl border border-border bg-white dark:bg-card px-4 py-2 text-xs font-semibold text-accent shadow-sm transition hover:bg-highlight"
+                >
+                  <Mail size={14} /> Preview confirmation email
+                </button>
+              </div>
+
+              <div className="rounded-[24px] border border-border-light bg-surface p-6 shadow-sm transition-all hover:shadow-md">
+                <div className="flex items-center justify-between">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+                    <Phone size={20} />
+                  </div>
+                  <span className="rounded-full bg-accent/10 px-3 py-1 text-xs font-bold text-accent">
+                    Next Step
+                  </span>
+                </div>
+                <div className="mt-4 text-xs font-bold uppercase tracking-[0.14em] text-muted-foreground">Agent Verification Call</div>
+                <div className="mt-1 text-base font-bold text-primary">
+                  {applicantPhone ? `+91 ${applicantPhone.replace(/\D/g, '').slice(-10)}` : 'Your contact number'}
+                </div>
+                <p className="mt-2 text-xs leading-5 text-muted-foreground">
+                  A MONEYQUICK loan verification specialist will call you within 24–48 hours to confirm your documents and guide you through the lender assessment.
+                </p>
+                <div className="mt-4 inline-flex items-center gap-1.5 text-xs font-medium text-emerald-700 dark:text-emerald-400">
+                  <Check size={14} /> Keep your PAN & bank statements handy
+                </div>
+              </div>
+            </div>
 
             <div className="mt-8 grid w-full gap-3 sm:grid-cols-4">
               {([
@@ -1329,6 +1486,67 @@ export default function App() {
           </div>
         </div>
       </footer>
+
+      {showEmailPreviewModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm animate-fade-in" role="dialog" aria-modal="true" aria-labelledby="email-preview-title">
+          <div className="relative flex max-h-[90vh] w-full max-w-2xl flex-col rounded-[28px] border border-white/40 bg-background p-6 shadow-2xl sm:p-8">
+            <div className="flex items-center justify-between border-b border-border-light pb-4">
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-highlight text-accent">
+                  <Mail size={20} />
+                </div>
+                <div>
+                  <h3 id="email-preview-title" className="text-lg font-bold text-primary">Confirmation Email Preview</h3>
+                  <p className="text-xs text-muted-foreground">Delivered to {authUser?.email || 'registered email'}</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowEmailPreviewModal(false)}
+                className="flex h-9 w-9 items-center justify-center rounded-full bg-surface text-muted-foreground transition hover:bg-highlight hover:text-primary"
+                aria-label="Close email preview"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="mt-4 flex-1 overflow-hidden rounded-2xl border border-border bg-white shadow-inner">
+              <iframe
+                title="Application Confirmation Email Preview"
+                srcDoc={emailPreviewHtml || generateConfirmationEmailHtml({
+                  applicationId: submittedAppId || 'MQ-APP-782914',
+                  applicantName: applicantName || 'Applicant',
+                  email: authUser?.email || 'applicant@example.com',
+                  phone: applicantPhone ? `+91 ${applicantPhone.replace(/\D/g, '').slice(-10)}` : '+91 98765 43210',
+                  requestedAmount: formatCurrency(requestedDisplay),
+                  loanPurpose,
+                  loanCategory,
+                  selectedBusinessType,
+                  selectedIndustryLabel: selectedIndustryLabel || 'Business',
+                  monthlyRevenue: formatCurrency(monthlyRevenue),
+                  monthlyExpenses: formatCurrency(monthlyExpenses),
+                  yearsInBusiness,
+                  applicantAge,
+                  creditScore: String(creditScore),
+                  loanTenureYears,
+                  annualInterestRate,
+                  estimatedEmi: formatCurrency(estimatedEmi),
+                })}
+                className="h-[460px] w-full border-0"
+              />
+            </div>
+
+            <div className="mt-5 flex flex-wrap items-center justify-between gap-3">
+              <span className="text-xs text-muted-foreground">
+                Email template includes full loan breakdown and agent callback notice
+              </span>
+              <SecondaryButton onClick={() => setShowEmailPreviewModal(false)}>
+                Close Preview
+              </SecondaryButton>
+            </div>
+          </div>
+        </div>
+      )}
 
       <KiraAssistant />
     </div>

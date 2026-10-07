@@ -1,0 +1,12 @@
+{
+  "rewrites": [
+    {
+      "source": "/api/applications/confirmation",
+      "destination": "/api/applications/confirmation"
+    },
+    {
+      "source": "/api/:path*",
+      "destination": "/api/[...path].mjs"
+    }
+  ]
+}

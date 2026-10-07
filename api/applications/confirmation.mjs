@@ -1,0 +1,106 @@
+const escapeHtml = (value) => String(value ?? '')
+  .replaceAll('&', '&amp;')
+  .replaceAll('<', '&lt;')
+  .replaceAll('>', '&gt;')
+  .replaceAll('"', '&quot;')
+  .replaceAll("'", '&#039;');
+
+export default async function handler(req, res) {
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method not allowed' });
+  }
+
+  let details = req.body || {};
+  if (typeof details === 'string') {
+    try {
+      details = JSON.parse(details);
+    } catch {
+      details = {};
+    }
+  }
+
+  const email = typeof details.email === 'string' ? details.email.trim() : '';
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    return res.status(400).json({ error: 'A valid registered email address is required.' });
+  }
+
+  const apiKey = process.env.RESEND_API_KEY?.trim();
+  if (!apiKey) {
+    return res.status(503).json({
+      error: 'Email delivery is not configured yet. Add RESEND_API_KEY to the server environment.',
+    });
+  }
+
+  const from = process.env.RESEND_FROM_EMAIL?.trim() || 'MONEYQUICK <onboarding@resend.dev>';
+
+  const rows = [
+    ['Application reference', details.applicationId || 'MQ-APP-PENDING'],
+    ['Applicant', details.name || 'Applicant'],
+    ['Email', email],
+    ['Contact phone', details.phone || 'Not provided'],
+    ['Requested amount', details.requestedAmount || 'N/A'],
+    ['Loan purpose', details.loanPurpose || 'N/A'],
+    ['Loan category', details.loanCategory || 'N/A'],
+    ['Monthly revenue', details.monthlyRevenue || 'N/A'],
+    ['Monthly expenses', details.monthlyExpenses || 'N/A'],
+    ['Business age', details.yearsInBusiness ? `${details.yearsInBusiness} years` : 'N/A'],
+    ['Work type', details.selectedBusinessType || 'N/A'],
+    ['Industry', details.selectedIndustryLabel || 'N/A'],
+    ['Applicant age', details.applicantAge || 'N/A'],
+    ['CIBIL score shared', details.creditScore || 'N/A'],
+    ['Tenure', details.loanTenureYears ? `${details.loanTenureYears} years` : 'N/A'],
+    ['Illustrative annual rate', details.annualInterestRate ? `${details.annualInterestRate}%` : 'N/A'],
+    ['Illustrative EMI', details.estimatedEmi || 'N/A'],
+  ];
+
+  const htmlRows = rows
+    .map(([label, value]) => `<tr><td style="padding:8px 12px;border-bottom:1px solid #e5e7eb;font-weight:600">${escapeHtml(label)}</td><td style="padding:8px 12px;border-bottom:1px solid #e5e7eb">${escapeHtml(value)}</td></tr>`)
+    .join('');
+
+  const emailPayload = {
+    from,
+    to: [email],
+    subject: `Application Received: Your MONEYQUICK Loan Request (${details.applicationId || 'Ref Pending'})`,
+    html: `<div style="font-family:Arial,sans-serif;color:#07142f;max-width:600px;margin:0 auto;padding:24px;border:1px solid #e2e8f0;border-radius:12px;background:#ffffff">
+      <div style="background-color:#07142f;padding:20px 24px;border-radius:8px;color:#ffffff;margin-bottom:20px">
+        <h2 style="margin:0;color:#ffffff;font-size:20px;font-weight:800">MONEYQUICK</h2>
+        <div style="font-size:11px;color:#00d4aa;text-transform:uppercase;letter-spacing:0.12em;margin-top:4px">Professional Loan Readiness</div>
+      </div>
+
+      <h2 style="color:#07142f;margin-bottom:8px">Thank you for applying with MONEYQUICK</h2>
+      <p style="color:#475569;font-size:15px;line-height:1.5">We have received your loan readiness details. Your application is currently under review by our underwriting desk.</p>
+      
+      <div style="margin:20px 0;padding:16px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;">
+        <strong style="color:#166534">📞 Loan Specialist Callback Scheduled:</strong>
+        <p style="margin:6px 0 0;color:#15803d;font-size:14px">Our loan verification specialist will contact you shortly at <strong>${escapeHtml(details.phone || 'your registered number')}</strong> to guide you through verification and answer any questions.</p>
+      </div>
+
+      <h3 style="color:#07142f;margin-top:24px">Your submitted details</h3>
+      <table style="width:100%;border-collapse:collapse;font-size:14px">${htmlRows}</table>
+      
+      <p style="margin-top:24px;font-size:12px;color:#64748b;line-height:1.5">Please keep this email for your records. Final verification and lending decisions are completed by partner lenders subject to RBI guidelines.</p>
+    </div>`,
+  };
+
+  try {
+    const mailResponse = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: { authorization: `Bearer ${apiKey}`, 'content-type': 'application/json' },
+      body: JSON.stringify(emailPayload),
+    });
+
+    const mailPayload = await mailResponse.json().catch(() => ({}));
+    if (!mailResponse.ok) {
+      console.error(`Resend rejected confirmation email (${mailResponse.status}) from ${from}:`, mailPayload);
+      const providerMessage = typeof mailPayload?.message === 'string' ? mailPayload.message : '';
+      return res.status(502).json({
+        error: providerMessage ? `The confirmation email could not be sent: ${providerMessage}` : 'The confirmation email could not be delivered by Resend.',
+      });
+    }
+
+    return res.status(200).json({ sent: true, id: mailPayload?.id });
+  } catch (error) {
+    console.error('Resend confirmation email request failed:', error);
+    return res.status(502).json({ error: 'The confirmation email service could not be reached.' });
+  }
+}
