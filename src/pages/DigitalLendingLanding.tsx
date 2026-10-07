@@ -28,10 +28,33 @@ export default function DigitalLendingLanding({
     'collections' | 'recurring' | 'split' | 'reports'
   >('collections');
 
-  // Interactive orbital node highlight
+  // Interactive orbital node highlight & live simulation
   const [activeOrbitNode, setActiveOrbitNode] = useState<
-    'disbursal' | 'repayment' | 'colending' | null
-  >(null);
+    'disbursal' | 'repayment' | 'colending'
+  >('disbursal');
+  const [simRunning, setSimRunning] = useState<boolean>(false);
+  const [simStep, setSimStep] = useState<number>(0);
+
+  const handleSelectOrbitNode = (node: 'disbursal' | 'repayment' | 'colending') => {
+    setActiveOrbitNode(node);
+    setSimRunning(false);
+    setSimStep(0);
+  };
+
+  const runSimulation = () => {
+    if (simRunning) return;
+    setSimRunning(true);
+    setSimStep(1);
+    setTimeout(() => {
+      setSimStep(2);
+      setTimeout(() => {
+        setSimStep(3);
+        setTimeout(() => {
+          setSimRunning(false);
+        }, 1200);
+      }, 1000);
+    }, 900);
+  };
 
   // Interactive Live EMI Calculator state
   const [calcAmount, setCalcAmount] = useState<number>(1500000);
@@ -309,53 +332,83 @@ export default function DigitalLendingLanding({
             </div>
 
             {/* Right Column: Unique Orbital Ecosystem Visual (Cashfree Style) */}
-            <div className="relative flex items-center justify-center">
-              <div className="relative h-[440px] w-full max-w-[440px] sm:h-[480px] sm:max-w-[480px] rounded-full bg-gradient-to-br from-[#240253] via-[#1b033d] to-[#0e0024] p-2 shadow-2xl flex items-center justify-center overflow-hidden border border-purple-500/30">
-                {/* Background ambient radial blur */}
-                <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(168,85,247,0.25)_0%,transparent_70%)] pointer-events-none" />
+            <div className="relative flex flex-col items-center justify-center w-full max-w-[520px] mx-auto">
+              {/* Orbital Graphic Arena - overflow-visible ensures floating badges/cards are never cropped */}
+              <div className="relative h-[380px] w-[380px] sm:h-[440px] sm:w-[440px] flex items-center justify-center overflow-visible select-none my-2">
+                {/* Background ambient radial glow */}
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(168,85,247,0.3)_0%,transparent_70%)] pointer-events-none blur-2xl" />
 
-                {/* Outer concentric thin orbit ring */}
-                <div className="absolute h-[380px] w-[380px] sm:h-[420px] sm:max-w-[420px] rounded-full border border-purple-400/20 pointer-events-none" />
+                {/* Circular dark disc - overflow-hidden ONLY for the glowing animated cosmic backdrop */}
+                <div className="absolute inset-3 sm:inset-4 rounded-full bg-gradient-to-br from-[#240253] via-[#1b033d] to-[#0e0024] shadow-[0_0_60px_rgba(107,33,168,0.5)] border border-purple-500/40 overflow-hidden">
+                  {/* Inner ambient radial glow */}
+                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(168,85,247,0.25)_0%,transparent_70%)] pointer-events-none" />
 
-                {/* Mid concentric orbit line */}
-                <div className="absolute h-[290px] w-[290px] sm:h-[320px] sm:w-[320px] rounded-full border border-purple-300/25 pointer-events-none" />
+                  {/* Outer concentric thin orbit ring */}
+                  <div className="absolute inset-4 rounded-full border border-purple-400/20 pointer-events-none" />
 
-                {/* Inner glowing spinning ring */}
-                <div className="absolute h-[210px] w-[210px] sm:h-[230px] sm:w-[230px] rounded-full border border-purple-500/40 pointer-events-none animate-[spin_24s_linear_infinite]">
-                  <div className="absolute -top-1 left-1/2 -translate-x-1/2 h-3 w-8 rounded-full bg-white blur-[2px] opacity-80" />
-                  <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 h-3 w-8 rounded-full bg-purple-300 blur-[2px] opacity-70" />
+                  {/* Mid concentric orbit line */}
+                  <div className="absolute inset-16 rounded-full border border-purple-300/25 pointer-events-none" />
+
+                  {/* Inner glowing spinning ring */}
+                  <div className="absolute inset-28 rounded-full border border-purple-500/40 pointer-events-none animate-[spin_24s_linear_infinite]">
+                    <div className="absolute -top-1 left-1/2 -translate-x-1/2 h-3 w-8 rounded-full bg-white blur-[2px] opacity-80" />
+                    <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 h-3 w-8 rounded-full bg-purple-300 blur-[2px] opacity-70" />
+                  </div>
                 </div>
 
                 {/* Center Hub: "NBFC / Fintechs" */}
-                <div className="relative z-10 flex h-[160px] w-[160px] sm:h-[180px] sm:w-[180px] flex-col items-center justify-center rounded-full bg-gradient-to-b from-[#3b086e] to-[#21024b] text-center shadow-[0_0_40px_rgba(147,51,234,0.45)] border border-purple-400/40">
-                  <div className="text-base sm:text-lg font-black tracking-tight text-white drop-shadow-md">
+                <div
+                  className="relative z-10 flex h-[140px] w-[140px] sm:h-[165px] sm:w-[165px] flex-col items-center justify-center rounded-full bg-gradient-to-b from-[#3b086e] to-[#21024b] text-center shadow-[0_0_40px_rgba(147,51,234,0.6)] border border-purple-400/50 cursor-pointer transition-all duration-300 hover:scale-105 active:scale-95 group"
+                  onClick={() => handleSelectOrbitNode('disbursal')}
+                  title="MoneyQuick Central Escrow Engine"
+                >
+                  <div className="text-base sm:text-lg font-black tracking-tight text-white drop-shadow-md group-hover:text-purple-200">
                     NBFC / Fintechs
                   </div>
-                  {/* Decorative underline bars like in the image */}
-                  <div className="mt-2.5 h-1.5 w-16 rounded-full bg-purple-300/40" />
-                  <div className="mt-1.5 h-1 w-10 rounded-full bg-purple-400/30" />
+                  {/* Decorative underline bars */}
+                  <div className="mt-2 h-1.5 w-14 rounded-full bg-purple-300/50" />
+                  <div className="mt-1 h-1 w-9 rounded-full bg-purple-400/40" />
+                  <span className="mt-1.5 text-[9px] font-bold uppercase tracking-wider text-purple-300/90">
+                    Central Escrow Hub
+                  </span>
                 </div>
 
                 {/* Node 1: Top Right - "Loan disbursals" */}
                 <div
-                  className="absolute right-4 top-8 sm:right-6 sm:top-10 z-20 flex flex-col items-center cursor-pointer transition-transform duration-300 hover:scale-110"
-                  onClick={() => setActiveOrbitNode(activeOrbitNode === 'disbursal' ? null : 'disbursal')}
+                  className={`absolute right-4 top-3 sm:right-6 sm:top-5 z-20 flex flex-col items-center cursor-pointer transition-all duration-300 ${
+                    activeOrbitNode === 'disbursal' ? 'scale-110' : 'hover:scale-105 opacity-85 hover:opacity-100'
+                  }`}
+                  onClick={() => handleSelectOrbitNode('disbursal')}
                 >
                   {/* Purple badge with triangle */}
-                  <div className="relative rounded-md bg-[#6933d3] px-3 py-1 text-[11px] sm:text-xs font-bold text-white shadow-lg">
-                    Loan disbursals
+                  <div className={`relative rounded-md px-3 py-1 text-[11px] sm:text-xs font-bold text-white shadow-lg transition-all ${
+                    activeOrbitNode === 'disbursal'
+                      ? 'bg-[#6933d3] ring-2 ring-purple-300 shadow-[0_0_15px_rgba(105,51,211,0.8)]'
+                      : 'bg-[#6933d3]/95'
+                  }`}>
+                    <span className="flex items-center gap-1.5 whitespace-nowrap">
+                      {activeOrbitNode === 'disbursal' && (
+                        <span className="relative flex h-2 w-2">
+                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                          <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400"></span>
+                        </span>
+                      )}
+                      Loan disbursals
+                    </span>
                     <div className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 h-0 w-0 border-x-4 border-x-transparent border-t-6 border-t-[#6933d3]" />
                   </div>
                   {/* White card with document icon + green coin */}
-                  <div className="mt-2.5 flex h-14 w-14 sm:h-16 sm:w-16 items-center justify-center rounded-xl bg-white shadow-[0_10px_25px_rgba(0,0,0,0.3)] border border-white/80 transition-shadow">
+                  <div className={`mt-2 flex h-13 w-13 sm:h-15 sm:w-15 items-center justify-center rounded-2xl bg-white shadow-[0_10px_25px_rgba(0,0,0,0.3)] border transition-all ${
+                    activeOrbitNode === 'disbursal'
+                      ? 'border-[#6933d3] ring-4 ring-[#6933d3]/40 shadow-[0_0_25px_rgba(105,51,211,0.6)]'
+                      : 'border-white/80'
+                  }`}>
                     <div className="relative">
-                      {/* Document icon */}
                       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#7c3aed" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                         <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
                         <path d="M14 2v6h6" />
                         <path d="M8 13h8" /><path d="M8 17h6" />
                       </svg>
-                      {/* Small green rupee sack / badge */}
                       <span className="absolute -bottom-1.5 -right-2 flex h-5 w-5 items-center justify-center rounded-full bg-[#10b981] text-[9px] font-bold text-white shadow">
                         ₹
                       </span>
@@ -365,16 +418,34 @@ export default function DigitalLendingLanding({
 
                 {/* Node 2: Bottom Right - "Repayments" */}
                 <div
-                  className="absolute right-6 bottom-10 sm:right-10 sm:bottom-12 z-20 flex flex-col items-center cursor-pointer transition-transform duration-300 hover:scale-110"
-                  onClick={() => setActiveOrbitNode(activeOrbitNode === 'repayment' ? null : 'repayment')}
+                  className={`absolute right-4 bottom-5 sm:right-6 sm:bottom-7 z-20 flex flex-col items-center cursor-pointer transition-all duration-300 ${
+                    activeOrbitNode === 'repayment' ? 'scale-110' : 'hover:scale-105 opacity-85 hover:opacity-100'
+                  }`}
+                  onClick={() => handleSelectOrbitNode('repayment')}
                 >
                   {/* Pink/Coral badge with triangle */}
-                  <div className="relative rounded-md bg-[#f43f5e] px-3.5 py-1 text-[11px] sm:text-xs font-bold text-white shadow-lg">
-                    Repayments
+                  <div className={`relative rounded-md px-3.5 py-1 text-[11px] sm:text-xs font-bold text-white shadow-lg transition-all ${
+                    activeOrbitNode === 'repayment'
+                      ? 'bg-[#f43f5e] ring-2 ring-rose-300 shadow-[0_0_15px_rgba(244,63,94,0.8)]'
+                      : 'bg-[#f43f5e]/95'
+                  }`}>
+                    <span className="flex items-center gap-1.5 whitespace-nowrap">
+                      {activeOrbitNode === 'repayment' && (
+                        <span className="relative flex h-2 w-2">
+                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                          <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400"></span>
+                        </span>
+                      )}
+                      Repayments
+                    </span>
                     <div className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 h-0 w-0 border-x-4 border-x-transparent border-t-6 border-t-[#f43f5e]" />
                   </div>
                   {/* White card with circular repayment arrows */}
-                  <div className="mt-2.5 flex h-14 w-14 sm:h-16 sm:w-16 items-center justify-center rounded-xl bg-white shadow-[0_10px_25px_rgba(0,0,0,0.3)] border border-white/80">
+                  <div className={`mt-2 flex h-13 w-13 sm:h-15 sm:w-15 items-center justify-center rounded-2xl bg-white shadow-[0_10px_25px_rgba(0,0,0,0.3)] border transition-all ${
+                    activeOrbitNode === 'repayment'
+                      ? 'border-[#f43f5e] ring-4 ring-[#f43f5e]/40 shadow-[0_0_25px_rgba(244,63,94,0.6)]'
+                      : 'border-white/80'
+                  }`}>
                     <div className="relative flex items-center justify-center">
                       <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                         <path d="M3 12a9 9 0 0 1 15-6.7L21 8" />
@@ -389,28 +460,319 @@ export default function DigitalLendingLanding({
 
                 {/* Node 3: Bottom Left - "Co-lending" */}
                 <div
-                  className="absolute left-6 bottom-12 sm:left-10 sm:bottom-14 z-20 flex flex-col items-center cursor-pointer transition-transform duration-300 hover:scale-110"
-                  onClick={() => setActiveOrbitNode(activeOrbitNode === 'colending' ? null : 'colending')}
+                  className={`absolute left-4 bottom-5 sm:left-6 sm:bottom-7 z-20 flex flex-col items-center cursor-pointer transition-all duration-300 ${
+                    activeOrbitNode === 'colending' ? 'scale-110' : 'hover:scale-105 opacity-85 hover:opacity-100'
+                  }`}
+                  onClick={() => handleSelectOrbitNode('colending')}
                 >
                   {/* Dark navy badge */}
-                  <div className="relative rounded-md bg-[#240b4f]/90 border border-purple-400/30 px-3 py-1 text-[11px] sm:text-xs font-bold text-purple-200 shadow-lg">
-                    Co-lending
+                  <div className={`relative rounded-md px-3 py-1 text-[11px] sm:text-xs font-bold shadow-lg border transition-all ${
+                    activeOrbitNode === 'colending'
+                      ? 'bg-[#3b086e] border-purple-400 ring-2 ring-purple-300 shadow-[0_0_15px_rgba(147,51,234,0.8)] text-white'
+                      : 'bg-[#240b4f]/95 border-purple-400/40 text-purple-200'
+                  }`}>
+                    <span className="flex items-center gap-1.5 whitespace-nowrap">
+                      {activeOrbitNode === 'colending' && (
+                        <span className="relative flex h-2 w-2">
+                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                          <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400"></span>
+                        </span>
+                      )}
+                      Co-lending
+                    </span>
                     <div className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 h-0 w-0 border-x-4 border-x-transparent border-t-6 border-t-[#240b4f]" />
                   </div>
                   {/* White card with bank building icon */}
-                  <div className="mt-2.5 flex h-14 w-14 sm:h-16 sm:w-16 items-center justify-center rounded-xl bg-white shadow-[0_10px_25px_rgba(0,0,0,0.3)] border border-white/80">
+                  <div className={`mt-2 flex h-13 w-13 sm:h-15 sm:w-15 items-center justify-center rounded-2xl bg-white shadow-[0_10px_25px_rgba(0,0,0,0.3)] border transition-all ${
+                    activeOrbitNode === 'colending'
+                      ? 'border-[#6366f1] ring-4 ring-[#6366f1]/40 shadow-[0_0_25px_rgba(99,102,241,0.6)]'
+                      : 'border-white/80'
+                  }`}>
                     <div className="relative flex items-center justify-center">
                       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#6366f1" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                         <path d="m3 10 9-7 9 7v11a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z" />
                         <path d="M9 22V12h6v10" />
                       </svg>
-                      {/* Gold coin stack */}
                       <span className="absolute -bottom-1.5 -right-2 flex h-4 w-4 items-center justify-center rounded-full bg-[#f59e0b] text-[8px] font-bold text-white shadow">
                         🪙
                       </span>
                     </div>
                   </div>
                 </div>
+              </div>
+
+              {/* Quick Node Switcher Tabs */}
+              <div className="mt-3 flex flex-wrap items-center justify-center gap-2 z-20">
+                <button
+                  type="button"
+                  onClick={() => handleSelectOrbitNode('disbursal')}
+                  className={`rounded-full px-3.5 py-1.5 text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+                    activeOrbitNode === 'disbursal'
+                      ? 'bg-[#6933d3] text-white shadow-md shadow-purple-500/30 ring-2 ring-purple-300'
+                      : 'border border-border bg-surface/80 text-muted-foreground hover:text-primary hover:border-purple-400'
+                  }`}
+                >
+                  <span>⚡</span> Loan Disbursals
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleSelectOrbitNode('repayment')}
+                  className={`rounded-full px-3.5 py-1.5 text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+                    activeOrbitNode === 'repayment'
+                      ? 'bg-[#f43f5e] text-white shadow-md shadow-rose-500/30 ring-2 ring-rose-300'
+                      : 'border border-border bg-surface/80 text-muted-foreground hover:text-primary hover:border-rose-400'
+                  }`}
+                >
+                  <span>🔄</span> Repayments
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleSelectOrbitNode('colending')}
+                  className={`rounded-full px-3.5 py-1.5 text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+                    activeOrbitNode === 'colending'
+                      ? 'bg-[#3b086e] text-white shadow-md shadow-purple-900/40 ring-2 ring-purple-400'
+                      : 'border border-border bg-surface/80 text-muted-foreground hover:text-primary hover:border-purple-400'
+                  }`}
+                >
+                  <span>🤝</span> Co-Lending (80:20)
+                </button>
+              </div>
+
+              {/* Dynamic Interactive Node Details & Live Simulator Card */}
+              <div className="mt-4 w-full rounded-2xl border border-purple-500/30 bg-gradient-to-b from-[#1b0638]/95 via-[#130328]/95 to-[#0b001a]/98 p-5 text-white shadow-2xl backdrop-blur-md transition-all">
+                {activeOrbitNode === 'disbursal' && (
+                  <div>
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <div className="inline-flex items-center gap-1.5 rounded-full bg-[#6933d3]/30 px-2.5 py-0.5 text-[11px] font-bold text-purple-300 border border-purple-400/30">
+                          <span className="h-1.5 w-1.5 rounded-full bg-purple-400 animate-pulse" />
+                          Feature Active: Automated Disbursals
+                        </div>
+                        <h4 className="mt-1.5 text-base sm:text-lg font-extrabold text-white">
+                          Instant Multi-Bank Loan Payouts
+                        </h4>
+                        <p className="mt-1 text-xs text-purple-200/80 leading-relaxed">
+                          Disburse approved loans in under 60 seconds directly into borrower bank accounts via IMPS/NEFT with automated Penny-Drop verification.
+                        </p>
+                      </div>
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#6933d3] shadow-lg shadow-purple-600/40">
+                        <span className="text-lg">⚡</span>
+                      </div>
+                    </div>
+
+                    {/* Metrics Strip */}
+                    <div className="mt-3.5 grid grid-cols-3 gap-2 rounded-xl bg-purple-950/50 p-2.5 border border-purple-500/20 text-center">
+                      <div>
+                        <div className="text-[10px] uppercase font-semibold text-purple-300/70">Disbursal Time</div>
+                        <div className="text-sm sm:text-base font-black text-white">&lt; 60 secs</div>
+                      </div>
+                      <div>
+                        <div className="text-[10px] uppercase font-semibold text-purple-300/70">Throughput</div>
+                        <div className="text-sm sm:text-base font-black text-emerald-400">10,000/min</div>
+                      </div>
+                      <div>
+                        <div className="text-[10px] uppercase font-semibold text-purple-300/70">Routing</div>
+                        <div className="text-sm sm:text-base font-black text-purple-200">6 Tier-1 Banks</div>
+                      </div>
+                    </div>
+
+                    {/* Live Simulation Box */}
+                    <div className="mt-3.5 rounded-xl border border-purple-500/25 bg-black/40 p-3">
+                      <div className="flex items-center justify-between">
+                        <div className="text-xs font-bold text-purple-200 flex items-center gap-1.5">
+                          <span className="text-emerald-400 font-mono">●</span>
+                          Live Disbursal API Simulator
+                        </div>
+                        <button
+                          type="button"
+                          onClick={runSimulation}
+                          disabled={simRunning}
+                          className="rounded-lg bg-gradient-to-r from-purple-600 to-indigo-600 px-3 py-1 text-xs font-bold text-white shadow hover:from-purple-500 hover:to-indigo-500 transition-all disabled:opacity-50 cursor-pointer active:scale-95"
+                        >
+                          {simRunning ? 'Simulating...' : '▶ Test Disbursal'}
+                        </button>
+                      </div>
+
+                      {/* Step Progress */}
+                      <div className="mt-2.5 space-y-1.5 text-[11px] font-mono">
+                        <div className={`flex items-center justify-between p-1.5 rounded transition-all ${
+                          simStep >= 1 ? 'bg-purple-900/60 text-emerald-300 font-semibold' : 'text-purple-300/50'
+                        }`}>
+                          <span>1. Penny Drop Name Match (99.8%)</span>
+                          <span>{simStep >= 1 ? '✓ VERIFIED' : 'READY'}</span>
+                        </div>
+                        <div className={`flex items-center justify-between p-1.5 rounded transition-all ${
+                          simStep >= 2 ? 'bg-purple-900/60 text-emerald-300 font-semibold' : 'text-purple-300/50'
+                        }`}>
+                          <span>2. Escrow Fund Allocation (HDFC Escrow)</span>
+                          <span>{simStep >= 2 ? '✓ ALLOCATED' : 'WAITING'}</span>
+                        </div>
+                        <div className={`flex items-center justify-between p-1.5 rounded transition-all ${
+                          simStep >= 3 ? 'bg-emerald-950/80 border border-emerald-500/40 text-emerald-300 font-bold' : 'text-purple-300/50'
+                        }`}>
+                          <span>3. ₹1,50,000 Settled in 1.2s</span>
+                          <span>{simStep >= 3 ? '✓ UTR: MQB29481' : 'PENDING'}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {activeOrbitNode === 'repayment' && (
+                  <div>
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <div className="inline-flex items-center gap-1.5 rounded-full bg-[#f43f5e]/30 px-2.5 py-0.5 text-[11px] font-bold text-rose-300 border border-rose-400/30">
+                          <span className="h-1.5 w-1.5 rounded-full bg-rose-400 animate-pulse" />
+                          Feature Active: Smart Repayments
+                        </div>
+                        <h4 className="mt-1.5 text-base sm:text-lg font-extrabold text-white">
+                          Automated UPI AutoPay &amp; eNACH
+                        </h4>
+                        <p className="mt-1 text-xs text-rose-200/80 leading-relaxed">
+                          Collect monthly EMIs automatically on scheduled dates with zero drop-off, pre-authenticated mandates, and instant real-time reconciliation.
+                        </p>
+                      </div>
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#f43f5e] shadow-lg shadow-rose-600/40">
+                        <span className="text-lg">🔄</span>
+                      </div>
+                    </div>
+
+                    {/* Metrics Strip */}
+                    <div className="mt-3.5 grid grid-cols-3 gap-2 rounded-xl bg-rose-950/40 p-2.5 border border-rose-500/20 text-center">
+                      <div>
+                        <div className="text-[10px] uppercase font-semibold text-rose-300/70">Mandate Success</div>
+                        <div className="text-sm sm:text-base font-black text-white">99.4%</div>
+                      </div>
+                      <div>
+                        <div className="text-[10px] uppercase font-semibold text-rose-300/70">Reconciliation</div>
+                        <div className="text-sm sm:text-base font-black text-emerald-400">T+0 Real-Time</div>
+                      </div>
+                      <div>
+                        <div className="text-[10px] uppercase font-semibold text-rose-300/70">Channels</div>
+                        <div className="text-sm sm:text-base font-black text-rose-200">UPI + eNACH</div>
+                      </div>
+                    </div>
+
+                    {/* Live Simulation Box */}
+                    <div className="mt-3.5 rounded-xl border border-rose-500/25 bg-black/40 p-3">
+                      <div className="flex items-center justify-between">
+                        <div className="text-xs font-bold text-rose-200 flex items-center gap-1.5">
+                          <span className="text-emerald-400 font-mono">●</span>
+                          Live Auto-Debit Simulator
+                        </div>
+                        <button
+                          type="button"
+                          onClick={runSimulation}
+                          disabled={simRunning}
+                          className="rounded-lg bg-gradient-to-r from-rose-600 to-pink-600 px-3 py-1 text-xs font-bold text-white shadow hover:from-rose-500 hover:to-pink-500 transition-all disabled:opacity-50 cursor-pointer active:scale-95"
+                        >
+                          {simRunning ? 'Simulating...' : '▶ Test Auto-Debit'}
+                        </button>
+                      </div>
+
+                      {/* Step Progress */}
+                      <div className="mt-2.5 space-y-1.5 text-[11px] font-mono">
+                        <div className={`flex items-center justify-between p-1.5 rounded transition-all ${
+                          simStep >= 1 ? 'bg-rose-950/60 text-emerald-300 font-semibold' : 'text-rose-300/50'
+                        }`}>
+                          <span>1. Mandate Triggered (06:00 AM)</span>
+                          <span>{simStep >= 1 ? '✓ SCHEDULED' : 'READY'}</span>
+                        </div>
+                        <div className={`flex items-center justify-between p-1.5 rounded transition-all ${
+                          simStep >= 2 ? 'bg-rose-950/60 text-emerald-300 font-semibold' : 'text-rose-300/50'
+                        }`}>
+                          <span>2. UPI AutoPay Token Debited</span>
+                          <span>{simStep >= 2 ? '✓ DEBITED' : 'WAITING'}</span>
+                        </div>
+                        <div className={`flex items-center justify-between p-1.5 rounded transition-all ${
+                          simStep >= 3 ? 'bg-emerald-950/80 border border-emerald-500/40 text-emerald-300 font-bold' : 'text-rose-300/50'
+                        }`}>
+                          <span>3. ₹14,250 Reconciled &amp; SMS Sent</span>
+                          <span>{simStep >= 3 ? '✓ SETTLED T+0' : 'PENDING'}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {activeOrbitNode === 'colending' && (
+                  <div>
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <div className="inline-flex items-center gap-1.5 rounded-full bg-purple-900/50 px-2.5 py-0.5 text-[11px] font-bold text-purple-200 border border-purple-400/40">
+                          <span className="h-1.5 w-1.5 rounded-full bg-purple-400 animate-pulse" />
+                          Feature Active: Co-Lending Engine
+                        </div>
+                        <h4 className="mt-1.5 text-base sm:text-lg font-extrabold text-white">
+                          Automated 80:20 Escrow Split
+                        </h4>
+                        <p className="mt-1 text-xs text-purple-200/80 leading-relaxed">
+                          Automated split of collected repayments directly between Bank and NBFC partner escrows with zero co-mingling of funds under RBI CLM guidelines.
+                        </p>
+                      </div>
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#3b086e] border border-purple-400/50 shadow-lg shadow-purple-900/50">
+                        <span className="text-lg">🤝</span>
+                      </div>
+                    </div>
+
+                    {/* Metrics Strip */}
+                    <div className="mt-3.5 grid grid-cols-3 gap-2 rounded-xl bg-purple-950/40 p-2.5 border border-purple-500/20 text-center">
+                      <div>
+                        <div className="text-[10px] uppercase font-semibold text-purple-300/70">Split Ratio</div>
+                        <div className="text-sm sm:text-base font-black text-white">80 : 20</div>
+                      </div>
+                      <div>
+                        <div className="text-[10px] uppercase font-semibold text-purple-300/70">Co-Mingling</div>
+                        <div className="text-sm sm:text-base font-black text-emerald-400">Zero Pooling</div>
+                      </div>
+                      <div>
+                        <div className="text-[10px] uppercase font-semibold text-purple-300/70">Compliance</div>
+                        <div className="text-sm sm:text-base font-black text-purple-200">100% RBI CLM</div>
+                      </div>
+                    </div>
+
+                    {/* Live Simulation Box */}
+                    <div className="mt-3.5 rounded-xl border border-purple-500/25 bg-black/40 p-3">
+                      <div className="flex items-center justify-between">
+                        <div className="text-xs font-bold text-purple-200 flex items-center gap-1.5">
+                          <span className="text-emerald-400 font-mono">●</span>
+                          Live Co-Lending Split Simulator
+                        </div>
+                        <button
+                          type="button"
+                          onClick={runSimulation}
+                          disabled={simRunning}
+                          className="rounded-lg bg-gradient-to-r from-purple-700 to-indigo-700 px-3 py-1 text-xs font-bold text-white shadow hover:from-purple-600 hover:to-indigo-600 transition-all disabled:opacity-50 cursor-pointer active:scale-95"
+                        >
+                          {simRunning ? 'Simulating...' : '▶ Test Split'}
+                        </button>
+                      </div>
+
+                      {/* Step Progress */}
+                      <div className="mt-2.5 space-y-1.5 text-[11px] font-mono">
+                        <div className={`flex items-center justify-between p-1.5 rounded transition-all ${
+                          simStep >= 1 ? 'bg-purple-900/60 text-emerald-300 font-semibold' : 'text-purple-300/50'
+                        }`}>
+                          <span>1. ₹25,000 Inflow to Escrow</span>
+                          <span>{simStep >= 1 ? '✓ RECEIVED' : 'READY'}</span>
+                        </div>
+                        <div className={`flex items-center justify-between p-1.5 rounded transition-all ${
+                          simStep >= 2 ? 'bg-purple-900/60 text-emerald-300 font-semibold' : 'text-purple-300/50'
+                        }`}>
+                          <span>2. Split: ₹20,000 (80%) + ₹5,000 (20%)</span>
+                          <span>{simStep >= 2 ? '✓ ESCROW SPLIT' : 'WAITING'}</span>
+                        </div>
+                        <div className={`flex items-center justify-between p-1.5 rounded transition-all ${
+                          simStep >= 3 ? 'bg-emerald-950/80 border border-emerald-500/40 text-emerald-300 font-bold' : 'text-purple-300/50'
+                        }`}>
+                          <span>3. Bank &amp; NBFC Accounts Credited</span>
+                          <span>{simStep >= 3 ? '✓ DUAL SETTLED' : 'PENDING'}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>
