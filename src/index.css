@@ -331,6 +331,80 @@ button {
 .animate-pulse-soft { animation: pulse-soft 2.2s ease-in-out infinite; }
 .animate-spin-slow { animation: spin-slow 4.8s linear infinite; }
 
+/* Continuous Fintech Orbit System */
+:root {
+  --orbit-r-1: 144px;
+  --orbit-r-2: 138px;
+  --orbit-r-3: 141px;
+}
+@media (min-width: 640px) {
+  :root {
+    --orbit-r-1: 182px;
+    --orbit-r-2: 175px;
+    --orbit-r-3: 178px;
+  }
+}
+
+@keyframes orbit-disbursal {
+  from { transform: rotate(40deg); }
+  to { transform: rotate(400deg); }
+}
+@keyframes orbit-disbursal-counter {
+  from { transform: rotate(-40deg); }
+  to { transform: rotate(-400deg); }
+}
+
+@keyframes orbit-repayments {
+  from { transform: rotate(160deg); }
+  to { transform: rotate(520deg); }
+}
+@keyframes orbit-repayments-counter {
+  from { transform: rotate(-160deg); }
+  to { transform: rotate(-520deg); }
+}
+
+@keyframes orbit-colending {
+  from { transform: rotate(280deg); }
+  to { transform: rotate(640deg); }
+}
+@keyframes orbit-colending-counter {
+  from { transform: rotate(-280deg); }
+  to { transform: rotate(-640deg); }
+}
+
+.animate-orbit-disbursal {
+  animation: orbit-disbursal 38s linear infinite;
+  transform-origin: center center;
+}
+.animate-orbit-disbursal-counter {
+  animation: orbit-disbursal-counter 38s linear infinite;
+  transform-origin: center center;
+}
+
+.animate-orbit-repayments {
+  animation: orbit-repayments 38s linear infinite;
+  transform-origin: center center;
+}
+.animate-orbit-repayments-counter {
+  animation: orbit-repayments-counter 38s linear infinite;
+  transform-origin: center center;
+}
+
+.animate-orbit-colending {
+  animation: orbit-colending 38s linear infinite;
+  transform-origin: center center;
+}
+.animate-orbit-colending-counter {
+  animation: orbit-colending-counter 38s linear infinite;
+  transform-origin: center center;
+}
+
+/* Pause orbit on hover so user can easily interact */
+.orbit-arena:hover .orbit-track,
+.orbit-arena:hover .orbit-node {
+  animation-play-state: paused;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.001ms !important;
