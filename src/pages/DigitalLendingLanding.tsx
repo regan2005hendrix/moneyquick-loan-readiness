@@ -23,6 +23,16 @@ export default function DigitalLendingLanding({
   // Interactive tab for NBFCs vs LSPs / Borrowers
   const [activePersona, setActivePersona] = useState<'nbfc' | 'lsp'>('nbfc');
 
+  // Interactive tab for Payments & RBI Collections Section
+  const [activePaymentTab, setActivePaymentTab] = useState<
+    'collections' | 'recurring' | 'split' | 'reports'
+  >('collections');
+
+  // Interactive orbital node highlight
+  const [activeOrbitNode, setActiveOrbitNode] = useState<
+    'disbursal' | 'repayment' | 'colending' | null
+  >(null);
+
   // Interactive Live EMI Calculator state
   const [calcAmount, setCalcAmount] = useState<number>(1500000);
   const [calcTenure, setCalcTenure] = useState<number>(3); // years
@@ -50,6 +60,37 @@ export default function DigitalLendingLanding({
   const totalInterest = useMemo(() => Math.max(0, totalPayment - calcAmount), [totalPayment, calcAmount]);
 
   const formatCurrency = (val: number) => `₹${val.toLocaleString('en-IN')}`;
+
+  const paymentTabDetails = {
+    collections: {
+      title: 'Collections and reconciliation',
+      description: 'Receive loan repayment directly into your NBFC account. Instant reconciliation & same day settlement.',
+      badge: 'Same Day Settlements',
+      amount: '₹ 68,000',
+      status: 'Loan Received',
+    },
+    recurring: {
+      title: 'Recurring payments',
+      description: 'Set up recurring mandates for repayment. Collect recurring payments via debit cards and Net Banking using NACH E-mandate & UPI Autopay using TPV flow.',
+      badge: 'UPI AutoPay & eNACH',
+      amount: '₹ 24,500',
+      status: 'Mandate Executed',
+    },
+    split: {
+      title: 'Split payments',
+      description: 'Split repayment received and settle into co-lenders’ accounts directly. Recommended for co-lending use cases and risk participation agreements.',
+      badge: 'Co-Lending Split (80:20)',
+      amount: '₹ 54,400 / ₹ 13,600',
+      status: 'Escrow Split Succeeded',
+    },
+    reports: {
+      title: 'Real-time reports',
+      description: 'Leverage repayment reports and statements data for accounting compliance, audit logs, and RBI regulatory filings with instant ledger access.',
+      badge: 'Live MIS & Audit Trail',
+      amount: '99.98% Success',
+      status: 'Reconciliation Cleared',
+    },
+  };
 
   const faqs = [
     {
@@ -126,6 +167,7 @@ export default function DigitalLendingLanding({
           {/* Center Navigation Links */}
           <nav className="hidden lg:flex items-center gap-8 text-sm font-semibold text-muted-foreground">
             <a href="#solutions" className="transition hover:text-primary">Solutions</a>
+            <a href="#collections-rbi" className="transition hover:text-primary">Collections &amp; RBI</a>
             <a href="#features" className="transition hover:text-primary">Features</a>
             <a href="#calculator" className="transition hover:text-primary">EMI Calculator</a>
             <a href="#comparison" className="transition hover:text-primary">Why MoneyQuick</a>
@@ -197,14 +239,14 @@ export default function DigitalLendingLanding({
         </div>
       </header>
 
-      {/* Hero Section */}
+      {/* Hero Section with Orbital Ecosystem Visual */}
       <section className="relative overflow-hidden pt-12 pb-20 lg:pt-20 lg:pb-28">
         {/* Ambient background glows */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 h-[500px] w-[800px] rounded-full bg-accent/15 blur-[120px] pointer-events-none" />
         <div className="absolute top-1/3 right-[-100px] h-[400px] w-[400px] rounded-full bg-primary/10 blur-[130px] pointer-events-none" />
 
         <div className="mx-auto max-w-7xl px-5 sm:px-8">
-          <div className="grid gap-12 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
+          <div className="grid gap-12 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
             {/* Left Column: Headline and Pitch */}
             <div>
               <div className="inline-flex items-center gap-2 rounded-full border border-accent/25 bg-highlight/80 px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-accent shadow-sm backdrop-blur">
@@ -266,77 +308,107 @@ export default function DigitalLendingLanding({
               </div>
             </div>
 
-            {/* Right Column: Interactive Visual Showcase Card */}
-            <div className="relative">
-              <div className="relative mx-auto w-full max-w-lg rounded-3xl border border-white/60 bg-gradient-to-b from-white/90 to-surface/90 p-6 shadow-2xl backdrop-blur-xl dark:border-white/10 dark:from-surface/90 dark:to-background/90">
-                {/* Header ribbon of card */}
-                <div className="flex items-center justify-between border-b border-border pb-4">
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-white font-bold text-sm">
-                      MQ
-                    </div>
-                    <div>
-                      <div className="text-xs font-bold uppercase tracking-wider text-accent">Real-Time Core</div>
-                      <div className="text-sm font-bold text-primary">Lending Orchestration Engine</div>
-                    </div>
-                  </div>
-                  <span className="flex items-center gap-1.5 rounded-full bg-[#10B981]/15 px-3 py-1 text-[11px] font-bold text-[#10B981]">
-                    <span className="h-2 w-2 rounded-full bg-[#10B981] animate-ping" />
-                    LIVE
-                  </span>
+            {/* Right Column: Unique Orbital Ecosystem Visual (Cashfree Style) */}
+            <div className="relative flex items-center justify-center">
+              <div className="relative h-[440px] w-full max-w-[440px] sm:h-[480px] sm:max-w-[480px] rounded-full bg-gradient-to-br from-[#240253] via-[#1b033d] to-[#0e0024] p-2 shadow-2xl flex items-center justify-center overflow-hidden border border-purple-500/30">
+                {/* Background ambient radial blur */}
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(168,85,247,0.25)_0%,transparent_70%)] pointer-events-none" />
+
+                {/* Outer concentric thin orbit ring */}
+                <div className="absolute h-[380px] w-[380px] sm:h-[420px] sm:max-w-[420px] rounded-full border border-purple-400/20 pointer-events-none" />
+
+                {/* Mid concentric orbit line */}
+                <div className="absolute h-[290px] w-[290px] sm:h-[320px] sm:w-[320px] rounded-full border border-purple-300/25 pointer-events-none" />
+
+                {/* Inner glowing spinning ring */}
+                <div className="absolute h-[210px] w-[210px] sm:h-[230px] sm:w-[230px] rounded-full border border-purple-500/40 pointer-events-none animate-[spin_24s_linear_infinite]">
+                  <div className="absolute -top-1 left-1/2 -translate-x-1/2 h-3 w-8 rounded-full bg-white blur-[2px] opacity-80" />
+                  <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 h-3 w-8 rounded-full bg-purple-300 blur-[2px] opacity-70" />
                 </div>
 
-                {/* Workflow Simulation */}
-                <div className="mt-5 space-y-3.5">
-                  <div className="flex items-center justify-between rounded-xl border border-border/80 bg-background/80 p-3.5">
-                    <div className="flex items-center gap-3">
-                      <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent/15 text-accent font-bold text-xs">
-                        01
-                      </div>
-                      <div>
-                        <div className="text-xs font-bold text-primary">Borrower 360° Verification</div>
-                        <div className="text-[11px] text-muted-foreground">Instant PAN, Aadhaar &amp; Bank Penny Drop</div>
-                      </div>
-                    </div>
-                    <span className="rounded-md bg-[#10B981]/10 px-2 py-0.5 text-[10px] font-bold text-[#10B981]">VERIFIED</span>
+                {/* Center Hub: "NBFC / Fintechs" */}
+                <div className="relative z-10 flex h-[160px] w-[160px] sm:h-[180px] sm:w-[180px] flex-col items-center justify-center rounded-full bg-gradient-to-b from-[#3b086e] to-[#21024b] text-center shadow-[0_0_40px_rgba(147,51,234,0.45)] border border-purple-400/40">
+                  <div className="text-base sm:text-lg font-black tracking-tight text-white drop-shadow-md">
+                    NBFC / Fintechs
                   </div>
+                  {/* Decorative underline bars like in the image */}
+                  <div className="mt-2.5 h-1.5 w-16 rounded-full bg-purple-300/40" />
+                  <div className="mt-1.5 h-1 w-10 rounded-full bg-purple-400/30" />
+                </div>
 
-                  <div className="flex items-center justify-between rounded-xl border border-border/80 bg-background/80 p-3.5">
-                    <div className="flex items-center gap-3">
-                      <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#0B8F83]/15 text-[#0B8F83] font-bold text-xs">
-                        02
-                      </div>
-                      <div>
-                        <div className="text-xs font-bold text-primary">Direct Escrow Disbursal</div>
-                        <div className="text-[11px] text-muted-foreground">Automated routing via multi-bank gateway</div>
-                      </div>
-                    </div>
-                    <span className="rounded-md bg-accent/15 px-2 py-0.5 text-[10px] font-bold text-accent">DISBURSED</span>
+                {/* Node 1: Top Right - "Loan disbursals" */}
+                <div
+                  className="absolute right-4 top-8 sm:right-6 sm:top-10 z-20 flex flex-col items-center cursor-pointer transition-transform duration-300 hover:scale-110"
+                  onClick={() => setActiveOrbitNode(activeOrbitNode === 'disbursal' ? null : 'disbursal')}
+                >
+                  {/* Purple badge with triangle */}
+                  <div className="relative rounded-md bg-[#6933d3] px-3 py-1 text-[11px] sm:text-xs font-bold text-white shadow-lg">
+                    Loan disbursals
+                    <div className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 h-0 w-0 border-x-4 border-x-transparent border-t-6 border-t-[#6933d3]" />
                   </div>
-
-                  <div className="flex items-center justify-between rounded-xl border border-border/80 bg-background/80 p-3.5">
-                    <div className="flex items-center gap-3">
-                      <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/15 text-primary font-bold text-xs">
-                        03
-                      </div>
-                      <div>
-                        <div className="text-xs font-bold text-primary">UPI AutoPay &amp; eNACH Repayment</div>
-                        <div className="text-[11px] text-muted-foreground">Zero-touch collection &amp; instant split settlement</div>
-                      </div>
+                  {/* White card with document icon + green coin */}
+                  <div className="mt-2.5 flex h-14 w-14 sm:h-16 sm:w-16 items-center justify-center rounded-xl bg-white shadow-[0_10px_25px_rgba(0,0,0,0.3)] border border-white/80 transition-shadow">
+                    <div className="relative">
+                      {/* Document icon */}
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#7c3aed" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                        <path d="M14 2v6h6" />
+                        <path d="M8 13h8" /><path d="M8 17h6" />
+                      </svg>
+                      {/* Small green rupee sack / badge */}
+                      <span className="absolute -bottom-1.5 -right-2 flex h-5 w-5 items-center justify-center rounded-full bg-[#10b981] text-[9px] font-bold text-white shadow">
+                        ₹
+                      </span>
                     </div>
-                    <span className="rounded-md bg-[#10B981]/10 px-2 py-0.5 text-[10px] font-bold text-[#10B981]">ACTIVE</span>
                   </div>
                 </div>
 
-                {/* Performance stats mini box */}
-                <div className="mt-5 grid grid-cols-2 gap-3 rounded-2xl bg-highlight/50 p-4">
-                  <div>
-                    <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Disbursal Latency</div>
-                    <div className="text-lg font-black text-primary">&lt; 60 Seconds</div>
+                {/* Node 2: Bottom Right - "Repayments" */}
+                <div
+                  className="absolute right-6 bottom-10 sm:right-10 sm:bottom-12 z-20 flex flex-col items-center cursor-pointer transition-transform duration-300 hover:scale-110"
+                  onClick={() => setActiveOrbitNode(activeOrbitNode === 'repayment' ? null : 'repayment')}
+                >
+                  {/* Pink/Coral badge with triangle */}
+                  <div className="relative rounded-md bg-[#f43f5e] px-3.5 py-1 text-[11px] sm:text-xs font-bold text-white shadow-lg">
+                    Repayments
+                    <div className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 h-0 w-0 border-x-4 border-x-transparent border-t-6 border-t-[#f43f5e]" />
                   </div>
-                  <div>
-                    <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Mandate Success</div>
-                    <div className="text-lg font-black text-[#10B981]">99.8% Rate</div>
+                  {/* White card with circular repayment arrows */}
+                  <div className="mt-2.5 flex h-14 w-14 sm:h-16 sm:w-16 items-center justify-center rounded-xl bg-white shadow-[0_10px_25px_rgba(0,0,0,0.3)] border border-white/80">
+                    <div className="relative flex items-center justify-center">
+                      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M3 12a9 9 0 0 1 15-6.7L21 8" />
+                        <path d="M21 3v5h-5" />
+                        <path d="M21 12a9 9 0 0 1-15 6.7L3 16" />
+                        <path d="M3 21v-5h5" />
+                      </svg>
+                      <span className="absolute text-[10px] font-extrabold text-[#f59e0b]">₹</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Node 3: Bottom Left - "Co-lending" */}
+                <div
+                  className="absolute left-6 bottom-12 sm:left-10 sm:bottom-14 z-20 flex flex-col items-center cursor-pointer transition-transform duration-300 hover:scale-110"
+                  onClick={() => setActiveOrbitNode(activeOrbitNode === 'colending' ? null : 'colending')}
+                >
+                  {/* Dark navy badge */}
+                  <div className="relative rounded-md bg-[#240b4f]/90 border border-purple-400/30 px-3 py-1 text-[11px] sm:text-xs font-bold text-purple-200 shadow-lg">
+                    Co-lending
+                    <div className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 h-0 w-0 border-x-4 border-x-transparent border-t-6 border-t-[#240b4f]" />
+                  </div>
+                  {/* White card with bank building icon */}
+                  <div className="mt-2.5 flex h-14 w-14 sm:h-16 sm:w-16 items-center justify-center rounded-xl bg-white shadow-[0_10px_25px_rgba(0,0,0,0.3)] border border-white/80">
+                    <div className="relative flex items-center justify-center">
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#6366f1" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="m3 10 9-7 9 7v11a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z" />
+                        <path d="M9 22V12h6v10" />
+                      </svg>
+                      {/* Gold coin stack */}
+                      <span className="absolute -bottom-1.5 -right-2 flex h-4 w-4 items-center justify-center rounded-full bg-[#f59e0b] text-[8px] font-bold text-white shadow">
+                        🪙
+                      </span>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -397,6 +469,148 @@ export default function DigitalLendingLanding({
                 <div className="mt-0.5 text-[11px] text-muted-foreground">{p.desc}</div>
               </div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* SECTION FROM SCREENSHOT: "Effortlessly collect payments while adhering to RBI's digital lending guidelines" */}
+      <section id="collections-rbi" className="py-20 lg:py-28 border-b border-border bg-background">
+        <div className="mx-auto max-w-7xl px-5 sm:px-8">
+          {/* Main Section Header */}
+          <div className="max-w-4xl">
+            <h2 className="text-3xl font-extrabold tracking-tight text-primary sm:text-4xl lg:text-[42px] leading-tight">
+              Effortlessly collect payments while adhering to RBI&apos;s digital lending guidelines
+            </h2>
+
+            {/* Horizontal Sub-tabs */}
+            <div className="mt-8 flex flex-wrap gap-6 sm:gap-10 border-b border-border pb-1">
+              {[
+                { id: 'collections', label: 'Collections and reconciliation' },
+                { id: 'recurring', label: 'Recurring payments' },
+                { id: 'split', label: 'Split payments' },
+                { id: 'reports', label: 'Real-time reports' },
+              ].map((tab) => {
+                const isActive = activePaymentTab === tab.id;
+                return (
+                  <button
+                    key={tab.id}
+                    type="button"
+                    onClick={() => setActivePaymentTab(tab.id as any)}
+                    className={`relative pb-3 text-sm font-bold transition-colors ${
+                      isActive ? 'text-[#6933d3]' : 'text-muted-foreground hover:text-primary'
+                    }`}
+                  >
+                    {tab.label}
+                    {isActive && (
+                      <span className="absolute bottom-0 left-0 h-0.5 w-full bg-[#6933d3] rounded-full" />
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Interactive Flow Content: Left diagram + Right copy */}
+          <div className="mt-12 grid gap-12 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
+            {/* Left Diagram matching screenshot */}
+            <div className="relative rounded-3xl border border-border/80 bg-gradient-to-br from-surface/50 via-background to-surface/40 p-6 sm:p-10 shadow-sm">
+              <div className="relative flex flex-col md:flex-row items-center justify-between gap-6 sm:gap-8">
+                {/* 1. Payment sources left stack */}
+                <div className="flex flex-col gap-3.5 w-full md:w-[170px] shrink-0">
+                  {/* UPI card */}
+                  <div className="rounded-xl border border-border bg-white dark:bg-surface p-3 shadow-sm flex items-center justify-center gap-2.5">
+                    <span className="text-[11px] font-bold text-[#4285F4]">G Pay</span>
+                    <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#5f259f] text-[9px] font-black text-white">Pe</span>
+                    <span className="text-[11px] font-extrabold text-[#00b9f5]">paytm</span>
+                  </div>
+
+                  {/* Net Banking card */}
+                  <div className="rounded-xl border border-border bg-white dark:bg-surface p-3 shadow-sm flex items-center justify-center gap-3">
+                    <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#280071] text-[9px] font-bold text-white">SBI</span>
+                    <span className="flex h-5 w-5 items-center justify-center rounded-sm bg-[#004c8f] text-[9px] font-bold text-white">HDFC</span>
+                    <span className="flex h-5 w-5 items-center justify-center rounded-sm bg-[#b02a30] text-[9px] font-bold text-white">i</span>
+                  </div>
+
+                  {/* Cards card */}
+                  <div className="rounded-xl border border-border bg-white dark:bg-surface p-3 shadow-sm flex items-center justify-center gap-3">
+                    <span className="text-xs font-black italic text-[#1a1f71] dark:text-blue-400">VISA</span>
+                    <div className="flex -space-x-1.5">
+                      <span className="h-4 w-4 rounded-full bg-[#eb001b]" />
+                      <span className="h-4 w-4 rounded-full bg-[#f79e1b] opacity-80" />
+                    </div>
+                    <span className="text-[10px] font-black text-[#00a4e4]">RuPay</span>
+                  </div>
+                </div>
+
+                {/* Connector lines to center hub */}
+                <div className="hidden md:flex flex-col items-center justify-center relative w-12">
+                  <div className="h-0.5 w-12 bg-purple-300 dark:bg-purple-800" />
+                </div>
+
+                {/* 2. Central MoneyQuick Hub */}
+                <div className="relative flex flex-col items-center shrink-0">
+                  {/* Same Day Settlements badge on top */}
+                  <div className="mb-3 inline-flex items-center gap-1.5 rounded-lg bg-[#6933d3] px-3 py-1.5 text-[11px] font-bold text-white shadow-md">
+                    <span>⏱️</span>
+                    <span>{paymentTabDetails[activePaymentTab].badge}</span>
+                  </div>
+
+                  {/* Square Hub with MoneyQuick branding */}
+                  <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-[#1f0247] shadow-xl border border-purple-400/40">
+                    <img
+                      src="/3b6903f8-23e4-4c03-9082-3fe23e47cd11.png"
+                      alt="MoneyQuick"
+                      className="h-9 w-9 object-contain"
+                    />
+                  </div>
+                </div>
+
+                {/* Connector line to output */}
+                <div className="hidden md:flex flex-col items-center justify-center relative w-12">
+                  <div className="h-0.5 w-12 bg-purple-300 dark:bg-purple-800" />
+                </div>
+
+                {/* 3. Output Card: "Loan Received" */}
+                <div className="w-full md:w-[190px] rounded-2xl border border-border bg-white dark:bg-surface p-5 shadow-lg text-center shrink-0">
+                  <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-full bg-[#10b981]/15 text-[#10b981]">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                      <polyline points="20 6 9 17 4 12" />
+                    </svg>
+                  </div>
+                  <div className="mt-3 text-xs font-bold text-muted-foreground uppercase tracking-wider">
+                    {paymentTabDetails[activePaymentTab].status}
+                  </div>
+                  <div className="mt-1 text-xl font-extrabold text-[#10b981]">
+                    {paymentTabDetails[activePaymentTab].amount}
+                  </div>
+                  <div className="mt-4 space-y-1.5">
+                    <div className="h-1.5 w-full rounded-full bg-border/60" />
+                    <div className="h-1.5 w-3/4 mx-auto rounded-full bg-border/40" />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Right Column Content */}
+            <div className="lg:pl-6">
+              <h3 className="text-2xl sm:text-3xl font-extrabold text-primary tracking-tight">
+                {paymentTabDetails[activePaymentTab].title}
+              </h3>
+              <p className="mt-4 text-base leading-relaxed text-muted-foreground sm:text-lg">
+                {paymentTabDetails[activePaymentTab].description}
+              </p>
+
+              <div className="mt-8">
+                <button
+                  type="button"
+                  onClick={() => setShowDemoModal(true)}
+                  className="inline-flex items-center gap-2 rounded-lg bg-[#05c16e] hover:bg-[#04a85f] px-6 py-3.5 text-sm font-bold text-white shadow-md transition-all active:scale-95"
+                >
+                  <span>Contact Sales</span>
+                  <span>&gt;</span>
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -1021,7 +1235,7 @@ export default function DigitalLendingLanding({
               <div className="text-xs font-bold uppercase tracking-wider text-primary">Solutions</div>
               <ul className="mt-4 space-y-2.5 text-xs">
                 <li><a href="#solutions" className="hover:text-primary transition">Term Loans</a></li>
-                <li><a href="#solutions" className="hover:text-primary transition">Managed Escrow</a></li>
+                <li><a href="#collections-rbi" className="hover:text-primary transition">Managed Escrow</a></li>
                 <li><a href="#solutions" className="hover:text-primary transition">Co-Lending Infrastructure</a></li>
                 <li><a href="#solutions" className="hover:text-primary transition">Invoice Discounting</a></li>
                 <li><a href="#solutions" className="hover:text-primary transition">Supply Chain Finance</a></li>
