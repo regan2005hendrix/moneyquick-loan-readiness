@@ -4,6 +4,7 @@ import { createUserWithEmailAndPassword, onAuthStateChanged, sendPasswordResetEm
 import { firebaseAuth, googleProvider, isFirebaseConfigured } from './firebase';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import TermsAndConditions from './pages/TermsAndConditions';
+import DigitalLendingLanding from './pages/DigitalLendingLanding';
 
 const ArrowRight = ({ size = 20, className = '' }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden="true">
@@ -484,7 +485,7 @@ const DocumentReadinessAssistant = ({ onReadyCountChange }: { onReadyCountChange
   );
 };
 
-const AuthScreen = ({ onSignedIn, theme, toggleTheme }: { onSignedIn: (user: User) => void; theme: 'light' | 'dark'; toggleTheme: () => void }) => {
+const AuthScreen = ({ onSignedIn, theme, toggleTheme, onBack }: { onSignedIn: (user: User) => void; theme: 'light' | 'dark'; toggleTheme: () => void; onBack?: () => void }) => {
   const [mode, setMode] = useState<'signIn' | 'signUp'>('signIn');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -552,7 +553,7 @@ const AuthScreen = ({ onSignedIn, theme, toggleTheme }: { onSignedIn: (user: Use
     }
   };
 
-  if (!isFirebaseConfigured) return <div className="relative min-h-screen overflow-hidden bg-background"><Atmosphere strong /><main className="relative z-10 mx-auto flex min-h-screen max-w-xl items-center px-5 py-10"><section className="w-full rounded-[32px] border border-white/80 bg-white/75 p-7 shadow-[0_24px_70px_rgba(7,20,47,0.10)] backdrop-blur sm:p-10"><div className="text-xs font-bold uppercase tracking-[0.18em] text-accent">Sign-in unavailable</div><h1 className="mt-3 text-3xl font-bold tracking-[-0.04em] text-primary">We’re having a problem.</h1><p className="mt-4 text-sm leading-6 text-muted-foreground">Firebase Authentication is not configured for this website yet.</p></section></main></div>;
+  if (!isFirebaseConfigured) return <div className="relative min-h-screen overflow-hidden bg-background"><Atmosphere strong /><main className="relative z-10 mx-auto flex min-h-screen max-w-xl items-center px-5 py-10"><section className="w-full rounded-[32px] border border-white/80 bg-white/75 p-7 shadow-[0_24px_70px_rgba(7,20,47,0.10)] backdrop-blur sm:p-10"><div className="text-xs font-bold uppercase tracking-[0.18em] text-accent">Sign-in unavailable</div><h1 className="mt-3 text-3xl font-bold tracking-[-0.04em] text-primary">We’re having a problem.</h1><p className="mt-4 text-sm leading-6 text-muted-foreground">Firebase Authentication is not configured for this website yet.</p>{onBack && <button type="button" onClick={onBack} className="mt-6 inline-flex items-center gap-2 rounded-xl bg-accent px-5 py-2.5 text-xs font-bold text-white hover:bg-[#5145CE] transition">&larr; Back to Website</button>}</section></main></div>;
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-background">
@@ -574,6 +575,7 @@ const AuthScreen = ({ onSignedIn, theme, toggleTheme }: { onSignedIn: (user: Use
       </div>
       <main className="relative z-10 mx-auto flex min-h-screen max-w-md items-center px-5 py-10">
         <section className="w-full rounded-[32px] border border-white/80 bg-white/75 p-7 shadow-[0_24px_70px_rgba(7,20,47,0.10)] backdrop-blur sm:p-10">
+          {onBack && <button type="button" onClick={onBack} className="mb-5 inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-muted-foreground hover:text-primary transition">&larr; Back to Website</button>}
           <div className="flex items-center gap-3">
             <div className="flex h-11 w-11 items-center justify-center rounded-full bg-primary text-sm font-bold text-white">MQ</div>
             <div>
@@ -638,6 +640,7 @@ const AuthScreen = ({ onSignedIn, theme, toggleTheme }: { onSignedIn: (user: Use
 
 export default function App() {
   const [authUser, setAuthUser] = useState<User | null>(null);
+  const [showAuthModal, setShowAuthModal] = useState(false);
   const [authLoading, setAuthLoading] = useState(isFirebaseConfigured);
   const [currentStep, setCurrentStep] = useState<Step>('landing');
   const [theme, setTheme] = useState<'light' | 'dark'>(() => {
@@ -853,11 +856,50 @@ export default function App() {
   ], []);
 
   if (authLoading) return <div className="relative min-h-screen bg-background"><Atmosphere strong /><div className="relative z-10 flex min-h-screen items-center justify-center text-sm font-semibold text-primary">Checking your secure session…</div></div>;
-  if (!authUser) return <AuthScreen onSignedIn={setAuthUser} theme={theme} toggleTheme={toggleTheme} />;
+
+  if (!authUser) {
+    if (showAuthModal) {
+      return (
+        <AuthScreen
+          onSignedIn={(user) => {
+            setAuthUser(user);
+            setShowAuthModal(false);
+          }}
+          onBack={() => setShowAuthModal(false)}
+          theme={theme}
+          toggleTheme={toggleTheme}
+        />
+      );
+    }
+    return (
+      <DigitalLendingLanding
+        onGetStarted={() => setShowAuthModal(true)}
+        onSignIn={() => setShowAuthModal(true)}
+        onNavigate={go}
+        theme={theme}
+        toggleTheme={toggleTheme}
+        authUser={null}
+      />
+    );
+  }
+
+  if (currentStep === 'landing') {
+    return (
+      <DigitalLendingLanding
+        onGetStarted={() => go('income')}
+        onSignIn={() => go('income')}
+        onNavigate={go}
+        theme={theme}
+        toggleTheme={toggleTheme}
+        authUser={authUser}
+        onSignOut={signOut}
+      />
+    );
+  }
 
   return (
     <div className="min-h-screen overflow-x-hidden bg-background text-foreground selection:bg-highlight selection:text-primary">
-      <Atmosphere strong={currentStep === 'landing' || currentStep === 'snapshot'} />
+      <Atmosphere strong={currentStep === 'snapshot'} />
       <Topbar
         step={currentStep}
         onReset={() => go('landing')}
@@ -876,74 +918,7 @@ export default function App() {
         {currentStep === 'terms' && (
           <TermsAndConditions onNavigate={go} />
         )}
-        {currentStep === 'landing' && (
-          <section className="grid w-full items-center gap-10 py-8 lg:min-h-[calc(100vh-92px)] lg:grid-cols-[1.08fr_0.92fr] lg:gap-10 lg:py-8">
-            <div className="max-w-2xl self-center">
-              <div className="mb-6 inline-flex items-center gap-2 rounded-lg border border-accent/10 bg-highlight/70 px-4 py-2 text-[11px] font-bold uppercase tracking-[0.18em] text-accent">
-                <span className="h-2 w-2 rounded-full bg-accent shadow-[0_0_0_5px_rgba(11,143,131,0.08)]" /> For self-employed professionals
-              </div>
-              <h1 className="max-w-[680px] text-5xl font-bold leading-[0.98] tracking-[-0.055em] text-primary sm:text-6xl lg:text-[68px]">Ready for your loan.</h1>
-              <p className="mt-7 max-w-xl text-lg leading-8 text-muted-foreground sm:text-[20px]">Get a professional borrowing range, identify necessary documents, and understand the process before starting a formal application.</p>
-              <div className="mt-9 flex flex-wrap items-center gap-4">
-                <PrimaryButton onClick={() => go('income')} className="px-7 py-4">Check my MONEYQUICK outlook</PrimaryButton>
-                <span className="text-sm font-medium text-muted-foreground">About 2 minutes · No commitment</span>
-              </div>
-              <div className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-2 text-xs font-semibold text-muted-foreground">
-                <span className="inline-flex items-center gap-2"><span className="h-1.5 w-1.5 rounded-full bg-positive" />Indicative, not a credit decision</span>
-                <span>Private & secure</span>
-                <span>No documents to upload yet</span>
-              </div>
-
-              <div className="mt-12 grid max-w-3xl grid-cols-1 gap-3 sm:grid-cols-3">
-                {[
-                  ['01', 'Clear estimates', 'See a borrowing range and illustrative EMI before applying.'],
-                  ['02', 'Know what matters', 'Understand the signals lenders typically verify.'],
-                  ['03', 'Guided next steps', 'Know your documents and what happens after you apply.'],
-                ].map(([n, title, body]) => (
-                  <div key={n} className="group rounded-[20px] border border-white/80 bg-white/50 p-5 shadow-[0_12px_34px_rgba(7,20,47,0.03)] backdrop-blur-sm transition duration-300 hover:-translate-y-1 hover:bg-white/80 hover:shadow-[0_18px_40px_rgba(7,20,47,0.07)]">
-                    <div className="mb-4 flex h-9 w-9 items-center justify-center rounded-full border border-border bg-background text-xs font-bold text-primary transition group-hover:border-accent/30 group-hover:bg-highlight group-hover:text-accent">{n}</div>
-                    <h3 className="font-semibold text-primary">{title}</h3>
-                    <p className="mt-2 text-sm leading-6 text-muted-foreground">{body}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="relative flex min-h-[490px] items-center justify-center lg:min-h-[560px] lg:justify-end">
-              <div className="absolute inset-0 flex items-center justify-center opacity-75">
-                <svg viewBox="0 0 640 640" className="h-full w-full max-w-[620px]" fill="none" aria-hidden="true">
-                  <defs>
-                    <linearGradient id="arcA" x1="100" y1="560" x2="560" y2="100" gradientUnits="userSpaceOnUse">
-                      <stop stopColor="#D8C7A5" stopOpacity="0.12" />
-                      <stop offset="0.55" stopColor="#0B8F83" stopOpacity="0.34" />
-                      <stop offset="1" stopColor="#0B8F83" stopOpacity="0.05" />
-                    </linearGradient>
-                  </defs>
-                  <circle cx="320" cy="320" r="240" stroke="#D8C7A5" strokeOpacity="0.22" />
-                  <circle cx="320" cy="320" r="180" stroke="#0B8F83" strokeOpacity="0.09" />
-                  <path d="M90 535 C165 520 210 465 255 405 C300 345 345 285 395 250 C450 210 490 155 560 105" stroke="url(#arcA)" strokeWidth="2.2" strokeLinecap="round" />
-                  <path d="M95 560 C185 540 235 500 285 430 C330 370 385 330 440 310 C490 290 530 225 565 165" stroke="#0B8F83" strokeOpacity="0.12" strokeWidth="1.2" strokeDasharray="3 9" />
-                  {[{x:255,y:405,r:4},{x:395,y:250,r:5},{x:560,y:105,r:6}].map((p) => <g key={`${p.x}-${p.y}`}><circle cx={p.x} cy={p.y} r={p.r} fill="#0B8F83" fillOpacity="0.85" /><circle cx={p.x} cy={p.y} r={p.r + 10} stroke="#0B8F83" strokeOpacity="0.12" /></g>)}
-                </svg>
-              </div>
-
-              <div className="relative z-10 w-full max-w-[455px] rounded-[32px] border border-white/90 bg-[rgba(255,255,255,0.88)] p-7 shadow-[0_28px_75px_rgba(7,20,47,0.13)] backdrop-blur-xl transition duration-500 hover:-translate-y-1 sm:p-8">
-                <div className="absolute inset-x-10 top-0 h-px bg-gradient-to-r from-transparent via-accent/40 to-transparent" />
-                <div className="mb-7 flex items-center justify-between"><div className="text-[10px] font-bold uppercase tracking-[0.19em] text-muted-foreground">Preview · MONEYQUICK</div><span className="rounded-full bg-highlight px-3 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-accent">Indicative</span></div>
-                <div className="text-[13px] font-bold uppercase tracking-[0.16em] text-muted-foreground">Borrowing range</div>
-                <div className="mt-2 text-4xl font-bold tracking-[-0.04em] text-primary sm:text-[50px]">{formatLakh(minCapacity)} <span className="font-normal text-muted-foreground">–</span> {formatLakh(maxCapacity)}</div>
-                <div className="mt-6 h-2 rounded-full bg-surface"><div className="relative h-2 w-[73%] rounded-full bg-accent"><span className="absolute -right-2 -top-1.5 h-5 w-5 rounded-full border-[4px] border-background bg-accent shadow-[0_0_0_7px_rgba(11,143,131,0.09)]" /></div></div>
-                <div className="mt-2 flex justify-between text-[11px] font-semibold text-muted-foreground"><span>{formatLakh(minCapacity)}</span><span>Indicative position</span><span>{formatLakh(maxCapacity)}</span></div>
-                <div className="mt-8 grid grid-cols-2 gap-3">
-                  <div className="rounded-[18px] bg-background p-4"><div className="text-xs text-muted-foreground">Illustrative EMI</div><div className="mt-1 text-xl font-bold text-primary">{formatCurrency(estimatedEmi)}<span className="ml-1 text-xs font-medium text-muted-foreground">/mo</span></div></div>
-                  <div className="rounded-[18px] bg-background p-4"><div className="text-xs text-muted-foreground">Business age</div><div className="mt-1 text-xl font-bold text-primary">{yearsInBusiness}{yearsInBusiness >= 4 ? '+' : ''} years</div></div>
-                </div>
-                <div className="mt-5 flex items-center gap-2 rounded-lg bg-highlight px-4 py-2.5 text-sm font-semibold text-accent"><CheckCircle size={16} /> Indicative view, subject to verification</div>
-                <div className="mt-5 border-t border-border-light pt-4 text-center text-[10px] leading-5 text-muted-foreground">Based on the information you provide. Final eligibility is subject to verification and lender assessment.</div>
-              </div>
-            </div>
-          </section>
-        )}
+        
 
         {currentStep === 'income' && (
           <section className="mx-auto w-full max-w-4xl py-10 sm:py-14">
