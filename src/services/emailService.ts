@@ -169,7 +169,11 @@ export async function sendApplicationConfirmationEmail(
         message: `Thank you for applying with MONEYQUICK. Your application for ${details.requestedAmount} is being processed. A loan specialist will call you at ${details.phone} shortly.`,
       };
 
-      await emailjs.send(serviceId, templateId, templateParams, publicKey);
+      const emailJsPromise = emailjs.send(serviceId, templateId, templateParams, publicKey);
+      const emailJsTimeout = new Promise<never>((_, reject) =>
+        setTimeout(() => reject(new Error('EmailJS dispatch timed out')), 4000)
+      );
+      await Promise.race([emailJsPromise, emailJsTimeout]);
 
       return {
         success: true,
@@ -183,7 +187,7 @@ export async function sendApplicationConfirmationEmail(
     }
   }
 
-  // 2. Try the backend endpoint (/api/applications/confirmation)
+  // 2. Try the backend endpoint (/api/confirmation or /api/applications/confirmation)
   try {
     let response = await fetch('/api/confirmation', {
       method: 'POST',
@@ -192,7 +196,9 @@ export async function sendApplicationConfirmationEmail(
         ...details,
         name: details.applicantName,
       }),
+      signal: AbortSignal.timeout(6000),
     });
+
     if (!response.ok && response.status === 404) {
       response = await fetch('/api/applications/confirmation', {
         method: 'POST',
@@ -201,20 +207,36 @@ export async function sendApplicationConfirmationEmail(
           ...details,
           name: details.applicantName,
         }),
+        signal: AbortSignal.timeout(6000),
       });
+    }
+
+    if (!response.ok && (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'))) {
+      response = await fetch('http://127.0.0.1:3001/api/confirmation', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({
+          ...details,
+          name: details.applicantName,
+        }),
+        signal: AbortSignal.timeout(6000),
+      }).catch(() => response);
     }
 
     const payload = await response.json().catch(() => ({}));
     if (response.ok && payload.sent) {
+      const sandboxNote = payload.sandboxForwarded
+        ? ` (Resend Sandbox: delivered to account owner ${payload.deliveredTo || 'registered owner'})`
+        : '';
       return {
         success: true,
         provider: 'server',
-        message: `Confirmation email dispatched to ${details.email}`,
+        message: `Confirmation email dispatched to ${details.email}${sandboxNote}`,
         previewHtml: htmlContent,
       };
     }
-  } catch {
-    // Backend service not reachable or not configured
+  } catch (backendError) {
+    console.warn('Backend confirmation endpoint not reachable (using preview fallback):', backendError);
   }
 
   // 3. Graceful simulation/demo mode: log and deliver with full preview
@@ -227,7 +249,7 @@ export async function sendApplicationConfirmationEmail(
   return {
     success: true,
     provider: 'simulation',
-    message: `Confirmation email sent to ${details.email}`,
+    message: `Confirmation email prepared for ${details.email}`,
     previewHtml: htmlContent,
   };
 }

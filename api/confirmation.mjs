@@ -32,7 +32,9 @@ export default async function handler(req, res) {
     }
   }
 
-  const email = typeof details.email === 'string' ? details.email.trim() : '';
+  const email = (typeof details.email === 'string' ? details.email.trim() : '') ||
+    (typeof details.applicantEmail === 'string' ? details.applicantEmail.trim() : '') ||
+    (typeof details.registeredEmail === 'string' ? details.registeredEmail.trim() : '');
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
     return res.status(400).json({ error: 'A valid registered email address is required.' });
   }
@@ -96,13 +98,54 @@ export default async function handler(req, res) {
   };
 
   try {
-    const mailResponse = await fetch('https://api.resend.com/emails', {
+    let mailResponse = await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: { authorization: `Bearer ${apiKey}`, 'content-type': 'application/json' },
       body: JSON.stringify(emailPayload),
     });
 
-    const mailPayload = await mailResponse.json().catch(() => ({}));
+    let mailPayload = await mailResponse.json().catch(() => ({}));
+
+    // Handle Resend sandbox restriction (onboarding@resend.dev requires account owner)
+    if (!mailResponse.ok && (mailResponse.status === 403 || mailResponse.status === 422)) {
+      const errorMsg = typeof mailPayload?.message === 'string' ? mailPayload.message : '';
+      const isSandboxRestriction = mailPayload?.name === 'validation_error' ||
+        errorMsg.includes('testing email') ||
+        errorMsg.includes('own email address') ||
+        errorMsg.includes('verify a domain');
+      
+      if (isSandboxRestriction) {
+        const ownerEmail = errorMsg.match(/\(([^)]+@[^)]+)\)/)?.[1] || process.env.RESEND_OWNER_EMAIL || 'regan2005hendrix@gmail.com';
+        console.warn(`Resend sandbox restriction for ${email}. Rerouting to account owner: ${ownerEmail}`);
+
+        const sandboxPayload = {
+          ...emailPayload,
+          to: [ownerEmail],
+          subject: `[Sandbox - For: ${email}] ${emailPayload.subject}`,
+          html: `<div style="font-family:Arial,sans-serif;background:#fef3c7;border:1px solid #f59e0b;padding:12px 16px;margin-bottom:16px;border-radius:8px;font-size:13px;color:#92400e;">
+            <strong>Resend Sandbox Notice:</strong> This confirmation email was intended for <strong>${escapeHtml(email)}</strong> (${escapeHtml(details.name)}). Delivered to verified account owner during testing.
+          </div>` + emailPayload.html,
+        };
+
+        mailResponse = await fetch('https://api.resend.com/emails', {
+          method: 'POST',
+          headers: { authorization: `Bearer ${apiKey}`, 'content-type': 'application/json' },
+          body: JSON.stringify(sandboxPayload),
+        });
+        const sandboxMailPayload = await mailResponse.json().catch(() => ({}));
+
+        if (mailResponse.ok) {
+          return res.status(200).json({
+            sent: true,
+            id: sandboxMailPayload?.id,
+            sandboxForwarded: true,
+            recipient: email,
+            deliveredTo: ownerEmail,
+          });
+        }
+      }
+    }
+
     if (!mailResponse.ok) {
       console.error(`Resend rejected confirmation email (${mailResponse.status}) from ${from}:`, mailPayload);
       const providerMessage = typeof mailPayload?.message === 'string' ? mailPayload.message : '';

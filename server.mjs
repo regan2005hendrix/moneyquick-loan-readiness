@@ -8,6 +8,15 @@ const app = express();
 const port = Number(process.env.PORT || 3001);
 app.use(express.json({ limit: '32kb' }));
 
+app.use((req, res, next) => {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS,PUT,PATCH,DELETE');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
+  if (req.method === 'OPTIONS') return res.sendStatus(200);
+  console.log(`[API] ${req.method} ${req.url}`);
+  next();
+});
+
 const maxFileSize = 10 * 1024 * 1024;
 const allowedMimeTypes = new Set(['application/pdf', 'image/jpeg', 'image/png', 'image/webp']);
 const upload = multer({
@@ -76,7 +85,9 @@ app.post(
   ['/api/confirmation', '/confirmation', '/api/applications/confirmation', '/applications/confirmation'],
   async (request, response) => {
   const details = request.body || {};
-  const email = typeof details.email === 'string' ? details.email.trim() : '';
+  const email = (typeof details.email === 'string' ? details.email.trim() : '') ||
+    (typeof details.applicantEmail === 'string' ? details.applicantEmail.trim() : '') ||
+    (typeof details.registeredEmail === 'string' ? details.registeredEmail.trim() : '');
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return response.status(400).json({ error: 'A valid registered email address is required.' });
   if (!process.env.RESEND_API_KEY) return response.status(503).json({ error: 'Email delivery is not configured yet. Add RESEND_API_KEY to the server environment.' });
   const from = process.env.RESEND_FROM_EMAIL?.trim() || 'MONEYQUICK <onboarding@resend.dev>';
@@ -121,17 +132,60 @@ app.post(
     </div>`,
   };
   try {
-    const mailResponse = await fetch('https://api.resend.com/emails', {
+    let mailResponse = await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: { authorization: `Bearer ${process.env.RESEND_API_KEY}`, 'content-type': 'application/json' },
       body: JSON.stringify(emailPayload),
     });
-    const mailPayload = await mailResponse.json().catch(() => ({}));
+    let mailPayload = await mailResponse.json().catch(() => ({}));
+
+    // In Resend test sandbox mode (using onboarding@resend.dev), Resend strictly restricts delivery
+    // to the verified account owner. If sending to applicant email fails with 403/422 restriction,
+    // automatically fallback to the verified owner so a real email is still delivered during testing!
+    if (!mailResponse.ok && (mailResponse.status === 403 || mailResponse.status === 422)) {
+      const errorMsg = typeof mailPayload?.message === 'string' ? mailPayload.message : '';
+      const isSandboxRestriction = mailPayload?.name === 'validation_error' ||
+        errorMsg.includes('testing email') ||
+        errorMsg.includes('own email address') ||
+        errorMsg.includes('verify a domain');
+      
+      if (isSandboxRestriction) {
+        const ownerEmail = errorMsg.match(/\(([^)]+@[^)]+)\)/)?.[1] || process.env.RESEND_OWNER_EMAIL || 'regan2005hendrix@gmail.com';
+        console.warn(`Resend sandbox restriction for ${email}. Rerouting confirmation email to account owner: ${ownerEmail}`);
+        
+        const sandboxPayload = {
+          ...emailPayload,
+          to: [ownerEmail],
+          subject: `[Sandbox - For: ${email}] ${emailPayload.subject}`,
+          html: `<div style="font-family:Arial,sans-serif;background:#fef3c7;border:1px solid #f59e0b;padding:12px 16px;margin-bottom:16px;border-radius:8px;font-size:13px;color:#92400e;">
+            <strong>Resend Sandbox Notice:</strong> This confirmation email was addressed to <strong>${escapeHtml(email)}</strong> (${escapeHtml(details.name)}). Delivered to verified account owner during testing.
+          </div>` + emailPayload.html,
+        };
+
+        mailResponse = await fetch('https://api.resend.com/emails', {
+          method: 'POST',
+          headers: { authorization: `Bearer ${process.env.RESEND_API_KEY}`, 'content-type': 'application/json' },
+          body: JSON.stringify(sandboxPayload),
+        });
+        const sandboxMailPayload = await mailResponse.json().catch(() => ({}));
+        
+        if (mailResponse.ok) {
+          return response.json({
+            sent: true,
+            id: sandboxMailPayload?.id,
+            sandboxForwarded: true,
+            recipient: email,
+            deliveredTo: ownerEmail,
+          });
+        }
+      }
+    }
+
     if (!mailResponse.ok) {
       console.error(`Resend rejected confirmation email (${mailResponse.status}) from ${from}:`, mailPayload);
       const providerMessage = typeof mailPayload?.message === 'string' ? mailPayload.message : '';
-      const configurationMessage = mailResponse.status === 401 || mailResponse.status === 403
-        ? 'The Resend API key is invalid, revoked, or does not have permission to send email. Replace RESEND_API_KEY and restart the server.'
+      const configurationMessage = mailResponse.status === 401
+        ? 'The Resend API key is invalid or revoked. Replace RESEND_API_KEY and restart the server.'
         : '';
       return response.status(502).json({
         error: configurationMessage || (providerMessage

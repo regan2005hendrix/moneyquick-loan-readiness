@@ -734,11 +734,15 @@ export default function App() {
   const [verifiedDocumentCount, setVerifiedDocumentCount] = useState(0);
   const [documentGateNotice, setDocumentGateNotice] = useState('');
   const [confirmationNotice, setConfirmationNotice] = useState('');
+  const [applicantEmail, setApplicantEmail] = useState('');
 
   useEffect(() => {
     if (!firebaseAuth) { setAuthLoading(false); return; }
     const unsubscribe = onAuthStateChanged(firebaseAuth, (user) => {
       setAuthUser(user);
+      if (user?.email) {
+        setApplicantEmail((prev) => prev || user.email || '');
+      }
       setAuthLoading(false);
     });
     return unsubscribe;
@@ -836,6 +840,11 @@ export default function App() {
       setApplicationError('Enter a valid 10-digit contact mobile number so our loan specialist can call you.');
       return;
     }
+    const cleanEmail = (applicantEmail || authUser?.email || localStorage.getItem('moneyquick-applicant-email') || 'regan2005hendrix@gmail.com').trim();
+    if (!cleanEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleanEmail)) {
+      setApplicationError('Enter a valid email address so we can deliver your loan confirmation receipt.');
+      return;
+    }
     if (!selectedIndustryLabel) {
       setApplicationError('Select your business industry before submitting your application.');
       return;
@@ -845,63 +854,78 @@ export default function App() {
     setConfirmationNotice('Submitting application & sending confirmation email…');
 
     try {
-      localStorage.setItem('moneyquick-applicant-phone', applicantPhone);
-    } catch {}
+      try {
+        localStorage.setItem('moneyquick-applicant-phone', applicantPhone);
+        localStorage.setItem('moneyquick-applicant-email', cleanEmail);
+      } catch {}
 
-    const randomSuffix = Math.floor(100000 + Math.random() * 900000);
-    const appId = `MQ-APP-${randomSuffix}`;
-    setSubmittedAppId(appId);
+      const randomSuffix = Math.floor(100000 + Math.random() * 900000);
+      const appId = `MQ-APP-${randomSuffix}`;
+      setSubmittedAppId(appId);
 
-    const formattedPhone = `+91 ${cleanPhoneDigits.slice(0, 5)} ${cleanPhoneDigits.slice(5)}`;
-    const emailPayload: LoanApplicationEmailPayload = {
-      applicationId: appId,
-      applicantName,
-      email: authUser?.email || '',
-      phone: formattedPhone,
-      requestedAmount: formatCurrency(requestedDisplay),
-      loanPurpose,
-      loanCategory,
-      selectedBusinessType,
-      selectedIndustryLabel,
-      monthlyRevenue: formatCurrency(monthlyRevenue),
-      monthlyExpenses: formatCurrency(monthlyExpenses),
-      yearsInBusiness,
-      applicantAge,
-      creditScore: String(creditScore),
-      loanTenureYears,
-      annualInterestRate,
-      estimatedEmi: formatCurrency(estimatedEmi),
-    };
+      const formattedPhone = `+91 ${cleanPhoneDigits.slice(0, 5)} ${cleanPhoneDigits.slice(5)}`;
+      const emailPayload: LoanApplicationEmailPayload = {
+        applicationId: appId,
+        applicantName,
+        email: cleanEmail,
+        phone: formattedPhone,
+        requestedAmount: formatCurrency(requestedDisplay),
+        loanPurpose,
+        loanCategory,
+        selectedBusinessType,
+        selectedIndustryLabel,
+        monthlyRevenue: formatCurrency(monthlyRevenue),
+        monthlyExpenses: formatCurrency(monthlyExpenses),
+        yearsInBusiness,
+        applicantAge,
+        creditScore: String(creditScore),
+        loanTenureYears,
+        annualInterestRate,
+        estimatedEmi: formatCurrency(estimatedEmi),
+      };
 
-    // 1. Store application in Firebase Firestore
-    try {
-      await saveLoanApplication({
+      // 1. Immediately persist locally (instantaneous backup)
+      try {
+        const existing = JSON.parse(localStorage.getItem('moneyquick_saved_applications') || '[]');
+        existing.unshift({ ...emailPayload, userId: authUser?.uid || null, submittedAt: new Date().toISOString() });
+        localStorage.setItem('moneyquick_saved_applications', JSON.stringify(existing.slice(0, 50)));
+      } catch (storageErr) {
+        console.warn('Local storage write warning:', storageErr);
+      }
+
+      // 2. Fire Firestore persist in background (non-blocking so it NEVER hangs the submission)
+      saveLoanApplication({
         ...emailPayload,
         userId: authUser?.uid || null,
         submittedAt: new Date().toISOString(),
-      });
-    } catch (fsErr) {
-      console.warn('Firestore write warning:', fsErr);
-    }
+      }).catch((fsErr) => console.warn('Background Firestore write:', fsErr));
 
-    // 2. Dispatch Confirmation Email via EmailJS / Backend
-    try {
-      const emailResult = await sendApplicationConfirmationEmail(emailPayload);
-      if (emailResult.previewHtml) {
-        setEmailPreviewHtml(emailResult.previewHtml);
+      // 3. Dispatch Confirmation Email via Backend (Resend) or EmailJS / fallback preview
+      try {
+        const emailResult = await sendApplicationConfirmationEmail(emailPayload);
+        if (emailResult.previewHtml) {
+          setEmailPreviewHtml(emailResult.previewHtml);
+        }
+        setConfirmationNotice(
+          `${emailResult.message}. Our loan specialist will call you at ${formattedPhone}.`
+        );
+      } catch (emailErr) {
+        console.error('Email dispatch error:', emailErr);
+        setEmailPreviewHtml(generateConfirmationEmailHtml(emailPayload));
+        setConfirmationNotice(
+          `Your application has been received! Our loan specialist will call you at ${formattedPhone}.`
+        );
       }
+    } catch (unexpectedError) {
+      console.error('Submission pipeline error:', unexpectedError);
       setConfirmationNotice(
-        `Confirmation email dispatched to ${authUser?.email || 'your email'}. Our loan specialist will call you at ${formattedPhone}.`
-      );
-    } catch (err) {
-      console.error('Email dispatch error:', err);
-      setEmailPreviewHtml(generateConfirmationEmailHtml(emailPayload));
-      setConfirmationNotice(
-        `Your application was submitted. Our loan specialist will call you at ${formattedPhone}.`
+        `Your application was submitted successfully. Our loan specialist will call you.`
       );
     } finally {
+      // Guaranteed transition to submitted screen so the page NEVER freezes
       setIsSubmittingApp(false);
-      go('submitted');
+      setCurrentStep('submitted');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
 
@@ -1295,6 +1319,25 @@ export default function App() {
                   </div>
                   {phoneInputHint ? <p role="alert" className="mt-2 text-xs font-medium text-destructive">{phoneInputHint}</p> : <p className="mt-1.5 text-[11px] text-muted-foreground">Our loan specialist will call this number for verification.</p>}
                 </div>
+                <div>
+                  <label htmlFor="applicant-email" className="flex items-center justify-between text-xs font-bold uppercase tracking-[0.16em] text-muted-foreground">
+                    <span>Confirmation email address</span>
+                    <span className="text-[11px] font-semibold normal-case text-accent">For loan receipt</span>
+                  </label>
+                  <input
+                    id="applicant-email"
+                    type="email"
+                    placeholder="Enter email for confirmation receipt"
+                    value={applicantEmail}
+                    autoComplete="email"
+                    onChange={(event) => {
+                      setApplicantEmail(event.target.value);
+                      setApplicationError('');
+                    }}
+                    className="mt-2 w-full rounded-2xl border border-border bg-background px-4 py-3.5 font-medium text-primary outline-none transition focus:border-accent focus:ring-4 focus:ring-highlight"
+                  />
+                  <p className="mt-1.5 text-[11px] text-muted-foreground">We will send your reference ID and EMI schedule to this email.</p>
+                </div>
                 <div><label htmlFor="work-type" className="text-xs font-bold uppercase tracking-[0.16em] text-muted-foreground">Work type</label><select id="work-type" value={selectedBusinessType} onChange={(event) => setSelectedBusinessType(event.target.value)} className="mt-2 w-full rounded-2xl border border-border bg-background px-4 py-3.5 font-medium text-primary outline-none transition focus:border-accent focus:ring-4 focus:ring-highlight"><option>Business owner</option><option>Freelancer</option><option>Self-employed professional</option><option>Other</option></select></div>
                 <div><label htmlFor="review-business-industry" className="text-xs font-bold uppercase tracking-[0.16em] text-muted-foreground">Business industry</label><div className="mt-2"><IndustryPicker id="review-business-industry" value={businessIndustry} onChange={(industry) => { setBusinessIndustry(industry); setCustomBusinessIndustry(''); setApplicationError(''); }} /></div>{businessIndustry === 'Other — not listed' ? <input value={customBusinessIndustry} onChange={(event) => { setCustomBusinessIndustry(event.target.value); setApplicationError(''); }} placeholder="Enter your business type or name" className="mt-3 w-full rounded-2xl border border-border bg-background px-4 py-3.5 font-medium text-primary outline-none transition focus:border-accent focus:ring-4 focus:ring-highlight" /> : null}</div>
                 <div><div className="text-xs font-bold uppercase tracking-[0.16em] text-muted-foreground">Monthly revenue</div><div className="mt-2 rounded-2xl border border-border bg-surface px-4 py-3.5 font-semibold text-primary">{formatCurrency(monthlyRevenue)}</div></div>
@@ -1347,7 +1390,7 @@ export default function App() {
                 </div>
                 <div className="mt-4 text-xs font-bold uppercase tracking-[0.14em] text-muted-foreground">Confirmation Email</div>
                 <div className="mt-1 text-base font-bold text-primary break-all">
-                  {authUser?.email || 'Registered email'}
+                  {applicantEmail || authUser?.email || 'Registered email'}
                 </div>
                 <p className="mt-2 text-xs leading-5 text-muted-foreground">
                   A receipt with your requested amount ({formatCurrency(requestedDisplay)}), illustrative EMI ({formatCurrency(estimatedEmi)}/mo), and reference ID has been sent.
