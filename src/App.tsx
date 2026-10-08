@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import type { User } from 'firebase/auth';
 import { createUserWithEmailAndPassword, onAuthStateChanged, sendPasswordResetEmail, signInWithEmailAndPassword, signInWithPopup, signOut as firebaseSignOut, updateProfile } from 'firebase/auth';
 import { firebaseAuth, googleProvider, isFirebaseConfigured, saveLoanApplication } from './firebase';
-import { sendApplicationConfirmationEmail, generateConfirmationEmailHtml, type LoanApplicationEmailPayload } from './services/emailService';
+import { sendApplicationConfirmationEmail, type LoanApplicationEmailPayload } from './services/emailService';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import TermsAndConditions from './pages/TermsAndConditions';
 import DigitalLendingLanding from './pages/DigitalLendingLanding';
@@ -588,10 +588,10 @@ const AuthScreen = ({ onSignedIn, theme, toggleTheme, onBack }: { onSignedIn: (u
         </button>
       </div>
       <main className="relative z-10 mx-auto flex min-h-screen max-w-md items-center px-5 py-10">
-        <section className="w-full rounded-[32px] border border-white/80 bg-white/75 p-7 shadow-[0_24px_70px_rgba(7,20,47,0.10)] backdrop-blur sm:p-10">
+        <section className="w-full rounded-[32px] border border-white/80 dark:border-slate-800 bg-white/80 dark:bg-slate-900/95 p-7 shadow-[0_24px_70px_rgba(7,20,47,0.10)] dark:shadow-[0_24px_70px_rgba(0,0,0,0.55)] backdrop-blur sm:p-10">
           {onBack && <button type="button" onClick={onBack} className="mb-5 inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-muted-foreground hover:text-primary transition">&larr; Back to Website</button>}
           <div className="flex items-center gap-3">
-            <div className="flex h-11 w-11 items-center justify-center rounded-full bg-primary text-sm font-bold text-white">MQ</div>
+            <div className="flex h-11 w-11 items-center justify-center rounded-full bg-accent text-sm font-bold text-white shadow-sm">MQ</div>
             <div>
               <div className="font-bold text-primary">MONEYQUICK</div>
               <div className="text-xs text-muted-foreground">A secure place to prepare</div>
@@ -599,33 +599,39 @@ const AuthScreen = ({ onSignedIn, theme, toggleTheme, onBack }: { onSignedIn: (u
           </div>
           <h1 className="mt-8 text-3xl font-bold tracking-[-0.04em] text-primary">{mode === 'signIn' ? 'Welcome back' : 'Create your account'}</h1>
           <p className="mt-2 text-sm leading-6 text-muted-foreground">Sign in to save and continue your loan readiness journey.</p>
-          <button type="button" disabled={busy} onClick={signInWithGoogle} className="mt-7 flex w-full items-center justify-center gap-3 rounded-2xl border border-border bg-white px-4 py-3.5 text-sm font-semibold text-primary transition hover:border-accent hover:bg-highlight disabled:opacity-50">
-            <span className="text-lg font-bold text-[#4285F4]">G</span>Continue with Google
+          <button
+            type="button"
+            disabled={busy}
+            onClick={signInWithGoogle}
+            className="mt-7 flex w-full items-center justify-center gap-3 rounded-2xl border border-border bg-white px-4 py-3.5 text-sm font-semibold text-slate-800 shadow-sm transition hover:border-accent hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:hover:bg-slate-750 disabled:opacity-50"
+          >
+            <span className="text-lg font-bold text-[#4285F4]">G</span>
+            <span className="font-semibold text-slate-800 dark:text-slate-100">Continue with Google</span>
           </button>
           <div className="my-6 flex items-center gap-3 text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground">
-            <span className="h-px flex-1 bg-border" />or use email<span className="h-px flex-1 bg-border" />
+            <span className="h-px flex-1 bg-border dark:bg-slate-800" />or use email<span className="h-px flex-1 bg-border dark:bg-slate-800" />
           </div>
           <form onSubmit={submitEmailAuth} className="space-y-4">
             <label className="block text-xs font-bold uppercase tracking-[0.12em] text-muted-foreground">
               Email
-              <input required type="email" autoComplete="email" value={email} onChange={(event) => setEmail(event.target.value)} className="mt-2 w-full rounded-2xl border border-border bg-background px-4 py-3.5 text-base font-medium text-primary outline-none transition focus:border-accent focus:ring-4 focus:ring-highlight" />
+              <input required type="email" autoComplete="email" value={email} onChange={(event) => setEmail(event.target.value)} className="mt-2 w-full rounded-2xl border border-border dark:border-slate-800 bg-background dark:bg-slate-950 px-4 py-3.5 text-base font-medium text-slate-900 dark:text-slate-100 outline-none transition focus:border-accent focus:ring-4 focus:ring-highlight" />
             </label>
             <label className="block text-xs font-bold uppercase tracking-[0.12em] text-muted-foreground">
               Password
               <div className="relative mt-2">
-                <input required minLength={8} type={showPassword ? 'text' : 'password'} autoComplete={mode === 'signIn' ? 'current-password' : 'new-password'} value={password} onChange={(event) => setPassword(event.target.value)} className="w-full rounded-2xl border border-border bg-background px-4 py-3.5 pr-12 text-base font-medium text-primary outline-none transition focus:border-accent focus:ring-4 focus:ring-highlight" />
+                <input required minLength={8} type={showPassword ? 'text' : 'password'} autoComplete={mode === 'signIn' ? 'current-password' : 'new-password'} value={password} onChange={(event) => setPassword(event.target.value)} className="w-full rounded-2xl border border-border dark:border-slate-800 bg-background dark:bg-slate-950 px-4 py-3.5 pr-12 text-base font-medium text-slate-900 dark:text-slate-100 outline-none transition focus:border-accent focus:ring-4 focus:ring-highlight" />
                 <button type="button" onClick={() => setShowPassword((value) => !value)} aria-label={showPassword ? 'Hide password' : 'Show password'} className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full p-2 text-muted-foreground transition hover:bg-highlight hover:text-accent">
                   <Eye open={showPassword} />
                 </button>
               </div>
             </label>
             {mode === 'signUp' ? (
-              <div className="rounded-2xl bg-highlight/75 p-4">
+              <div className="rounded-2xl bg-highlight/75 dark:bg-accent/15 p-4">
                 <div className="text-xs font-bold uppercase tracking-[0.13em] text-accent">Create a stronger password</div>
                 <div className="mt-3 grid grid-cols-2 gap-2">
                   {passwordRules.map(([label, complete]) => (
                     <div key={String(label)} className={`flex items-center gap-2 text-xs font-semibold ${complete ? 'text-accent' : 'text-muted-foreground'}`}>
-                      <span className={`flex h-4 w-4 items-center justify-center rounded-full text-[9px] ${complete ? 'bg-accent text-white' : 'bg-white text-muted-foreground'}`}>{complete ? '✓' : '•'}</span>
+                      <span className={`flex h-4 w-4 items-center justify-center rounded-full text-[9px] ${complete ? 'bg-accent text-white' : 'bg-surface dark:bg-slate-800 text-muted-foreground'}`}>{complete ? '✓' : '•'}</span>
                       {label}
                     </div>
                   ))}
@@ -633,7 +639,7 @@ const AuthScreen = ({ onSignedIn, theme, toggleTheme, onBack }: { onSignedIn: (u
               </div>
             ) : null}
             <PrimaryButton type="submit" disabled={busy} onClick={() => undefined} className="w-full">
-              {busy ? 'Please wait' : mode === 'signIn' ? 'Sign in' : 'Create account'}
+              {busy ? 'Please wait…' : mode === 'signIn' ? 'Sign in' : 'Create account'}
             </PrimaryButton>
           </form>
           {mode === 'signIn' ? (
@@ -723,8 +729,6 @@ export default function App() {
   });
   const [phoneInputHint, setPhoneInputHint] = useState('');
   const [submittedAppId, setSubmittedAppId] = useState('');
-  const [emailPreviewHtml, setEmailPreviewHtml] = useState('');
-  const [showEmailPreviewModal, setShowEmailPreviewModal] = useState(false);
   const [isSubmittingApp, setIsSubmittingApp] = useState(false);
   const [applicationError, setApplicationError] = useState('');
   const [nameInputHint, setNameInputHint] = useState('');
@@ -900,22 +904,15 @@ export default function App() {
         submittedAt: new Date().toISOString(),
       }).catch((fsErr) => console.warn('Background Firestore write:', fsErr));
 
-      // 3. Dispatch Confirmation Email via Backend (Resend) or EmailJS / fallback preview
+      // 3. Dispatch Confirmation Email via Backend (Resend) or EmailJS in background
       try {
-        const emailResult = await sendApplicationConfirmationEmail(emailPayload);
-        if (emailResult.previewHtml) {
-          setEmailPreviewHtml(emailResult.previewHtml);
-        }
-        setConfirmationNotice(
-          `${emailResult.message}. Our loan specialist will call you at ${formattedPhone}.`
-        );
+        await sendApplicationConfirmationEmail(emailPayload);
       } catch (emailErr) {
-        console.error('Email dispatch error:', emailErr);
-        setEmailPreviewHtml(generateConfirmationEmailHtml(emailPayload));
-        setConfirmationNotice(
-          `Your application has been received! Our loan specialist will call you at ${formattedPhone}.`
-        );
+        console.error('Email dispatch error (non-fatal):', emailErr);
       }
+      setConfirmationNotice(
+        `Your application has been received successfully! Our loan specialist will call you shortly at ${formattedPhone}.`
+      );
     } catch (unexpectedError) {
       console.error('Submission pipeline error:', unexpectedError);
       setConfirmationNotice(
@@ -1249,7 +1246,13 @@ export default function App() {
                   <p className="mt-3 text-sm leading-6 text-white/70">Continue to the formal application without starting again.</p>
                   {!hasRequiredDocuments ? <p role="alert" className="mt-4 rounded-2xl bg-white/10 px-4 py-3 text-xs font-medium leading-5 text-white/85">Upload all 5 required documents first: PAN card, Aadhaar card, business bank statements, income and business proof, and business registration. {verifiedDocumentCount} of {requiredDocumentCount} complete.</p> : <p className="mt-4 rounded-2xl bg-accent/20 px-4 py-3 text-xs font-semibold leading-5 text-white">All 5 required documents have been uploaded and checked. You can continue.</p>}
                   {documentGateNotice ? <p role="alert" className="mt-3 text-xs leading-5 text-[#F4CC83]">{documentGateNotice}</p> : null}
-                  <PrimaryButton disabled={!hasRequiredDocuments} onClick={() => go('handoff')} className="mt-6 w-full !bg-white !text-primary hover:!bg-highlight hover:!text-primary disabled:!bg-white/25 disabled:!text-white/55">{hasRequiredDocuments ? 'Continue to application' : 'Complete document checks to continue'}</PrimaryButton>
+                  <PrimaryButton
+                    disabled={!hasRequiredDocuments}
+                    onClick={() => go('handoff')}
+                    className="btn-white-contrast mt-6 w-full !bg-white !text-[#0C1B47] hover:!bg-slate-100 disabled:!bg-white/30 disabled:!text-[#0C1B47]/50 shadow-md font-bold"
+                  >
+                    <span className="font-bold text-[#0C1B47]">{hasRequiredDocuments ? 'Continue to application' : 'Complete document checks to continue'}</span>
+                  </PrimaryButton>
                   <button type="button" onClick={saveSnapshot} className="mt-4 w-full rounded-full bg-white/10 px-4 py-2.5 text-sm font-semibold text-white/85 transition hover:bg-white/15 hover:text-white">Save this loan outlook ↗</button>
                   <div className="mt-2 text-center text-[11px] leading-5 text-white/55">Keep your estimate handy while you prepare your documents.</div>
                 </div>
@@ -1388,20 +1391,13 @@ export default function App() {
                     Dispatched
                   </span>
                 </div>
-                <div className="mt-4 text-xs font-bold uppercase tracking-[0.14em] text-muted-foreground">Confirmation Email</div>
+                <div className="mt-4 text-xs font-bold uppercase tracking-[0.14em] text-muted-foreground">Confirmation Receipt</div>
                 <div className="mt-1 text-base font-bold text-primary break-all">
                   {applicantEmail || authUser?.email || 'Registered email'}
                 </div>
                 <p className="mt-2 text-xs leading-5 text-muted-foreground">
-                  A receipt with your requested amount ({formatCurrency(requestedDisplay)}), illustrative EMI ({formatCurrency(estimatedEmi)}/mo), and reference ID has been sent.
+                  A formal receipt with your requested amount ({formatCurrency(requestedDisplay)}), illustrative EMI ({formatCurrency(estimatedEmi)}/mo), and reference ID #{submittedAppId || 'MQ-APP-782914'} has been sent to your email.
                 </p>
-                <button
-                  type="button"
-                  onClick={() => setShowEmailPreviewModal(true)}
-                  className="mt-4 inline-flex items-center gap-2 rounded-xl border border-border bg-white dark:bg-card px-4 py-2 text-xs font-semibold text-accent shadow-sm transition hover:bg-highlight"
-                >
-                  <Mail size={14} /> Preview confirmation email
-                </button>
               </div>
 
               <div className="rounded-[24px] border border-border-light bg-surface p-6 shadow-sm transition-all hover:shadow-md">
@@ -1529,67 +1525,6 @@ export default function App() {
           </div>
         </div>
       </footer>
-
-      {showEmailPreviewModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm animate-fade-in" role="dialog" aria-modal="true" aria-labelledby="email-preview-title">
-          <div className="relative flex max-h-[90vh] w-full max-w-2xl flex-col rounded-[28px] border border-white/40 bg-background p-6 shadow-2xl sm:p-8">
-            <div className="flex items-center justify-between border-b border-border-light pb-4">
-              <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-highlight text-accent">
-                  <Mail size={20} />
-                </div>
-                <div>
-                  <h3 id="email-preview-title" className="text-lg font-bold text-primary">Confirmation Email Preview</h3>
-                  <p className="text-xs text-muted-foreground">Delivered to {authUser?.email || 'registered email'}</p>
-                </div>
-              </div>
-              <button
-                type="button"
-                onClick={() => setShowEmailPreviewModal(false)}
-                className="flex h-9 w-9 items-center justify-center rounded-full bg-surface text-muted-foreground transition hover:bg-highlight hover:text-primary"
-                aria-label="Close email preview"
-              >
-                ✕
-              </button>
-            </div>
-
-            <div className="mt-4 flex-1 overflow-hidden rounded-2xl border border-border bg-white shadow-inner">
-              <iframe
-                title="Application Confirmation Email Preview"
-                srcDoc={emailPreviewHtml || generateConfirmationEmailHtml({
-                  applicationId: submittedAppId || 'MQ-APP-782914',
-                  applicantName: applicantName || 'Applicant',
-                  email: authUser?.email || 'applicant@example.com',
-                  phone: applicantPhone ? `+91 ${applicantPhone.replace(/\D/g, '').slice(-10)}` : '+91 98765 43210',
-                  requestedAmount: formatCurrency(requestedDisplay),
-                  loanPurpose,
-                  loanCategory,
-                  selectedBusinessType,
-                  selectedIndustryLabel: selectedIndustryLabel || 'Business',
-                  monthlyRevenue: formatCurrency(monthlyRevenue),
-                  monthlyExpenses: formatCurrency(monthlyExpenses),
-                  yearsInBusiness,
-                  applicantAge,
-                  creditScore: String(creditScore),
-                  loanTenureYears,
-                  annualInterestRate,
-                  estimatedEmi: formatCurrency(estimatedEmi),
-                })}
-                className="h-[460px] w-full border-0"
-              />
-            </div>
-
-            <div className="mt-5 flex flex-wrap items-center justify-between gap-3">
-              <span className="text-xs text-muted-foreground">
-                Email template includes full loan breakdown and agent callback notice
-              </span>
-              <SecondaryButton onClick={() => setShowEmailPreviewModal(false)}>
-                Close Preview
-              </SecondaryButton>
-            </div>
-          </div>
-        </div>
-      )}
 
       <KiraAssistant />
     </div>

@@ -228,13 +228,28 @@ button {
 }
 
 /* Brand Primary Button in dark mode */
-.dark button.bg-primary {
+.dark button.bg-primary:not(.btn-white-contrast):not([class*="bg-white"]):not([class*="!bg-white"]) {
   background-color: #0B8F83 !important;
   color: #FFFFFF !important;
 }
 
-.dark button.bg-primary:hover:not(:disabled) {
+.dark button.bg-primary:hover:not(:disabled):not(.btn-white-contrast):not([class*="bg-white"]):not([class*="!bg-white"]) {
   background-color: #0D9488 !important;
+}
+
+/* Any button or element with explicit white background in dark mode MUST maintain crisp dark text */
+.dark button[class*="bg-white"],
+.dark button[class*="!bg-white"],
+.dark .btn-white-contrast,
+.dark button.btn-white-contrast {
+  background-color: #FFFFFF !important;
+  color: #0C1B47 !important;
+}
+
+.dark button[class*="bg-white"] *,
+.dark button[class*="!bg-white"] *,
+.dark .btn-white-contrast * {
+  color: #0C1B47 !important;
 }
 
 /* Dark mode user chat message bubble */
@@ -274,12 +289,12 @@ button {
   border-color: rgba(20, 184, 166, 0.25) !important;
 }
 
-/* Ensure text-primary is crisp and readable */
-.dark .text-primary {
+/* Ensure text-primary is crisp and readable, except inside explicit white containers */
+.dark .text-primary:not([class*="bg-white"]):not(.btn-white-contrast) {
   color: #F8FAFC !important;
 }
 
-.dark .text-muted-foreground {
+.dark .text-muted-foreground:not([class*="bg-white"]) {
   color: #94A3B8 !important;
 }
 
