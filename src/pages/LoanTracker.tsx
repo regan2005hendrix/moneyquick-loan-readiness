@@ -314,40 +314,40 @@ export default function LoanTracker({
     <div className="min-h-screen bg-background text-foreground transition-colors selection:bg-highlight selection:text-primary pb-20">
       {/* Top Navbar */}
       <header className="sticky top-0 z-40 border-b border-border/80 bg-background/90 backdrop-blur-md transition-colors">
-        <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8 py-3.5">
-          <div className="flex shrink-0 items-center gap-3">
+        <div className="mx-auto flex max-w-7xl items-center justify-between gap-2 sm:gap-4 px-3 sm:px-6 lg:px-8 py-2.5 sm:py-3.5">
+          <div className="flex shrink-0 items-center gap-2 sm:gap-3">
             <button
               type="button"
               onClick={onBackToHome}
-              className="flex items-center gap-3 text-left transition hover:opacity-85"
+              className="flex items-center gap-2 sm:gap-3 text-left transition hover:opacity-85"
             >
               <img
                 src="/3b6903f8-23e4-4c03-9082-3fe23e47cd11.png"
                 alt="MONEYQUICK Logo"
-                className="h-9 w-auto object-contain"
+                className="h-8 sm:h-9 w-auto object-contain"
               />
               <div>
-                <div className="text-[17px] font-extrabold tracking-tight text-primary">MONEYQUICK</div>
-                <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-accent">Loan Tracking Desk</div>
+                <div className="text-[15px] sm:text-[17px] font-extrabold tracking-tight text-primary">MONEYQUICK</div>
+                <div className="text-[9px] sm:text-[10px] font-bold uppercase tracking-[0.15em] sm:tracking-[0.2em] text-accent hidden xs:block">Loan Tracking Desk</div>
               </div>
             </button>
           </div>
 
-          <div className="flex shrink-0 items-center gap-2 sm:gap-3">
+          <div className="flex shrink-0 items-center gap-1.5 sm:gap-3">
             {/* Theme Toggle */}
             <button
               type="button"
               onClick={toggleTheme}
-              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-border bg-surface text-primary shadow-sm transition hover:border-accent hover:text-accent"
+              className="flex h-8 w-8 sm:h-9 sm:w-9 shrink-0 items-center justify-center rounded-lg border border-border bg-surface text-primary shadow-sm transition hover:border-accent hover:text-accent"
               aria-label={theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}
               title={theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}
             >
               {theme === 'light' ? (
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" />
                 </svg>
               ) : (
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-amber-400">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-amber-400">
                   <circle cx="12" cy="12" r="4" /><path d="M12 2v2" /><path d="M12 20v2" /><path d="m4.93 4.93 1.41 1.41" /><path d="m17.66 17.66 1.41 1.41" /><path d="M2 12h2" /><path d="M20 12h2" /><path d="m6.34 17.66-1.41 1.41" /><path d="m19.07 4.93-1.41 1.41" />
                 </svg>
               )}
@@ -356,17 +356,19 @@ export default function LoanTracker({
             <button
               type="button"
               onClick={onBackToHome}
-              className="rounded-lg border border-border px-3.5 py-2 text-xs font-semibold text-muted-foreground hover:bg-surface hover:text-primary transition"
+              className="rounded-lg border border-border px-2.5 sm:px-3.5 py-1.5 sm:py-2 text-[11px] sm:text-xs font-semibold text-muted-foreground hover:bg-surface hover:text-primary transition"
             >
-              Back to Home
+              <span className="hidden sm:inline">Back to Home</span>
+              <span className="sm:hidden">Home</span>
             </button>
 
             <button
               type="button"
               onClick={onStartNewApplication}
-              className="rounded-lg bg-accent px-3.5 py-2 text-xs font-bold uppercase tracking-wider text-white shadow-sm hover:bg-[#5145CE] transition"
+              className="rounded-lg bg-accent px-2.5 sm:px-3.5 py-1.5 sm:py-2 text-[11px] sm:text-xs font-bold uppercase tracking-wider text-white shadow-sm hover:bg-[#5145CE] transition whitespace-nowrap"
             >
-              New Application &rarr;
+              <span className="hidden sm:inline">New Application &rarr;</span>
+              <span className="sm:hidden">Apply &rarr;</span>
             </button>
           </div>
         </div>

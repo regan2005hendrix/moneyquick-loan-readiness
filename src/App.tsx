@@ -250,39 +250,39 @@ const ProfileMenu = ({ user, onSignOut, onProfileUpdated }: { user: User; onSign
 
 const Topbar = ({ step, onReset, onNavigate, user, onSignOut, onProfileUpdated, theme, toggleTheme }: { step: Step; onReset: () => void; onNavigate: (step: Step) => void; user: User; onSignOut: () => void; onProfileUpdated: (user: User) => void; theme: 'light' | 'dark'; toggleTheme: () => void }) => {
   return (
-    <header className="relative z-30 flex w-full items-center justify-between px-5 py-5 sm:px-8 lg:px-12">
-      <button type="button" onClick={onReset} className="flex items-center gap-3 rounded-lg transition-opacity hover:opacity-80 focus:outline-none focus:ring-2 focus:ring-accent/30" aria-label="Go to home page">
-        <img src="/3b6903f8-23e4-4c03-9082-3fe23e47cd11.png" alt="MONEYQUICK Logo" className="h-9 w-auto object-contain" />
+    <header className="relative z-30 flex w-full items-center justify-between px-3 py-3 sm:px-8 sm:py-5 lg:px-12">
+      <button type="button" onClick={onReset} className="flex items-center gap-2 sm:gap-3 rounded-lg transition-opacity hover:opacity-80 focus:outline-none focus:ring-2 focus:ring-accent/30" aria-label="Go to home page">
+        <img src="/3b6903f8-23e4-4c03-9082-3fe23e47cd11.png" alt="MONEYQUICK Logo" className="h-8 sm:h-9 w-auto object-contain" />
         <div className="text-left">
-          <div className="text-[15px] font-semibold tracking-[-0.02em] text-primary">MONEYQUICK</div>
+          <div className="text-[14px] sm:text-[15px] font-semibold tracking-[-0.02em] text-primary">MONEYQUICK</div>
           <div className="hidden text-[10px] uppercase tracking-[0.22em] text-muted-foreground sm:block">Professional loan readiness</div>
         </div>
       </button>
 
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-1.5 sm:gap-2">
         <button
           type="button"
           onClick={toggleTheme}
-          className="group relative flex h-9 w-9 items-center justify-center rounded-lg border border-border bg-background text-primary shadow-sm transition-all duration-300 hover:border-accent/40 hover:bg-highlight hover:text-accent focus:outline-none focus:ring-2 focus:ring-accent/20 active:scale-95"
+          className="group relative flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-lg border border-border bg-background text-primary shadow-sm transition-all duration-300 hover:border-accent/40 hover:bg-highlight hover:text-accent focus:outline-none focus:ring-2 focus:ring-accent/20 active:scale-95"
           aria-label={theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}
           title={theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}
         >
           {theme === 'light' ? (
-            <Moon size={16} className="text-slate-700 transition-transform duration-300 group-hover:-rotate-12" />
+            <Moon size={15} className="text-slate-700 transition-transform duration-300 group-hover:-rotate-12" />
           ) : (
-            <Sun size={16} className="text-amber-400 transition-transform duration-300 group-hover:rotate-45" />
+            <Sun size={15} className="text-amber-400 transition-transform duration-300 group-hover:rotate-45" />
           )}
         </button>
         <ProfileMenu user={user} onSignOut={onSignOut} onProfileUpdated={onProfileUpdated} />
         <button
           type="button"
           onClick={() => onNavigate('tracking')}
-          className="rounded-lg border border-border bg-background px-3 py-1.5 text-xs font-semibold text-primary transition hover:border-accent hover:text-accent shadow-sm"
+          className="rounded-lg border border-border bg-background px-2.5 py-1.5 sm:px-3 text-[11px] sm:text-xs font-semibold text-primary transition hover:border-accent hover:text-accent shadow-sm"
         >
           Track Loan
         </button>
         {step !== 'landing' && step !== 'calculating' && step !== 'privacy' && step !== 'terms' && step !== 'tracking' ? (
-          <button type="button" onClick={onReset} className="hidden rounded-lg px-4 py-2 text-sm font-medium text-muted-foreground transition hover:bg-surface dark:hover:bg-slate-800 hover:text-primary sm:inline-flex">Start over</button>
+          <button type="button" onClick={onReset} className="hidden rounded-lg px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-medium text-muted-foreground transition hover:bg-surface dark:hover:bg-slate-800 hover:text-primary sm:inline-flex">Start over</button>
         ) : null}
         <div className="hidden items-center gap-3 ml-2 border-l border-border pl-3 sm:flex">
           <button onClick={() => onNavigate('privacy')} className="text-[11px] font-semibold text-muted-foreground transition hover:text-primary">Privacy</button>
@@ -301,10 +301,10 @@ const BackButton = ({ onClick }: { onClick: () => void }) => (
 );
 
 const Progress = ({ current, total = 2, label }: { current: number; total?: number; label?: string }) => (
-  <div className="mb-5 flex items-center gap-3 text-[11px] font-bold uppercase tracking-[0.18em] text-muted-foreground">
-    <span>{label ?? `Step ${current} of ${total}`}</span>
-    <span className="h-px w-10 bg-border" />
-    <span className="text-accent">Your loan picture is taking shape</span>
+  <div className="mb-5 flex items-center gap-2 sm:gap-3 text-[10px] sm:text-[11px] font-bold uppercase tracking-[0.14em] sm:tracking-[0.18em] text-muted-foreground">
+    <span className="shrink-0">{label ?? `Step ${current} of ${total}`}</span>
+    <span className="h-px w-5 sm:w-10 bg-border shrink-0" />
+    <span className="text-accent truncate hidden xs:inline sm:inline">Your loan picture is taking shape</span>
   </div>
 );
 
@@ -661,8 +661,8 @@ const AuthScreen = ({ onSignedIn, theme, toggleTheme, onBack }: { onSignedIn: (u
           )}
         </button>
       </div>
-      <main className="relative z-10 mx-auto flex min-h-screen max-w-md items-center px-5 py-10">
-        <section className="w-full rounded-[32px] border border-white/80 dark:border-slate-800 bg-white/80 dark:bg-slate-900/95 p-7 shadow-[0_24px_70px_rgba(7,20,47,0.10)] dark:shadow-[0_24px_70px_rgba(0,0,0,0.55)] backdrop-blur sm:p-10">
+      <main className="relative z-10 mx-auto flex min-h-screen max-w-md items-center px-3.5 py-6 sm:px-5 sm:py-10">
+        <section className="w-full rounded-[26px] sm:rounded-[32px] border border-white/80 dark:border-slate-800 bg-white/80 dark:bg-slate-900/95 p-5 sm:p-10 shadow-[0_24px_70px_rgba(7,20,47,0.10)] dark:shadow-[0_24px_70px_rgba(0,0,0,0.55)] backdrop-blur">
           {onBack && <button type="button" onClick={onBack} className="mb-5 inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-muted-foreground hover:text-primary transition">&larr; Back to Website</button>}
           <div className="flex items-center gap-3">
             <div className="flex h-11 w-11 items-center justify-center rounded-full bg-accent text-sm font-bold text-white shadow-sm">MQ</div>
@@ -1423,7 +1423,25 @@ export default function App() {
 
               <div className="mt-9 border-t border-border/80 dark:border-slate-800 pt-8">
                 <div className="flex flex-col justify-between gap-2 sm:flex-row sm:items-end"><div><div className="text-xs font-bold uppercase tracking-[0.18em] text-primary">Repayment plan</div><p className="mt-2 text-sm leading-6 text-muted-foreground">Choose a tenure and an illustrative annual interest assumption to see a monthly EMI. This is not a lender offer or an APR.</p></div><div className="rounded-2xl bg-highlight dark:bg-slate-800 px-4 py-3 text-right"><div className="text-[10px] font-bold uppercase tracking-[0.12em] text-accent">Illustrative EMI</div><div className="mt-1 text-xl font-bold text-primary">{formatCurrency(estimatedEmi)}<span className="ml-1 text-xs font-medium text-muted-foreground">/ month</span></div></div></div>
-                <div className="mt-6"><div className="text-xs font-bold uppercase tracking-[0.14em] text-primary">How long do you want the loan for?</div><div className="mt-3 grid grid-cols-3 gap-2 sm:grid-cols-5">{[1, 2, 3, 4, 5].map((years) => <button key={years} type="button" onClick={() => setLoanTenureYears(years)} className={`rounded-2xl border px-3 py-3 text-sm font-bold transition ${loanTenureYears === years ? 'border-2 border-accent bg-accent/15 text-accent dark:bg-accent/20' : 'border-border/80 dark:border-slate-800 bg-surface/60 dark:bg-slate-950/70 text-primary hover:border-accent/35 dark:hover:bg-slate-800/80'}`}>{years} {years === 1 ? 'year' : 'years'}</button>)}</div></div>
+                <div className="mt-6">
+                  <div className="text-xs font-bold uppercase tracking-[0.14em] text-primary">How long do you want the loan for?</div>
+                  <div className="mt-3 grid grid-cols-5 gap-1.5 sm:gap-2">
+                    {[1, 2, 3, 4, 5].map((years) => (
+                      <button
+                        key={years}
+                        type="button"
+                        onClick={() => setLoanTenureYears(years)}
+                        className={`rounded-xl sm:rounded-2xl border px-1 sm:px-3 py-2.5 sm:py-3 text-xs sm:text-sm font-bold transition text-center ${
+                          loanTenureYears === years
+                            ? 'border-2 border-accent bg-accent/15 text-accent dark:bg-accent/20 shadow-sm'
+                            : 'border-border/80 dark:border-slate-800 bg-surface/60 dark:bg-slate-950/70 text-primary hover:border-accent/35 dark:hover:bg-slate-800/80'
+                        }`}
+                      >
+                        {years} {years === 1 ? 'yr' : 'yrs'}
+                      </button>
+                    ))}
+                  </div>
+                </div>
                 <label className="mt-7 block"><div className="flex items-center justify-between gap-3"><span className="text-xs font-bold uppercase tracking-[0.14em] text-primary">Illustrative annual interest rate</span><span className="rounded-full bg-primary px-3 py-1 text-sm font-bold text-white dark:text-slate-900">{annualInterestRate.toFixed(2)}%</span></div><input aria-label="Illustrative annual interest rate" type="range" min="8" max="24" step="0.25" value={annualInterestRate} onChange={(event) => setAnnualInterestRate(Number(event.target.value))} className="mt-4 w-full accent-[#0B8F83]" /><div className="mt-2 flex justify-between text-xs font-medium text-muted-foreground"><span>8%</span><span>24%</span></div></label>
               </div>
             </div>
@@ -1468,7 +1486,7 @@ export default function App() {
                   <div className="absolute inset-0 opacity-[0.06] [background-image:linear-gradient(rgba(7,20,47,0.08)_1px,transparent_1px),linear-gradient(90deg,rgba(7,20,47,0.08)_1px,transparent_1px)] [background-size:28px_28px]" />
                   <div className="relative">
                     <div className="flex items-center justify-between gap-4"><div className="text-xs font-bold uppercase tracking-[0.18em] text-muted-foreground">Indicative borrowing range</div><span className="rounded-full bg-surface dark:bg-slate-800 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground">Subject to verification</span></div>
-                    <div className="mt-3 text-5xl font-bold tracking-[-0.055em] text-primary sm:text-6xl">{formatCurrency(minCapacity)} <span className="font-normal text-muted-foreground">–</span> {formatCurrency(maxCapacity)}</div>
+                    <div className="mt-3 text-2xl sm:text-5xl lg:text-6xl font-bold tracking-[-0.03em] sm:tracking-[-0.055em] text-primary">{formatCurrency(minCapacity)} <span className="font-normal text-muted-foreground">–</span> {formatCurrency(maxCapacity)}</div>
                     <div className="mt-3 text-sm font-semibold text-muted-foreground">You asked for <span className="text-primary">{formatCurrency(requestedAmount)}</span> for {effectiveLoanPurpose.toLowerCase()}.</div>
                     <div className="mt-9">
                       {(() => {
@@ -1517,8 +1535,8 @@ export default function App() {
                         <div><div className="text-xs font-bold uppercase tracking-[0.15em] text-accent">How we got here</div><p className="mt-1 max-w-2xl text-sm leading-6 text-primary">Three signals shape this prototype's indicative picture. A real lender would combine these with credit history, verified documents and its own underwriting policy.</p></div>
                         <span className="hidden rounded-full bg-surface/80 dark:bg-slate-700/80 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.12em] text-muted-foreground sm:inline-flex">Indicative only</span>
                       </div>
-                      <div className="mt-5 grid gap-2 sm:grid-cols-3">
-                        {[['Business history', `${yearsInBusiness}${yearsInBusiness >= 4 ? '+' : ''} years`], ['Cash flow', formatCurrency(netMonthly)], ['Loan request', formatCurrency(requestedAmount)], ['Repayment plan', `${loanTenureYears} years at ${annualInterestRate.toFixed(2)}%`]].map(([label, value]) => <div key={label} className="rounded-[18px] bg-surface/80 dark:bg-slate-900/80 p-4"><div className="text-[11px] font-bold uppercase tracking-[0.12em] text-muted-foreground">{label}</div><div className="mt-1 text-sm font-bold text-primary">{value}</div></div>)}
+                      <div className="mt-5 grid gap-2 grid-cols-2 sm:grid-cols-4">
+                        {[['Business history', `${yearsInBusiness}${yearsInBusiness >= 4 ? '+' : ''} years`], ['Cash flow', formatCurrency(netMonthly)], ['Loan request', formatCurrency(requestedAmount)], ['Repayment plan', `${loanTenureYears} years at ${annualInterestRate.toFixed(2)}%`]].map(([label, value]) => <div key={label} className="rounded-[18px] bg-surface/80 dark:bg-slate-900/80 p-3 sm:p-4"><div className="text-[10px] sm:text-[11px] font-bold uppercase tracking-[0.12em] text-muted-foreground">{label}</div><div className="mt-1 text-xs sm:text-sm font-bold text-primary">{value}</div></div>)}
                       </div>
                       <div className="mt-4 text-xs leading-5 text-muted-foreground">Verification of income, business documents and credit profile happens during formal assessment.</div>
                     </div>
@@ -1595,8 +1613,8 @@ export default function App() {
 
             <div className="mt-8 rounded-[26px] border border-border/80 dark:border-slate-800 bg-highlight/75 dark:bg-slate-900/80 p-5 sm:p-6">
               <div className="text-xs font-bold uppercase tracking-[0.16em] text-accent">Your loan outlook</div>
-              <div className="mt-4 grid gap-3 sm:grid-cols-4">
-                {[['Requested', formatCurrency(requestedDisplay)], ['Purpose', effectiveLoanPurpose], ['Business age', `${yearsInBusiness}${yearsInBusiness >= 4 ? '+' : ''} years`], ['Illustrative EMI', formatCurrency(estimatedEmi) + ' / mo']].map(([label, value]) => <div key={label} className="rounded-[18px] bg-surface/80 dark:bg-slate-800/80 p-4"><div className="text-[11px] font-bold uppercase tracking-[0.12em] text-muted-foreground">{label}</div><div className="mt-1 text-sm font-bold text-primary">{value}</div></div>)}
+              <div className="mt-4 grid gap-2.5 sm:gap-3 grid-cols-2 sm:grid-cols-4">
+                {[['Requested', formatCurrency(requestedDisplay)], ['Purpose', effectiveLoanPurpose], ['Business age', `${yearsInBusiness}${yearsInBusiness >= 4 ? '+' : ''} years`], ['Illustrative EMI', formatCurrency(estimatedEmi) + ' / mo']].map(([label, value]) => <div key={label} className="rounded-[18px] bg-surface/80 dark:bg-slate-800/80 p-3 sm:p-4"><div className="text-[10px] sm:text-[11px] font-bold uppercase tracking-[0.12em] text-muted-foreground">{label}</div><div className="mt-1 text-xs sm:text-sm font-bold text-primary truncate" title={value}>{value}</div></div>)}
               </div>
               <div className="mt-4 text-xs leading-5 text-muted-foreground">Your indicative range: <span className="font-semibold text-primary">{formatLakh(minCapacity)} – {formatLakh(maxCapacity)}</span>. Final pricing and approval depend on lender verification and assessment.</div>
             </div>

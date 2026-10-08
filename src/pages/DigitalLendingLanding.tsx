@@ -23,6 +23,9 @@ export default function DigitalLendingLanding({
   // Interactive tab for NBFCs vs LSPs / Borrowers
   const [activePersona, setActivePersona] = useState<'nbfc' | 'lsp'>('nbfc');
 
+  // Mobile navigation drawer toggle
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
   // Interactive tab for Payments & RBI Collections Section
   const [activePaymentTab, setActivePaymentTab] = useState<
     'collections' | 'recurring' | 'split' | 'reports'
@@ -143,28 +146,31 @@ export default function DigitalLendingLanding({
       </div>
 
       {/* Main Navigation Bar */}
-      <header className="sticky top-0 z-40 border-b border-border/80 bg-background/90 backdrop-blur-md transition-colors">
-        <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8 py-3.5">
+      <header className="sticky top-0 z-40 border-b border-border/80 bg-background/95 backdrop-blur-md transition-colors">
+        <div className="mx-auto flex max-w-7xl items-center justify-between gap-2 sm:gap-4 px-3 sm:px-6 lg:px-8 py-3">
           {/* Logo & Brand */}
-          <div className="flex shrink-0 items-center gap-3">
+          <div className="flex shrink-0 items-center gap-2.5 sm:gap-3">
             <button
               type="button"
-              onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-              className="flex items-center gap-3 text-left transition hover:opacity-85"
+              onClick={() => {
+                setMobileMenuOpen(false);
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
+              className="flex items-center gap-2 sm:gap-3 text-left transition hover:opacity-85"
             >
               <img
                 src="/3b6903f8-23e4-4c03-9082-3fe23e47cd11.png"
                 alt="MONEYQUICK Logo"
-                className="h-9 w-auto object-contain"
+                className="h-8 sm:h-9 w-auto object-contain"
               />
               <div>
-                <div className="text-[17px] font-extrabold tracking-tight text-primary">MONEYQUICK</div>
-                <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-accent">Digital Lending Solutions</div>
+                <div className="text-[15px] sm:text-[17px] font-extrabold tracking-tight text-primary leading-tight">MONEYQUICK</div>
+                <div className="text-[9px] sm:text-[10px] font-bold uppercase tracking-[0.16em] sm:tracking-[0.2em] text-accent">Digital Lending</div>
               </div>
             </button>
           </div>
 
-          {/* Center Navigation Links - spaced gracefully to prevent any collision */}
+          {/* Center Navigation Links (Desktop) */}
           <nav className="hidden lg:flex items-center gap-3.5 xl:gap-6 2xl:gap-8 text-xs xl:text-sm font-semibold text-muted-foreground">
             <a href="#solutions" className="transition hover:text-primary whitespace-nowrap">Solutions</a>
             <a href="#collections-rbi" className="transition hover:text-primary whitespace-nowrap">RBI Escrow</a>
@@ -182,68 +188,191 @@ export default function DigitalLendingLanding({
           </nav>
 
           {/* Right Action Buttons */}
-          <div className="flex shrink-0 items-center gap-2 sm:gap-3">
+          <div className="flex shrink-0 items-center gap-1.5 sm:gap-3">
             {/* Theme Toggle */}
             <button
               type="button"
               onClick={toggleTheme}
-              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-border bg-surface text-primary shadow-sm transition hover:border-accent hover:text-accent"
+              className="flex h-8 w-8 sm:h-9 sm:w-9 shrink-0 items-center justify-center rounded-lg border border-border bg-surface text-primary shadow-sm transition hover:border-accent hover:text-accent"
               aria-label={theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}
               title={theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}
             >
               {theme === 'light' ? (
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" />
                 </svg>
               ) : (
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-amber-400">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-amber-400">
                   <circle cx="12" cy="12" r="4" /><path d="M12 2v2" /><path d="M12 20v2" /><path d="m4.93 4.93 1.41 1.41" /><path d="m17.66 17.66 1.41 1.41" /><path d="M2 12h2" /><path d="M20 12h2" /><path d="m6.34 17.66-1.41 1.41" /><path d="m19.07 4.93-1.41 1.41" />
                 </svg>
               )}
             </button>
 
-            {authUser ? (
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={onGetStarted}
-                  className="rounded-lg bg-accent px-3.5 py-2 text-xs font-bold uppercase tracking-wider text-white shadow-sm hover:bg-[#5145CE] transition whitespace-nowrap"
-                >
-                  My Loan Application &rarr;
-                </button>
-                {onSignOut && (
+            {/* Desktop CTAs */}
+            <div className="hidden sm:flex items-center gap-2">
+              {authUser ? (
+                <div className="flex items-center gap-2">
                   <button
                     type="button"
-                    onClick={onSignOut}
-                    className="rounded-lg border border-border px-3 py-2 text-xs font-semibold text-muted-foreground hover:bg-surface transition whitespace-nowrap"
+                    onClick={onGetStarted}
+                    className="rounded-lg bg-accent px-3 py-1.5 sm:px-3.5 sm:py-2 text-xs font-bold uppercase tracking-wider text-white shadow-sm hover:bg-[#5145CE] transition whitespace-nowrap"
                   >
-                    Sign Out
+                    My Application &rarr;
                   </button>
-                )}
-              </div>
-            ) : (
-              <>
-                <button
-                  type="button"
-                  onClick={onSignIn}
-                  className="rounded-lg px-3.5 py-2 text-sm font-semibold text-primary hover:bg-surface transition whitespace-nowrap"
-                >
-                  Sign In
-                </button>
-                <button
-                  type="button"
-                  onClick={onGetStarted}
-                  className="inline-flex items-center gap-2 rounded-lg bg-gradient-to-r from-accent to-[#7b68ee] px-4 py-2 text-sm font-bold text-white shadow-md transition-all hover:shadow-lg hover:brightness-105 active:scale-95 whitespace-nowrap"
-                >
-                  <span>Check Loan Outlook</span>
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M5 12h14" /><path d="m12 5 7 7-7 7" />
-                  </svg>
-                </button>
-              </>
-            )}
+                  {onSignOut && (
+                    <button
+                      type="button"
+                      onClick={onSignOut}
+                      className="rounded-lg border border-border px-2.5 py-1.5 sm:px-3 sm:py-2 text-xs font-semibold text-muted-foreground hover:bg-surface transition whitespace-nowrap"
+                    >
+                      Sign Out
+                    </button>
+                  )}
+                </div>
+              ) : (
+                <>
+                  <button
+                    type="button"
+                    onClick={onSignIn}
+                    className="rounded-lg px-2.5 py-1.5 sm:px-3.5 sm:py-2 text-xs sm:text-sm font-semibold text-primary hover:bg-surface transition whitespace-nowrap"
+                  >
+                    Sign In
+                  </button>
+                  <button
+                    type="button"
+                    onClick={onGetStarted}
+                    className="inline-flex items-center gap-1.5 sm:gap-2 rounded-lg bg-gradient-to-r from-accent to-[#7b68ee] px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-bold text-white shadow-md transition-all hover:shadow-lg hover:brightness-105 active:scale-95 whitespace-nowrap"
+                  >
+                    <span>Check Outlook</span>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M5 12h14" /><path d="m12 5 7 7-7 7" />
+                    </svg>
+                  </button>
+                </>
+              )}
+            </div>
+
+            {/* Mobile Hamburger Toggle Button */}
+            <button
+              type="button"
+              onClick={() => setMobileMenuOpen((prev) => !prev)}
+              className="flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-lg border border-border bg-surface text-primary shadow-sm transition hover:border-accent hover:text-accent lg:hidden"
+              aria-label="Toggle navigation menu"
+              aria-expanded={mobileMenuOpen}
+            >
+              {mobileMenuOpen ? (
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M18 6 6 18" /><path d="m6 6 12 12" />
+                </svg>
+              ) : (
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="4" x2="20" y1="12" y2="12" />
+                  <line x1="4" x2="20" y1="6" y2="6" />
+                  <line x1="4" x2="20" y1="18" y2="18" />
+                </svg>
+              )}
+            </button>
           </div>
         </div>
+
+        {/* Mobile Navigation Drawer */}
+        {mobileMenuOpen && (
+          <div className="lg:hidden border-t border-border bg-background/98 px-4 py-4 backdrop-blur-xl shadow-2xl animate-soft-in">
+            <div className="flex flex-col gap-3">
+              {/* Primary Mobile CTA Button */}
+              <button
+                type="button"
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  onGetStarted();
+                }}
+                className="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-accent to-[#7b68ee] px-4 py-3 text-sm font-bold text-white shadow-md active:scale-95"
+              >
+                <span>Check Loan Readiness Now</span>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M5 12h14" /><path d="m12 5 7 7-7 7" />
+                </svg>
+              </button>
+
+              {/* Track Loan Application button */}
+              <button
+                type="button"
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  onNavigate('tracking');
+                }}
+                className="flex w-full items-center justify-between rounded-xl border border-border bg-surface px-4 py-2.5 text-xs font-bold text-accent transition hover:border-accent"
+              >
+                <span className="flex items-center gap-2">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" />
+                  </svg>
+                  Track Loan Application
+                </span>
+                <span className="text-[11px] font-semibold text-muted-foreground">Live &rarr;</span>
+              </button>
+
+              <div className="my-1 h-px bg-border/60" />
+
+              {/* Mobile Navigation Links */}
+              <div className="flex flex-col space-y-0.5">
+                {[
+                  { href: '#solutions', label: 'Solutions for NBFCs & LSPs' },
+                  { href: '#collections-rbi', label: 'RBI Escrow & Collections' },
+                  { href: '#features', label: 'Lending Features' },
+                  { href: '#calculator', label: 'EMI & Readiness Calculator' },
+                  { href: '#comparison', label: 'Why MoneyQuick (Comparison)' },
+                  { href: '#faqs', label: 'Frequently Asked Questions' },
+                ].map((link) => (
+                  <a
+                    key={link.href}
+                    href={link.href}
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="flex items-center justify-between rounded-lg px-3 py-2 text-xs font-semibold text-foreground hover:bg-surface hover:text-accent transition"
+                  >
+                    <span>{link.label}</span>
+                    <span className="text-muted-foreground text-sm">&rsaquo;</span>
+                  </a>
+                ))}
+              </div>
+
+              <div className="my-1 h-px bg-border/60" />
+
+              {/* Mobile Auth Buttons */}
+              {authUser ? (
+                <div className="flex flex-col gap-2">
+                  <div className="rounded-lg bg-surface/80 p-2.5 text-xs">
+                    <div className="font-bold text-primary">{authUser.displayName || 'Account'}</div>
+                    <div className="text-muted-foreground text-[11px] truncate">{authUser.email}</div>
+                  </div>
+                  {onSignOut && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setMobileMenuOpen(false);
+                        onSignOut();
+                      }}
+                      className="w-full rounded-xl border border-border py-2 text-center text-xs font-bold text-muted-foreground hover:bg-surface transition"
+                    >
+                      Sign Out
+                    </button>
+                  )}
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    onSignIn();
+                  }}
+                  className="w-full rounded-xl border border-border py-2.5 text-center text-xs font-bold text-primary hover:bg-surface transition"
+                >
+                  Sign In / Access Account
+                </button>
+              )}
+            </div>
+          </div>
+        )}
       </header>
 
       {/* Hero Section with Orbital Ecosystem Visual */}
@@ -287,11 +416,11 @@ export default function DigitalLendingLanding({
               </div>
 
               {/* Call to Actions */}
-              <div className="mt-8 flex flex-wrap items-center gap-4">
+              <div className="mt-8 flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4">
                 <button
                   type="button"
                   onClick={onGetStarted}
-                  className="inline-flex items-center justify-center gap-3 rounded-xl bg-gradient-to-r from-accent to-[#5145CE] px-8 py-4 text-base font-bold text-white shadow-lg transition-all duration-300 hover:scale-[1.02] hover:shadow-xl active:scale-[0.98]"
+                  className="inline-flex w-full sm:w-auto items-center justify-center gap-3 rounded-xl bg-gradient-to-r from-accent to-[#5145CE] px-7 py-3.5 sm:px-8 sm:py-4 text-base font-bold text-white shadow-lg transition-all duration-300 hover:scale-[1.02] hover:shadow-xl active:scale-[0.98]"
                 >
                   <span>Check Loan Readiness</span>
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -301,7 +430,7 @@ export default function DigitalLendingLanding({
                 <button
                   type="button"
                   onClick={() => onNavigate('tracking')}
-                  className="inline-flex items-center justify-center gap-2 rounded-xl border border-border bg-surface/70 px-6 py-4 text-base font-semibold text-primary transition-all hover:border-accent hover:text-accent hover:bg-surface active:scale-[0.98] shadow-sm"
+                  className="inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-xl border border-border bg-surface/70 px-6 py-3.5 sm:py-4 text-base font-semibold text-primary transition-all hover:border-accent hover:text-accent hover:bg-surface active:scale-[0.98] shadow-sm"
                 >
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" />
@@ -319,42 +448,42 @@ export default function DigitalLendingLanding({
             </div>
 
             {/* Right Column: Unique Orbital Ecosystem Visual (Cashfree Style) */}
-            <div className="relative flex flex-col items-center justify-center w-full max-w-[520px] mx-auto">
-              {/* Orbital Graphic Arena - overflow-visible ensures orbiting badges/cards are never cropped */}
-              <div className="orbit-arena relative h-[380px] w-[380px] sm:h-[460px] sm:w-[460px] flex items-center justify-center overflow-visible select-none my-4">
+            <div className="relative flex flex-col items-center justify-center w-full max-w-[520px] mx-auto overflow-visible py-2">
+              {/* Orbital Graphic Arena - responsive scaling prevents viewport horizontal scroll */}
+              <div className="orbit-arena relative h-[270px] w-[270px] sm:h-[460px] sm:w-[460px] flex items-center justify-center overflow-visible select-none my-2 sm:my-4">
                 {/* Background ambient radial glow */}
                 <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(168,85,247,0.3)_0%,transparent_70%)] pointer-events-none blur-2xl" />
 
-                {/* Circular dark disc - overflow-hidden ONLY for the cosmic radial glow and internal rings */}
-                <div className="absolute inset-3 sm:inset-4 rounded-full bg-gradient-to-br from-[#240253] via-[#1b033d] to-[#0e0024] shadow-[0_0_60px_rgba(107,33,168,0.5)] border border-purple-500/40 overflow-hidden">
+                {/* Circular dark disc - internal cosmic radial glow and orbit lines */}
+                <div className="absolute inset-2 sm:inset-4 rounded-full bg-gradient-to-br from-[#240253] via-[#1b033d] to-[#0e0024] shadow-[0_0_40px_rgba(107,33,168,0.5)] sm:shadow-[0_0_60px_rgba(107,33,168,0.5)] border border-purple-500/40 overflow-hidden">
                   {/* Inner ambient radial glow */}
                   <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(168,85,247,0.25)_0%,transparent_70%)] pointer-events-none" />
 
                   {/* Outer concentric thin orbit ring */}
-                  <div className="absolute inset-4 rounded-full border border-purple-400/20 pointer-events-none" />
+                  <div className="absolute inset-2 sm:inset-4 rounded-full border border-purple-400/20 pointer-events-none" />
 
                   {/* Mid concentric orbit line */}
-                  <div className="absolute inset-16 rounded-full border border-purple-300/25 pointer-events-none" />
+                  <div className="absolute inset-10 sm:inset-16 rounded-full border border-purple-300/25 pointer-events-none" />
 
                   {/* Inner glowing spinning ring with moving particles */}
-                  <div className="absolute inset-28 rounded-full border border-purple-500/40 pointer-events-none animate-[spin_24s_linear_infinite]">
-                    <div className="absolute -top-1 left-1/2 -translate-x-1/2 h-3 w-8 rounded-full bg-white blur-[2px] opacity-80" />
-                    <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 h-3 w-8 rounded-full bg-purple-300 blur-[2px] opacity-70" />
+                  <div className="absolute inset-18 sm:inset-28 rounded-full border border-purple-500/40 pointer-events-none animate-[spin_24s_linear_infinite]">
+                    <div className="absolute -top-1 left-1/2 -translate-x-1/2 h-2.5 w-6 sm:h-3 sm:w-8 rounded-full bg-white blur-[2px] opacity-80" />
+                    <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 h-2.5 w-6 sm:h-3 sm:w-8 rounded-full bg-purple-300 blur-[2px] opacity-70" />
                   </div>
                 </div>
 
                 {/* Center Hub: "NBFC / Fintechs" - Stationary in center */}
                 <div
-                  className="relative z-20 flex h-[140px] w-[140px] sm:h-[165px] sm:w-[165px] flex-col items-center justify-center rounded-full bg-gradient-to-b from-[#3b086e] to-[#21024b] text-center shadow-[0_0_40px_rgba(147,51,234,0.65)] border border-purple-400/50 transition-all duration-300 select-none group"
+                  className="relative z-20 flex h-[100px] w-[100px] sm:h-[165px] sm:w-[165px] flex-col items-center justify-center rounded-full bg-gradient-to-b from-[#3b086e] to-[#21024b] text-center shadow-[0_0_30px_rgba(147,51,234,0.65)] sm:shadow-[0_0_40px_rgba(147,51,234,0.65)] border border-purple-400/50 transition-all duration-300 select-none group"
                   title="MoneyQuick Central Escrow Hub"
                 >
-                  <div className="text-base sm:text-lg font-black tracking-tight text-white drop-shadow-md group-hover:text-purple-200">
+                  <div className="text-xs sm:text-lg font-black tracking-tight text-white drop-shadow-md group-hover:text-purple-200">
                     NBFC / Fintechs
                   </div>
                   {/* Decorative underline bars */}
-                  <div className="mt-2 h-1.5 w-14 rounded-full bg-purple-300/50" />
-                  <div className="mt-1 h-1 w-9 rounded-full bg-purple-400/40" />
-                  <span className="mt-1.5 text-[9px] font-bold uppercase tracking-wider text-purple-300/90">
+                  <div className="mt-1 sm:mt-2 h-1 sm:h-1.5 w-8 sm:w-14 rounded-full bg-purple-300/50" />
+                  <div className="mt-0.5 sm:mt-1 h-0.5 sm:h-1 w-5 sm:w-9 rounded-full bg-purple-400/40" />
+                  <span className="mt-1 text-[8px] sm:text-[9px] font-bold uppercase tracking-wider text-purple-300/90">
                     Central Escrow Hub
                   </span>
                 </div>
@@ -372,35 +501,35 @@ export default function DigitalLendingLanding({
                   >
                     <div className="orbit-node animate-orbit-disbursal-counter flex flex-col items-center transition-transform duration-300 hover:scale-110">
                       {/* Purple badge with triangle */}
-                      <div className={`relative rounded-md px-3 py-1 text-[11px] sm:text-xs font-bold text-white shadow-lg transition-all ${
+                      <div className={`relative rounded-md px-2 py-0.5 sm:px-3 sm:py-1 text-[10px] sm:text-xs font-bold text-white shadow-lg transition-all ${
                         activeOrbitNode === 'disbursal'
                           ? 'bg-[#6933d3] ring-2 ring-purple-300 shadow-[0_0_15px_rgba(105,51,211,0.8)]'
                           : 'bg-[#6933d3]/95 hover:bg-[#6933d3]'
                       }`}>
-                        <span className="flex items-center gap-1.5 whitespace-nowrap">
+                        <span className="flex items-center gap-1 sm:gap-1.5 whitespace-nowrap">
                           {activeOrbitNode === 'disbursal' && (
-                            <span className="relative flex h-2 w-2">
+                            <span className="relative flex h-1.5 w-1.5 sm:h-2 sm:w-2">
                               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400"></span>
+                              <span className="relative inline-flex rounded-full h-1.5 w-1.5 sm:h-2 sm:w-2 bg-emerald-400"></span>
                             </span>
                           )}
                           Loan disbursals
                         </span>
-                        <div className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 h-0 w-0 border-x-4 border-x-transparent border-t-6 border-t-[#6933d3]" />
+                        <div className="absolute -bottom-1 sm:-bottom-1.5 left-1/2 -translate-x-1/2 h-0 w-0 border-x-3 sm:border-x-4 border-x-transparent border-t-4 sm:border-t-6 border-t-[#6933d3]" />
                       </div>
                       {/* White card with document icon + green coin */}
-                      <div className={`mt-2 flex h-13 w-13 sm:h-15 sm:w-15 items-center justify-center rounded-2xl bg-white shadow-[0_10px_25px_rgba(0,0,0,0.3)] border transition-all ${
+                      <div className={`mt-1.5 sm:mt-2 flex h-10 w-10 sm:h-15 sm:w-15 items-center justify-center rounded-xl sm:rounded-2xl bg-white shadow-[0_8px_20px_rgba(0,0,0,0.25)] border transition-all ${
                         activeOrbitNode === 'disbursal'
-                          ? 'border-[#6933d3] ring-4 ring-[#6933d3]/40 shadow-[0_0_25px_rgba(105,51,211,0.6)]'
+                          ? 'border-[#6933d3] ring-3 sm:ring-4 ring-[#6933d3]/40 shadow-[0_0_25px_rgba(105,51,211,0.6)]'
                           : 'border-white/80'
                       }`}>
                         <div className="relative">
-                          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#7c3aed" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <svg className="w-5 h-5 sm:w-6 sm:h-6" viewBox="0 0 24 24" fill="none" stroke="#7c3aed" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                             <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
                             <path d="M14 2v6h6" />
                             <path d="M8 13h8" /><path d="M8 17h6" />
                           </svg>
-                          <span className="absolute -bottom-1.5 -right-2 flex h-5 w-5 items-center justify-center rounded-full bg-[#10b981] text-[9px] font-bold text-white shadow">
+                          <span className="absolute -bottom-1 -right-1.5 sm:-bottom-1.5 sm:-right-2 flex h-4 w-4 sm:h-5 sm:w-5 items-center justify-center rounded-full bg-[#10b981] text-[8px] sm:text-[9px] font-bold text-white shadow">
                             ₹
                           </span>
                         </div>
@@ -418,36 +547,36 @@ export default function DigitalLendingLanding({
                   >
                     <div className="orbit-node animate-orbit-repayments-counter flex flex-col items-center transition-transform duration-300 hover:scale-110">
                       {/* Pink/Coral badge with triangle */}
-                      <div className={`relative rounded-md px-3.5 py-1 text-[11px] sm:text-xs font-bold text-white shadow-lg transition-all ${
+                      <div className={`relative rounded-md px-2 py-0.5 sm:px-3.5 sm:py-1 text-[10px] sm:text-xs font-bold text-white shadow-lg transition-all ${
                         activeOrbitNode === 'repayment'
                           ? 'bg-[#f43f5e] ring-2 ring-rose-300 shadow-[0_0_15px_rgba(244,63,94,0.8)]'
                           : 'bg-[#f43f5e]/95 hover:bg-[#f43f5e]'
                       }`}>
-                        <span className="flex items-center gap-1.5 whitespace-nowrap">
+                        <span className="flex items-center gap-1 sm:gap-1.5 whitespace-nowrap">
                           {activeOrbitNode === 'repayment' && (
-                            <span className="relative flex h-2 w-2">
+                            <span className="relative flex h-1.5 w-1.5 sm:h-2 sm:w-2">
                               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400"></span>
+                              <span className="relative inline-flex rounded-full h-1.5 w-1.5 sm:h-2 sm:w-2 bg-emerald-400"></span>
                             </span>
                           )}
                           Repayments
                         </span>
-                        <div className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 h-0 w-0 border-x-4 border-x-transparent border-t-6 border-t-[#f43f5e]" />
+                        <div className="absolute -bottom-1 sm:-bottom-1.5 left-1/2 -translate-x-1/2 h-0 w-0 border-x-3 sm:border-x-4 border-x-transparent border-t-4 sm:border-t-6 border-t-[#f43f5e]" />
                       </div>
                       {/* White card with circular repayment arrows */}
-                      <div className={`mt-2 flex h-13 w-13 sm:h-15 sm:w-15 items-center justify-center rounded-2xl bg-white shadow-[0_10px_25px_rgba(0,0,0,0.3)] border transition-all ${
+                      <div className={`mt-1.5 sm:mt-2 flex h-10 w-10 sm:h-15 sm:w-15 items-center justify-center rounded-xl sm:rounded-2xl bg-white shadow-[0_8px_20px_rgba(0,0,0,0.25)] border transition-all ${
                         activeOrbitNode === 'repayment'
-                          ? 'border-[#f43f5e] ring-4 ring-[#f43f5e]/40 shadow-[0_0_25px_rgba(244,63,94,0.6)]'
+                          ? 'border-[#f43f5e] ring-3 sm:ring-4 ring-[#f43f5e]/40 shadow-[0_0_25px_rgba(244,63,94,0.6)]'
                           : 'border-white/80'
                       }`}>
                         <div className="relative flex items-center justify-center">
-                          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                          <svg className="w-5 h-5 sm:w-6.5 sm:h-6.5" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                             <path d="M3 12a9 9 0 0 1 15-6.7L21 8" />
                             <path d="M21 3v5h-5" />
                             <path d="M21 12a9 9 0 0 1-15 6.7L3 16" />
                             <path d="M3 21v-5h5" />
                           </svg>
-                          <span className="absolute text-[10px] font-extrabold text-[#f59e0b]">₹</span>
+                          <span className="absolute text-[8px] sm:text-[10px] font-extrabold text-[#f59e0b]">₹</span>
                         </div>
                       </div>
                     </div>
@@ -463,34 +592,34 @@ export default function DigitalLendingLanding({
                   >
                     <div className="orbit-node animate-orbit-colending-counter flex flex-col items-center transition-transform duration-300 hover:scale-110">
                       {/* Dark navy badge */}
-                      <div className={`relative rounded-md px-3 py-1 text-[11px] sm:text-xs font-bold shadow-lg border transition-all ${
+                      <div className={`relative rounded-md px-2 py-0.5 sm:px-3 sm:py-1 text-[10px] sm:text-xs font-bold shadow-lg border transition-all ${
                         activeOrbitNode === 'colending'
                           ? 'bg-[#3b086e] border-purple-400 ring-2 ring-purple-300 shadow-[0_0_15px_rgba(147,51,234,0.8)] text-white'
                           : 'bg-[#240b4f]/95 border-purple-400/40 text-purple-200 hover:bg-[#3b086e] hover:text-white'
                       }`}>
-                        <span className="flex items-center gap-1.5 whitespace-nowrap">
+                        <span className="flex items-center gap-1 sm:gap-1.5 whitespace-nowrap">
                           {activeOrbitNode === 'colending' && (
-                            <span className="relative flex h-2 w-2">
+                            <span className="relative flex h-1.5 w-1.5 sm:h-2 sm:w-2">
                               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400"></span>
+                              <span className="relative inline-flex rounded-full h-1.5 w-1.5 sm:h-2 sm:w-2 bg-emerald-400"></span>
                             </span>
                           )}
                           Co-lending
                         </span>
-                        <div className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 h-0 w-0 border-x-4 border-x-transparent border-t-6 border-t-[#240b4f]" />
+                        <div className="absolute -bottom-1 sm:-bottom-1.5 left-1/2 -translate-x-1/2 h-0 w-0 border-x-3 sm:border-x-4 border-x-transparent border-t-4 sm:border-t-6 border-t-[#240b4f]" />
                       </div>
                       {/* White card with bank building icon */}
-                      <div className={`mt-2 flex h-13 w-13 sm:h-15 sm:w-15 items-center justify-center rounded-2xl bg-white shadow-[0_10px_25px_rgba(0,0,0,0.3)] border transition-all ${
+                      <div className={`mt-1.5 sm:mt-2 flex h-10 w-10 sm:h-15 sm:w-15 items-center justify-center rounded-xl sm:rounded-2xl bg-white shadow-[0_8px_20px_rgba(0,0,0,0.25)] border transition-all ${
                         activeOrbitNode === 'colending'
-                          ? 'border-[#6366f1] ring-4 ring-[#6366f1]/40 shadow-[0_0_25px_rgba(99,102,241,0.6)]'
+                          ? 'border-[#6366f1] ring-3 sm:ring-4 ring-[#6366f1]/40 shadow-[0_0_25px_rgba(99,102,241,0.6)]'
                           : 'border-white/80'
                       }`}>
                         <div className="relative flex items-center justify-center">
-                          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#6366f1" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <svg className="w-5 h-5 sm:w-6 sm:h-6" viewBox="0 0 24 24" fill="none" stroke="#6366f1" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                             <path d="m3 10 9-7 9 7v11a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z" />
                             <path d="M9 22V12h6v10" />
                           </svg>
-                          <span className="absolute -bottom-1.5 -right-2 flex h-4 w-4 items-center justify-center rounded-full bg-[#f59e0b] text-[8px] font-bold text-white shadow">
+                          <span className="absolute -bottom-1 -right-1.5 sm:-bottom-1.5 sm:-right-2 flex h-3.5 w-3.5 sm:h-4 sm:w-4 items-center justify-center rounded-full bg-[#f59e0b] text-[7px] sm:text-[8px] font-bold text-white shadow">
                             🪙
                           </span>
                         </div>
@@ -570,8 +699,8 @@ export default function DigitalLendingLanding({
               Effortlessly collect payments while adhering to RBI&apos;s digital lending guidelines
             </h2>
 
-            {/* Horizontal Sub-tabs */}
-            <div className="mt-8 flex flex-wrap gap-6 sm:gap-10 border-b border-border pb-1">
+            {/* Horizontal Sub-tabs (Horizontally scrollable on mobile) */}
+            <div className="mt-8 flex overflow-x-auto no-scrollbar gap-5 sm:gap-10 border-b border-border pb-1 whitespace-nowrap">
               {[
                 { id: 'collections', label: 'Collections and reconciliation' },
                 { id: 'recurring', label: 'Recurring payments' },
@@ -584,7 +713,7 @@ export default function DigitalLendingLanding({
                     key={tab.id}
                     type="button"
                     onClick={() => setActivePaymentTab(tab.id as any)}
-                    className={`relative pb-3 text-sm font-bold transition-colors ${
+                    className={`relative pb-3 text-xs sm:text-sm font-bold transition-colors shrink-0 ${
                       isActive ? 'text-[#6933d3]' : 'text-muted-foreground hover:text-primary'
                     }`}
                   >
@@ -711,11 +840,11 @@ export default function DigitalLendingLanding({
             </p>
 
             {/* Toggle Buttons */}
-            <div className="mt-8 inline-flex rounded-xl border border-border bg-surface p-1 shadow-inner">
+            <div className="mt-8 inline-flex flex-col sm:flex-row w-full sm:w-auto rounded-xl border border-border bg-surface p-1 shadow-inner gap-1 sm:gap-0">
               <button
                 type="button"
                 onClick={() => setActivePersona('nbfc')}
-                className={`rounded-lg px-6 py-2.5 text-sm font-bold transition-all ${
+                className={`w-full sm:w-auto rounded-lg px-4 sm:px-6 py-2.5 text-xs sm:text-sm font-bold transition-all text-center ${
                   activePersona === 'nbfc'
                     ? 'bg-primary text-white shadow-sm'
                     : 'text-muted-foreground hover:text-primary'
@@ -726,7 +855,7 @@ export default function DigitalLendingLanding({
               <button
                 type="button"
                 onClick={() => setActivePersona('lsp')}
-                className={`rounded-lg px-6 py-2.5 text-sm font-bold transition-all ${
+                className={`w-full sm:w-auto rounded-lg px-4 sm:px-6 py-2.5 text-xs sm:text-sm font-bold transition-all text-center ${
                   activePersona === 'lsp'
                     ? 'bg-primary text-white shadow-sm'
                     : 'text-muted-foreground hover:text-primary'
@@ -1152,13 +1281,17 @@ export default function DigitalLendingLanding({
           </div>
 
           <div className="mt-14 overflow-hidden rounded-2xl border border-border bg-background shadow-lg">
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-sm">
+            <div className="sm:hidden px-4 pt-3 text-right text-[11px] font-bold text-accent flex items-center justify-end gap-1">
+              <span>Swipe comparison table horizontally</span>
+              <span>&rarr;</span>
+            </div>
+            <div className="overflow-x-auto touch-scroll-hint">
+              <table className="w-full min-w-[600px] text-left text-xs sm:text-sm">
                 <thead>
                   <tr className="border-b border-border bg-surface/80">
-                    <th className="py-4 px-6 font-bold text-primary">Feature &amp; Metric</th>
-                    <th className="py-4 px-6 font-bold text-accent bg-highlight/30">With MoneyQuick</th>
-                    <th className="py-4 px-6 font-bold text-muted-foreground">With Other / Traditional Platforms</th>
+                    <th className="py-3 px-4 sm:py-4 sm:px-6 font-bold text-primary">Feature &amp; Metric</th>
+                    <th className="py-3 px-4 sm:py-4 sm:px-6 font-bold text-accent bg-highlight/30">With MoneyQuick</th>
+                    <th className="py-3 px-4 sm:py-4 sm:px-6 font-bold text-muted-foreground">With Other / Traditional Platforms</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border">
