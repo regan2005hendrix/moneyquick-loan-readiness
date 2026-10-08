@@ -908,6 +908,10 @@ export default function App() {
       if (trackParam) {
         setActiveTrackingAppId(trackParam.trim().toUpperCase());
         setCurrentStep('tracking');
+        try {
+          const cleanUrl = window.location.pathname + window.location.hash;
+          window.history.replaceState({}, document.title, cleanUrl);
+        } catch (_) {}
       }
     } catch (err) {
       console.warn('URL tracking param parse error:', err);
@@ -1137,15 +1141,7 @@ export default function App() {
   if (currentStep === 'landing') {
     return (
       <DigitalLendingLanding
-        onGetStarted={() => {
-          const recent = getRecentSavedApplications();
-          if (recent.length > 0 || submittedAppId) {
-            setActiveTrackingAppId(submittedAppId || recent[0].applicationId);
-            go('tracking');
-          } else {
-            go('income');
-          }
-        }}
+        onGetStarted={() => go('income')}
         onSignIn={() => go('income')}
         onNavigate={go}
         theme={theme}
