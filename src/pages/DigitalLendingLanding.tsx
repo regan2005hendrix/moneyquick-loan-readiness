@@ -144,9 +144,9 @@ export default function DigitalLendingLanding({
 
       {/* Main Navigation Bar */}
       <header className="sticky top-0 z-40 border-b border-border/80 bg-background/90 backdrop-blur-md transition-colors">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-4 sm:px-8">
+        <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8 py-3.5">
           {/* Logo & Brand */}
-          <div className="flex items-center gap-3">
+          <div className="flex shrink-0 items-center gap-3">
             <button
               type="button"
               onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
@@ -164,23 +164,23 @@ export default function DigitalLendingLanding({
             </button>
           </div>
 
-          {/* Center Navigation Links */}
-          <nav className="hidden lg:flex items-center gap-8 text-sm font-semibold text-muted-foreground">
-            <a href="#solutions" className="transition hover:text-primary">Solutions</a>
-            <a href="#collections-rbi" className="transition hover:text-primary">Collections &amp; RBI</a>
-            <a href="#features" className="transition hover:text-primary">Features</a>
-            <a href="#calculator" className="transition hover:text-primary">EMI Calculator</a>
-            <a href="#comparison" className="transition hover:text-primary">Why MoneyQuick</a>
-            <a href="#faqs" className="transition hover:text-primary">FAQs</a>
+          {/* Center Navigation Links - spaced gracefully to prevent any collision */}
+          <nav className="hidden lg:flex items-center gap-3.5 xl:gap-6 2xl:gap-8 text-xs xl:text-sm font-semibold text-muted-foreground">
+            <a href="#solutions" className="transition hover:text-primary whitespace-nowrap">Solutions</a>
+            <a href="#collections-rbi" className="transition hover:text-primary whitespace-nowrap">RBI Escrow</a>
+            <a href="#features" className="hidden xl:inline transition hover:text-primary whitespace-nowrap">Features</a>
+            <a href="#calculator" className="transition hover:text-primary whitespace-nowrap">EMI Calculator</a>
+            <a href="#comparison" className="hidden 2xl:inline transition hover:text-primary whitespace-nowrap">Why MoneyQuick</a>
+            <a href="#faqs" className="transition hover:text-primary whitespace-nowrap">FAQs</a>
           </nav>
 
           {/* Right Action Buttons */}
-          <div className="flex items-center gap-3">
+          <div className="flex shrink-0 items-center gap-2 sm:gap-3">
             {/* Theme Toggle */}
             <button
               type="button"
               onClick={toggleTheme}
-              className="flex h-9 w-9 items-center justify-center rounded-lg border border-border bg-surface text-primary shadow-sm transition hover:border-accent hover:text-accent"
+              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-border bg-surface text-primary shadow-sm transition hover:border-accent hover:text-accent"
               aria-label={theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}
               title={theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}
             >
@@ -200,7 +200,7 @@ export default function DigitalLendingLanding({
                 <button
                   type="button"
                   onClick={onGetStarted}
-                  className="rounded-lg bg-accent px-4 py-2 text-xs font-bold uppercase tracking-wider text-white shadow-sm hover:bg-[#5145CE] transition"
+                  className="rounded-lg bg-accent px-3.5 py-2 text-xs font-bold uppercase tracking-wider text-white shadow-sm hover:bg-[#5145CE] transition whitespace-nowrap"
                 >
                   My Loan Application &rarr;
                 </button>
@@ -208,7 +208,7 @@ export default function DigitalLendingLanding({
                   <button
                     type="button"
                     onClick={onSignOut}
-                    className="rounded-lg border border-border px-3 py-2 text-xs font-semibold text-muted-foreground hover:bg-surface transition"
+                    className="rounded-lg border border-border px-3 py-2 text-xs font-semibold text-muted-foreground hover:bg-surface transition whitespace-nowrap"
                   >
                     Sign Out
                   </button>
@@ -219,14 +219,14 @@ export default function DigitalLendingLanding({
                 <button
                   type="button"
                   onClick={onSignIn}
-                  className="rounded-lg px-4 py-2 text-sm font-semibold text-primary hover:bg-surface transition"
+                  className="rounded-lg px-3.5 py-2 text-sm font-semibold text-primary hover:bg-surface transition whitespace-nowrap"
                 >
                   Sign In
                 </button>
                 <button
                   type="button"
                   onClick={onGetStarted}
-                  className="inline-flex items-center gap-2 rounded-lg bg-gradient-to-r from-accent to-[#7b68ee] px-4 py-2 text-sm font-bold text-white shadow-md transition-all hover:shadow-lg hover:brightness-105 active:scale-95"
+                  className="inline-flex items-center gap-2 rounded-lg bg-gradient-to-r from-accent to-[#7b68ee] px-4 py-2 text-sm font-bold text-white shadow-md transition-all hover:shadow-lg hover:brightness-105 active:scale-95 whitespace-nowrap"
                 >
                   <span>Check Loan Outlook</span>
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -255,11 +255,11 @@ export default function DigitalLendingLanding({
               </div>
 
               <h1 className="mt-6 text-4xl font-extrabold tracking-tight text-primary sm:text-5xl lg:text-6xl leading-[1.08]">
-                A full-stack{' '}
+                Next-generation{' '}
                 <span className="bg-gradient-to-r from-accent via-[#7A6BFF] to-[#0B8F83] bg-clip-text text-transparent">
-                  digital lending solution
+                  digital lending platform
                 </span>{' '}
-                for NBFCs, Fintechs &amp; Businesses.
+                for Businesses, MSMEs &amp; Fintechs.
               </h1>
 
               <p className="mt-6 text-lg leading-relaxed text-muted-foreground sm:text-xl">
@@ -290,13 +290,6 @@ export default function DigitalLendingLanding({
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M5 12h14" /><path d="m12 5 7 7-7 7" />
                   </svg>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setShowDemoModal(true)}
-                  className="inline-flex items-center justify-center gap-2 rounded-xl border-2 border-border bg-background px-6 py-4 text-base font-semibold text-primary transition-all hover:border-accent hover:bg-surface active:scale-[0.98]"
-                >
-                  <span>Contact Sales / Institutional</span>
                 </button>
               </div>
 
@@ -902,7 +895,7 @@ export default function DigitalLendingLanding({
       <section id="features" className="border-t border-border bg-surface/20 py-20 lg:py-28">
         <div className="mx-auto max-w-7xl px-5 sm:px-8">
           <div className="mx-auto max-w-3xl text-center">
-            <span className="text-xs font-bold uppercase tracking-widest text-accent">Full-Stack Technology Suite</span>
+            <span className="text-xs font-bold uppercase tracking-widest text-accent">Next-Gen Lending Technology</span>
             <h2 className="mt-3 text-3xl font-extrabold tracking-tight text-primary sm:text-4xl">
               Engineered for Speed, Scale &amp; Strict Compliance
             </h2>
@@ -1337,11 +1330,6 @@ export default function DigitalLendingLanding({
                 <li>
                   <button onClick={() => onNavigate('terms')} className="hover:text-primary transition">
                     Terms &amp; Conditions
-                  </button>
-                </li>
-                <li>
-                  <button onClick={() => setShowDemoModal(true)} className="hover:text-primary transition">
-                    Contact Sales
                   </button>
                 </li>
                 <li><a href="#faqs" className="hover:text-primary transition">Help &amp; FAQs</a></li>
