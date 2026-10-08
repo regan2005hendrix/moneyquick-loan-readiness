@@ -103,6 +103,17 @@ export default function LoanTracker({
   const [recentApps, setRecentApps] = useState<Record<string, any>[]>([]);
   const [activeAppData, setActiveAppData] = useState<Record<string, any> | null>(null);
 
+  // Deduplicate recent applications chips by applicationId so IDs never repeat
+  const uniqueRecentApps = useMemo(() => {
+    const seen = new Set<string>();
+    return recentApps.filter((app) => {
+      const id = String(app.applicationId || '').trim();
+      if (!id || seen.has(id)) return false;
+      seen.add(id);
+      return true;
+    });
+  }, [recentApps]);
+
   // Load recent applications
   useEffect(() => {
     const list = getRecentSavedApplications();
@@ -122,12 +133,22 @@ export default function LoanTracker({
         setActiveAppData(data);
         setCurrentAppId(data.applicationId || query);
         setSearchInput(data.applicationId || query);
-        // If data has a custom stage saved, adapt:
-        if (data.status === 'disbursed') setCurrentStage(5);
-        else if (data.status === 'sanctioned') setCurrentStage(4);
-        else if (data.status === 'underwriting') setCurrentStage(3);
-        else if (data.status === 'verification' || data.status === 'pending_agent_call') setCurrentStage(2);
-        else setCurrentStage(2);
+        // Load the stored stage or map from status
+        if (typeof data.currentStage === 'number' && data.currentStage >= 1 && data.currentStage <= 5) {
+          setCurrentStage(data.currentStage as StageKey);
+        } else if (data.status === 'disbursed') {
+          setCurrentStage(5);
+        } else if (data.status === 'sanctioned') {
+          setCurrentStage(4);
+        } else if (data.status === 'underwriting') {
+          setCurrentStage(3);
+        } else if (data.status === 'verification' || data.status === 'pending_agent_call') {
+          setCurrentStage(2);
+        } else if (data.status === 'submitted') {
+          setCurrentStage(1);
+        } else {
+          setCurrentStage(2);
+        }
       } else {
         // Fallback simulated record with this specific ID
         const normalizedId = query.toUpperCase().startsWith('MQ-') ? query.toUpperCase() : `MQ-APP-${query.slice(-6) || '782914'}`;
@@ -142,6 +163,8 @@ export default function LoanTracker({
           email: 'applicant@business.in',
           estimatedEmi: '₹ 65,400',
           submittedAt: new Date().toISOString(),
+          status: 'verification',
+          currentStage: 2,
         });
         setCurrentStage(2);
       }
@@ -149,6 +172,31 @@ export default function LoanTracker({
       console.warn('Load app data error:', err);
     } finally {
       setIsSearching(false);
+    }
+  };
+
+  const handleStageChange = (newStage: StageKey) => {
+    setCurrentStage(newStage);
+    // Persist stage update locally for this specific application
+    try {
+      const list = getRecentSavedApplications();
+      const statusMap: Record<StageKey, string> = {
+        1: 'submitted',
+        2: 'verification',
+        3: 'underwriting',
+        4: 'sanctioned',
+        5: 'disbursed',
+      };
+      const updated = list.map((app) => {
+        if (app.applicationId === currentAppId) {
+          return { ...app, currentStage: newStage, status: statusMap[newStage] };
+        }
+        return app;
+      });
+      localStorage.setItem('moneyquick_saved_applications', JSON.stringify(updated));
+      setRecentApps(updated);
+    } catch (e) {
+      console.warn('Could not persist stage update:', e);
     }
   };
 
@@ -380,13 +428,13 @@ export default function LoanTracker({
             <p className="mt-2.5 text-xs font-medium text-destructive">{searchError}</p>
           )}
 
-          {/* Quick Select Saved Applications */}
-          {recentApps.length > 0 && (
+          {/* Quick Select Saved Applications (Deduplicated) */}
+          {uniqueRecentApps.length > 0 && (
             <div className="mt-4 flex flex-wrap items-center gap-2 pt-3 border-t border-border/60">
               <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
                 Recent Applications:
               </span>
-              {recentApps.slice(0, 4).map((app, idx) => (
+              {uniqueRecentApps.slice(0, 4).map((app, idx) => (
                 <button
                   key={app.applicationId || idx}
                   type="button"
@@ -502,7 +550,7 @@ export default function LoanTracker({
               <button
                 key={st}
                 type="button"
-                onClick={() => setCurrentStage(st as StageKey)}
+                onClick={() => handleStageChange(st as StageKey)}
                 className={`rounded-lg px-2.5 py-1 text-xs font-semibold transition ${
                   currentStage === st
                     ? 'bg-accent text-white shadow-sm'
@@ -529,7 +577,7 @@ export default function LoanTracker({
               return (
                 <div
                   key={stage.step}
-                  onClick={() => setCurrentStage(stage.step)}
+                  onClick={() => handleStageChange(stage.step)}
                   className={`cursor-pointer rounded-2xl border p-4.5 transition-all duration-300 relative text-left ${
                     isCurrent
                       ? 'border-accent bg-surface ring-2 ring-accent/20 shadow-lg -translate-y-1'

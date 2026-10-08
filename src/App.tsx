@@ -900,6 +900,20 @@ export default function App() {
     return () => { timers.forEach(window.clearTimeout); window.clearTimeout(done); };
   }, [currentStep]);
 
+  // Auto-detect direct tracking link from email (e.g. ?track=MQ-APP-XXXXXX or ?ref=...)
+  useEffect(() => {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const trackParam = params.get('track') || params.get('ref') || params.get('appId');
+      if (trackParam) {
+        setActiveTrackingAppId(trackParam.trim().toUpperCase());
+        setCurrentStep('tracking');
+      }
+    } catch (err) {
+      console.warn('URL tracking param parse error:', err);
+    }
+  }, []);
+
   const go = (step: Step) => {
     // If expenses >= revenue, cannot advance past income!
     if (step !== 'landing' && step !== 'income' && step !== 'privacy' && step !== 'terms' && step !== 'tracking' && isExpensesExceedingRevenue) {
@@ -986,8 +1000,12 @@ export default function App() {
         localStorage.setItem('moneyquick-applicant-email', cleanEmail);
       } catch {}
 
-      const randomSuffix = Math.floor(100000 + Math.random() * 900000);
-      const appId = `MQ-APP-${randomSuffix}`;
+      // Generate guaranteed unique Application ID (YearMonth-TimeSlice-RandomEntropy)
+      const now = new Date();
+      const dateCode = `${String(now.getFullYear()).slice(-2)}${String(now.getMonth() + 1).padStart(2, '0')}`;
+      const timeSlice = Date.now().toString().slice(-4);
+      const randomEntropy = Math.floor(100 + Math.random() * 900);
+      const appId = `MQ-APP-${dateCode}-${timeSlice}${randomEntropy}`;
       setSubmittedAppId(appId);
 
       const formattedPhone = `+91 ${cleanPhoneDigits.slice(0, 5)} ${cleanPhoneDigits.slice(5)}`;
@@ -1011,11 +1029,18 @@ export default function App() {
         estimatedEmi: formatCurrency(estimatedEmi),
       };
 
-      // 1. Immediately persist locally (instantaneous backup)
+      // 1. Immediately persist locally (instantaneous backup with deduplication)
       try {
         const existing = JSON.parse(localStorage.getItem('moneyquick_saved_applications') || '[]');
-        existing.unshift({ ...emailPayload, userId: authUser?.uid || null, submittedAt: new Date().toISOString() });
-        localStorage.setItem('moneyquick_saved_applications', JSON.stringify(existing.slice(0, 50)));
+        const filtered = existing.filter((item: any) => item.applicationId !== appId);
+        filtered.unshift({
+          ...emailPayload,
+          userId: authUser?.uid || null,
+          status: 'verification',
+          currentStage: 2,
+          submittedAt: new Date().toISOString(),
+        });
+        localStorage.setItem('moneyquick_saved_applications', JSON.stringify(filtered.slice(0, 50)));
       } catch (storageErr) {
         console.warn('Local storage write warning:', storageErr);
       }
@@ -1024,6 +1049,8 @@ export default function App() {
       saveLoanApplication({
         ...emailPayload,
         userId: authUser?.uid || null,
+        status: 'verification',
+        currentStage: 2,
         submittedAt: new Date().toISOString(),
       }).catch((fsErr) => console.warn('Background Firestore write:', fsErr));
 

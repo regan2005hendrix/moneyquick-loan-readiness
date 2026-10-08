@@ -31,14 +31,17 @@ googleProvider.setCustomParameters({ prompt: 'select_account' });
  * Persist submitted loan application to Firestore for loan specialists / agents
  */
 export async function saveLoanApplication(data: Record<string, unknown>): Promise<string | null> {
-  // 1. Always persist locally in localStorage as a guaranteed immediate backup
+  // 1. Always persist locally in localStorage as a guaranteed immediate backup (with deduplication)
   try {
     const existing = JSON.parse(localStorage.getItem('moneyquick_saved_applications') || '[]');
-    existing.unshift({
+    const filtered = existing.filter((item: any) => item.applicationId !== data.applicationId);
+    filtered.unshift({
       ...data,
+      status: data.status || 'verification',
+      currentStage: data.currentStage || 2,
       savedLocallyAt: new Date().toISOString(),
     });
-    localStorage.setItem('moneyquick_saved_applications', JSON.stringify(existing.slice(0, 50)));
+    localStorage.setItem('moneyquick_saved_applications', JSON.stringify(filtered.slice(0, 50)));
   } catch (storageErr) {
     console.warn('Local storage write warning:', storageErr);
   }
@@ -57,7 +60,8 @@ export async function saveLoanApplication(data: Record<string, unknown>): Promis
 
     const addDocPromise = addDoc(collection(firebaseDb, 'loan_applications'), {
       ...data,
-      status: 'pending_agent_call',
+      status: data.status || 'verification',
+      currentStage: data.currentStage || 2,
       createdAt: serverTimestamp(),
     }).then((docRef) => docRef.id);
 

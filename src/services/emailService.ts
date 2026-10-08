@@ -61,13 +61,29 @@ export function generateConfirmationEmailHtml(details: LoanApplicationEmailPaylo
       </p>
 
       <!-- Agent Callback Banner -->
-      <div style="background-color: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 12px; padding: 18px 20px; margin-bottom: 24px;">
+      <div style="background-color: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 12px; padding: 18px 20px; margin-bottom: 20px;">
         <div style="display: flex; align-items: center; gap: 8px;">
           <strong style="color: #166534; font-size: 14px;">📞 Loan Specialist Callback Scheduled</strong>
         </div>
         <p style="margin: 8px 0 0; font-size: 13.5px; line-height: 1.5; color: #15803d;">
           One of our dedicated loan verification specialists will contact you shortly at <strong style="color: #166534;">${details.phone || 'your registered number'}</strong> to assist with document verification and guide you through the next stages of approval.
         </p>
+      </div>
+
+      <!-- Prominent Unique ID & 1-Click Live Tracking Card -->
+      <div style="margin: 20px 0 28px; padding: 22px; background: linear-gradient(135deg, #f8f9ff 0%, #f0fdf4 100%); border: 2px solid #6558e8; border-radius: 14px; text-align: center;">
+        <div style="font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.14em; color: #6558e8;">
+          Your Unique Application ID
+        </div>
+        <div style="font-size: 26px; font-weight: 800; color: #102a72; letter-spacing: 0.04em; margin: 8px 0; font-family: monospace;">
+          ${details.applicationId}
+        </div>
+        <p style="font-size: 13.5px; color: #475569; margin: 0 0 16px; line-height: 1.5;">
+          Save this ID! You can track which stage your loan has reached (KYC Verification, Underwriting, Sanction, or Disbursement) at any time.
+        </p>
+        <a href="https://moneyquick-loan-readiness.vercel.app/?track=${details.applicationId}" target="_blank" style="display: inline-block; background-color: #6558e8; color: #ffffff; font-size: 14px; font-weight: 700; text-decoration: none; padding: 12px 28px; border-radius: 10px; box-shadow: 0 4px 14px rgba(101, 88, 232, 0.3);">
+          Track Your Loan Status Live &rarr;
+        </a>
       </div>
 
       <!-- Application Details Table -->

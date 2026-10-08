@@ -90,6 +90,13 @@ export default async function handler(req, res) {
         <p style="margin:6px 0 0;color:#15803d;font-size:14px">Our loan verification specialist will contact you shortly at <strong>${escapeHtml(details.phone || 'your registered number')}</strong> to guide you through verification and answer any questions.</p>
       </div>
 
+      <div style="margin:20px 0 24px;padding:20px;background:linear-gradient(135deg, #f8f9ff 0%, #f0fdf4 100%);border:2px solid #6558e8;border-radius:12px;text-align:center">
+        <div style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:0.14em;color:#6558e8">Your Unique Application ID</div>
+        <div style="font-size:24px;font-weight:800;color:#102a72;letter-spacing:0.04em;margin:8px 0;font-family:monospace">${escapeHtml(details.applicationId || 'MQ-APP-PENDING')}</div>
+        <p style="font-size:13.5px;color:#475569;margin:0 0 14px;line-height:1.5">Save this unique ID! You can track your loan process stage (KYC Verification, Underwriting, Sanction, or Disbursement) at any time.</p>
+        <a href="https://moneyquick-loan-readiness.vercel.app/?track=${escapeHtml(details.applicationId || '')}" target="_blank" style="display:inline-block;background-color:#6558e8;color:#ffffff;font-size:14px;font-weight:700;text-decoration:none;padding:12px 26px;border-radius:8px;box-shadow:0 4px 12px rgba(101,88,232,0.25)">Track Your Loan Status Live &rarr;</a>
+      </div>
+
       <h3 style="color:#07142f;margin-top:24px">Your submitted details</h3>
       <table style="width:100%;border-collapse:collapse;font-size:14px">${htmlRows}</table>
       
