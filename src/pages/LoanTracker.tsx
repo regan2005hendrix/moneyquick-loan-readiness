@@ -325,6 +325,10 @@ export default function LoanTracker({
                 src="/3b6903f8-23e4-4c03-9082-3fe23e47cd11.png"
                 alt="MONEYQUICK Logo"
                 className="h-8 sm:h-9 w-auto object-contain"
+                width="36"
+                height="36"
+                fetchPriority="high"
+                decoding="async"
               />
               <div>
                 <div className="text-[15px] sm:text-[17px] font-extrabold tracking-tight text-primary">MONEYQUICK</div>

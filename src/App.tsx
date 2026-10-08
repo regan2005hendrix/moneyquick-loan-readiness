@@ -1,12 +1,30 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import type { User } from 'firebase/auth';
-import { createUserWithEmailAndPassword, onAuthStateChanged, sendPasswordResetEmail, signInWithEmailAndPassword, signInWithPopup, signOut as firebaseSignOut, updateProfile } from 'firebase/auth';
-import { firebaseAuth, googleProvider, isFirebaseConfigured, saveLoanApplication, getRecentSavedApplications } from './firebase';
+import {
+  isFirebaseConfigured,
+  onAuthChange,
+  signInEmail,
+  signUpEmail,
+  signInGoogle,
+  sendPasswordReset,
+  logoutUser,
+  updateUserProfile,
+  saveLoanApplication,
+} from './firebase';
 import { sendApplicationConfirmationEmail, type LoanApplicationEmailPayload } from './services/emailService';
-import PrivacyPolicy from './pages/PrivacyPolicy';
-import TermsAndConditions from './pages/TermsAndConditions';
-import DigitalLendingLanding from './pages/DigitalLendingLanding';
-import LoanTracker from './pages/LoanTracker';
+const PrivacyPolicy = React.lazy(() => import('./pages/PrivacyPolicy'));
+const TermsAndConditions = React.lazy(() => import('./pages/TermsAndConditions'));
+const DigitalLendingLanding = React.lazy(() => import('./pages/DigitalLendingLanding'));
+const LoanTracker = React.lazy(() => import('./pages/LoanTracker'));
+
+const RouteLoadingFallback = () => (
+  <div className="flex min-h-[50vh] w-full items-center justify-center py-20">
+    <div className="flex items-center gap-3 text-sm font-semibold text-primary">
+      <span className="h-5 w-5 animate-spin rounded-full border-2 border-accent border-t-transparent" />
+      <span>Loading…</span>
+    </div>
+  </div>
+);
 
 const Mail = ({ size = 18, className = '' }: { size?: number; className?: string }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden="true">
@@ -229,7 +247,7 @@ const ProfileMenu = ({ user, onSignOut, onProfileUpdated }: { user: User; onSign
     setSaving(true);
     setNotice('');
     try {
-      await updateProfile(user, { displayName: formatFullName(fullName) });
+      await updateUserProfile(user, { displayName: formatFullName(fullName) });
       localStorage.setItem(`moneyquick-phone-${user.uid}`, phone.trim());
       localStorage.setItem(`moneyquick-address-${user.uid}`, address.trim());
       onProfileUpdated(user);
@@ -252,7 +270,7 @@ const Topbar = ({ step, onReset, onNavigate, user, onSignOut, onProfileUpdated, 
   return (
     <header className="relative z-30 flex w-full items-center justify-between px-3 py-3 sm:px-8 sm:py-5 lg:px-12">
       <button type="button" onClick={onReset} className="flex items-center gap-2 sm:gap-3 rounded-lg transition-opacity hover:opacity-80 focus:outline-none focus:ring-2 focus:ring-accent/30" aria-label="Go to home page">
-        <img src="/3b6903f8-23e4-4c03-9082-3fe23e47cd11.png" alt="MONEYQUICK Logo" className="h-8 sm:h-9 w-auto object-contain" />
+        <img src="/3b6903f8-23e4-4c03-9082-3fe23e47cd11.png" alt="MONEYQUICK Logo" className="h-8 sm:h-9 w-auto object-contain" width="36" height="36" fetchPriority="high" decoding="async" />
         <div className="text-left">
           <div className="text-[14px] sm:text-[15px] font-semibold tracking-[-0.02em] text-primary">MONEYQUICK</div>
           <div className="hidden text-[10px] uppercase tracking-[0.22em] text-muted-foreground sm:block">Professional loan readiness</div>
@@ -599,13 +617,12 @@ const AuthScreen = ({ onSignedIn, theme, toggleTheme, onBack }: { onSignedIn: (u
 
   const submitEmailAuth = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (!firebaseAuth) return;
     setBusy(true);
     setNotice('');
     try {
       const result = mode === 'signIn'
-        ? await signInWithEmailAndPassword(firebaseAuth, email, password)
-        : await createUserWithEmailAndPassword(firebaseAuth, email, password);
+        ? await signInEmail(email, password)
+        : await signUpEmail(email, password);
       onSignedIn(result.user);
     } catch (error) {
       setNotice(authErrorMessage(error));
@@ -615,11 +632,10 @@ const AuthScreen = ({ onSignedIn, theme, toggleTheme, onBack }: { onSignedIn: (u
   };
 
   const signInWithGoogle = async () => {
-    if (!firebaseAuth) return;
     setBusy(true);
     setNotice('');
     try {
-      const result = await signInWithPopup(firebaseAuth, googleProvider);
+      const result = await signInGoogle();
       onSignedIn(result.user);
     } catch (error) {
       setNotice(authErrorMessage(error));
@@ -629,10 +645,10 @@ const AuthScreen = ({ onSignedIn, theme, toggleTheme, onBack }: { onSignedIn: (u
   };
 
   const resetPassword = async () => {
-    if (!firebaseAuth || !email) { setNotice('Enter your email address first, then select Forgot password.'); return; }
+    if (!email) { setNotice('Enter your email address first, then select Forgot password.'); return; }
     setBusy(true);
     try {
-      await sendPasswordResetEmail(firebaseAuth, email, { url: window.location.origin });
+      await sendPasswordReset(email);
       setNotice('Password-reset instructions were sent if an account exists for this email.');
     } catch (error) {
       setNotice(authErrorMessage(error));
@@ -840,18 +856,28 @@ export default function App() {
     : loanPurpose;
 
   useEffect(() => {
-    if (!firebaseAuth) { setAuthLoading(false); return; }
-    const unsubscribe = onAuthStateChanged(firebaseAuth, (user) => {
+    let unsubscribe: (() => void) | undefined;
+    onAuthChange((user) => {
       setAuthUser(user);
       if (user?.email) {
         setApplicantEmail((prev) => prev || user.email || '');
       }
       setAuthLoading(false);
+    }).then((unsub) => {
+      unsubscribe = unsub;
+    }).catch((err) => {
+      console.warn('Auth subscription warning:', err);
+      setAuthLoading(false);
     });
-    return unsubscribe;
+    return () => {
+      if (unsubscribe) unsubscribe();
+    };
   }, []);
 
-  const signOut = async () => { if (firebaseAuth) await firebaseSignOut(firebaseAuth); setAuthUser(null); };
+  const signOut = async () => {
+    await logoutUser();
+    setAuthUser(null);
+  };
 
   const isExpensesExceedingRevenue = monthlyExpenses >= monthlyRevenue || monthlyRevenue <= 0;
   const netMonthly = Math.max(0, monthlyRevenue - monthlyExpenses);
@@ -1105,50 +1131,58 @@ export default function App() {
     }
     if (currentStep === 'tracking') {
       return (
-        <LoanTracker
-          initialAppId={activeTrackingAppId || submittedAppId}
-          onBackToHome={() => go('landing')}
-          onStartNewApplication={() => setShowAuthModal(true)}
-          theme={theme}
-          toggleTheme={toggleTheme}
-        />
+        <React.Suspense fallback={<RouteLoadingFallback />}>
+          <LoanTracker
+            initialAppId={activeTrackingAppId || submittedAppId}
+            onBackToHome={() => go('landing')}
+            onStartNewApplication={() => setShowAuthModal(true)}
+            theme={theme}
+            toggleTheme={toggleTheme}
+          />
+        </React.Suspense>
       );
     }
     return (
-      <DigitalLendingLanding
-        onGetStarted={() => setShowAuthModal(true)}
-        onSignIn={() => setShowAuthModal(true)}
-        onNavigate={go}
-        theme={theme}
-        toggleTheme={toggleTheme}
-        authUser={null}
-      />
+      <React.Suspense fallback={<RouteLoadingFallback />}>
+        <DigitalLendingLanding
+          onGetStarted={() => setShowAuthModal(true)}
+          onSignIn={() => setShowAuthModal(true)}
+          onNavigate={go}
+          theme={theme}
+          toggleTheme={toggleTheme}
+          authUser={null}
+        />
+      </React.Suspense>
     );
   }
 
   if (currentStep === 'tracking') {
     return (
-      <LoanTracker
-        initialAppId={activeTrackingAppId || submittedAppId}
-        onBackToHome={() => go('landing')}
-        onStartNewApplication={() => go('income')}
-        theme={theme}
-        toggleTheme={toggleTheme}
-      />
+      <React.Suspense fallback={<RouteLoadingFallback />}>
+        <LoanTracker
+          initialAppId={activeTrackingAppId || submittedAppId}
+          onBackToHome={() => go('landing')}
+          onStartNewApplication={() => go('income')}
+          theme={theme}
+          toggleTheme={toggleTheme}
+        />
+      </React.Suspense>
     );
   }
 
   if (currentStep === 'landing') {
     return (
-      <DigitalLendingLanding
-        onGetStarted={() => go('income')}
-        onSignIn={() => go('income')}
-        onNavigate={go}
-        theme={theme}
-        toggleTheme={toggleTheme}
-        authUser={authUser}
-        onSignOut={signOut}
-      />
+      <React.Suspense fallback={<RouteLoadingFallback />}>
+        <DigitalLendingLanding
+          onGetStarted={() => go('income')}
+          onSignIn={() => go('income')}
+          onNavigate={go}
+          theme={theme}
+          toggleTheme={toggleTheme}
+          authUser={authUser}
+          onSignOut={signOut}
+        />
+      </React.Suspense>
     );
   }
 
@@ -1168,10 +1202,14 @@ export default function App() {
 
       <main className="relative z-10 mx-auto flex w-full max-w-[1440px] flex-1 px-5 pb-16 sm:px-8 lg:px-12">
         {currentStep === 'privacy' && (
-          <PrivacyPolicy onNavigate={go} />
+          <React.Suspense fallback={<RouteLoadingFallback />}>
+            <PrivacyPolicy onNavigate={go} />
+          </React.Suspense>
         )}
         {currentStep === 'terms' && (
-          <TermsAndConditions onNavigate={go} />
+          <React.Suspense fallback={<RouteLoadingFallback />}>
+            <TermsAndConditions onNavigate={go} />
+          </React.Suspense>
         )}
         
 

@@ -1,4 +1,3 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 @import 'tailwindcss';
 
 @custom-variant dark (&:where(.dark, .dark *));
@@ -408,28 +407,46 @@ button {
 .animate-orbit-disbursal {
   animation: orbit-disbursal 38s linear infinite;
   transform-origin: center center;
+  will-change: transform;
+  backface-visibility: hidden;
 }
 .animate-orbit-disbursal-counter {
   animation: orbit-disbursal-counter 38s linear infinite;
   transform-origin: center center;
+  will-change: transform;
+  backface-visibility: hidden;
 }
 
 .animate-orbit-repayments {
   animation: orbit-repayments 38s linear infinite;
   transform-origin: center center;
+  will-change: transform;
+  backface-visibility: hidden;
 }
 .animate-orbit-repayments-counter {
   animation: orbit-repayments-counter 38s linear infinite;
   transform-origin: center center;
+  will-change: transform;
+  backface-visibility: hidden;
 }
 
 .animate-orbit-colending {
   animation: orbit-colending 38s linear infinite;
   transform-origin: center center;
+  will-change: transform;
+  backface-visibility: hidden;
 }
 .animate-orbit-colending-counter {
   animation: orbit-colending-counter 38s linear infinite;
   transform-origin: center center;
+  will-change: transform;
+  backface-visibility: hidden;
+}
+
+/* Below-the-fold content visibility optimization for mobile */
+.cv-auto {
+  content-visibility: auto;
+  contain-intrinsic-size: 0 450px;
 }
 
 /* Pause orbit on hover so user can easily interact */

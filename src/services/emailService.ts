@@ -1,4 +1,3 @@
-import emailjs from '@emailjs/browser';
 
 export interface LoanApplicationEmailPayload {
   applicationId: string;
@@ -185,6 +184,7 @@ export async function sendApplicationConfirmationEmail(
         message: `Thank you for applying with MONEYQUICK. Your application for ${details.requestedAmount} is being processed. A loan specialist will call you at ${details.phone} shortly.`,
       };
 
+      const emailjs = (await import('@emailjs/browser')).default;
       const emailJsPromise = emailjs.send(serviceId, templateId, templateParams, publicKey);
       const emailJsTimeout = new Promise<never>((_, reject) =>
         setTimeout(() => reject(new Error('EmailJS dispatch timed out')), 4000)

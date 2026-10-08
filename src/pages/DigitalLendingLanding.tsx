@@ -162,6 +162,10 @@ export default function DigitalLendingLanding({
                 src="/3b6903f8-23e4-4c03-9082-3fe23e47cd11.png"
                 alt="MONEYQUICK Logo"
                 className="h-8 sm:h-9 w-auto object-contain"
+                width="36"
+                height="36"
+                fetchPriority="high"
+                decoding="async"
               />
               <div>
                 <div className="text-[15px] sm:text-[17px] font-extrabold tracking-tight text-primary leading-tight">MONEYQUICK</div>
@@ -660,7 +664,7 @@ export default function DigitalLendingLanding({
       </section>
 
       {/* Lending Products Ribbon */}
-      <section className="border-y border-border bg-surface/30 py-10">
+      <section className="border-y border-border bg-surface/30 py-10 cv-auto">
         <div className="mx-auto max-w-7xl px-5 sm:px-8">
           <div className="text-center">
             <span className="text-xs font-bold uppercase tracking-widest text-accent">Comprehensive Product Coverage</span>
@@ -691,7 +695,7 @@ export default function DigitalLendingLanding({
       </section>
 
       {/* SECTION FROM SCREENSHOT: "Effortlessly collect payments while adhering to RBI's digital lending guidelines" */}
-      <section id="collections-rbi" className="py-20 lg:py-28 border-b border-border bg-background">
+      <section id="collections-rbi" className="py-20 lg:py-28 border-b border-border bg-background cv-auto">
         <div className="mx-auto max-w-7xl px-5 sm:px-8">
           {/* Main Section Header */}
           <div className="max-w-4xl">
@@ -778,6 +782,10 @@ export default function DigitalLendingLanding({
                       src="/3b6903f8-23e4-4c03-9082-3fe23e47cd11.png"
                       alt="MoneyQuick"
                       className="h-9 w-9 object-contain"
+                      width="36"
+                      height="36"
+                      loading="lazy"
+                      decoding="async"
                     />
                   </div>
                 </div>
@@ -826,7 +834,7 @@ export default function DigitalLendingLanding({
       </section>
 
       {/* Dual Perspective: NBFCs vs LSPs & Borrowers (Matching Cashfree's Section) */}
-      <section id="solutions" className="py-20 lg:py-28">
+      <section id="solutions" className="py-20 lg:py-28 cv-auto">
         <div className="mx-auto max-w-7xl px-5 sm:px-8">
           <div className="mx-auto max-w-3xl text-center">
             <div className="inline-flex items-center gap-1.5 rounded-full bg-highlight px-3 py-1 text-xs font-bold uppercase tracking-wider text-accent">
@@ -1038,7 +1046,7 @@ export default function DigitalLendingLanding({
       </section>
 
       {/* Core Capability Pillars (Features Grid) */}
-      <section id="features" className="border-t border-border bg-surface/20 py-20 lg:py-28">
+      <section id="features" className="border-t border-border bg-surface/20 py-20 lg:py-28 cv-auto">
         <div className="mx-auto max-w-7xl px-5 sm:px-8">
           <div className="mx-auto max-w-3xl text-center">
             <span className="text-xs font-bold uppercase tracking-widest text-accent">Next-Gen Lending Technology</span>
@@ -1145,7 +1153,7 @@ export default function DigitalLendingLanding({
       </section>
 
       {/* Interactive Live EMI & Loan Readiness Estimator (Embedded on Landing Page!) */}
-      <section id="calculator" className="py-20 lg:py-28">
+      <section id="calculator" className="py-20 lg:py-28 cv-auto">
         <div className="mx-auto max-w-7xl px-5 sm:px-8">
           <div className="mx-auto max-w-3xl text-center">
             <span className="text-xs font-bold uppercase tracking-widest text-accent">Live Interactive Preview</span>
@@ -1268,7 +1276,7 @@ export default function DigitalLendingLanding({
       </section>
 
       {/* Comparison Matrix: With MoneyQuick vs Other Platforms (Exact Cashfree Feature) */}
-      <section id="comparison" className="border-t border-border bg-surface/30 py-20 lg:py-28">
+      <section id="comparison" className="border-t border-border bg-surface/30 py-20 lg:py-28 cv-auto">
         <div className="mx-auto max-w-7xl px-5 sm:px-8">
           <div className="mx-auto max-w-3xl text-center">
             <span className="text-xs font-bold uppercase tracking-widest text-accent">The Modern Advantage</span>
@@ -1331,7 +1339,7 @@ export default function DigitalLendingLanding({
       </section>
 
       {/* Frequently Asked Questions (FAQ Accordion) */}
-      <section id="faqs" className="py-20 lg:py-28">
+      <section id="faqs" className="py-20 lg:py-28 cv-auto">
         <div className="mx-auto max-w-4xl px-5 sm:px-8">
           <div className="text-center">
             <span className="text-xs font-bold uppercase tracking-widest text-accent">Got Questions?</span>
@@ -1408,7 +1416,7 @@ export default function DigitalLendingLanding({
       </section>
 
       {/* Comprehensive Footer */}
-      <footer className="border-t border-border bg-background py-16 text-muted-foreground">
+      <footer className="border-t border-border bg-background py-16 text-muted-foreground cv-auto">
         <div className="mx-auto max-w-7xl px-5 sm:px-8">
           <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-5">
             {/* Brand column */}
@@ -1418,6 +1426,10 @@ export default function DigitalLendingLanding({
                   src="/3b6903f8-23e4-4c03-9082-3fe23e47cd11.png"
                   alt="MONEYQUICK Logo"
                   className="h-8 w-auto object-contain"
+                  width="32"
+                  height="32"
+                  loading="lazy"
+                  decoding="async"
                 />
                 <span className="text-lg font-bold text-primary">MONEYQUICK</span>
               </div>
