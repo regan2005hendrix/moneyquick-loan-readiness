@@ -99,6 +99,22 @@ const Moon = ({ size = 18, className = '' }: { size?: number; className?: string
   </svg>
 );
 
+const AlertCircle = ({ size = 18, className = '' }: { size?: number; className?: string }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden="true">
+    <circle cx="12" cy="12" r="10" />
+    <line x1="12" y1="8" x2="12" y2="12" />
+    <line x1="12" y1="16" x2="12.01" y2="16" />
+  </svg>
+);
+
+const ExternalLink = ({ size = 16, className = '' }: { size?: number; className?: string }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden="true">
+    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+    <polyline points="15 3 21 3 21 9" />
+    <line x1="10" y1="14" x2="21" y2="3" />
+  </svg>
+);
+
 const formatCurrency = (value: number) => `₹${Math.max(0, value).toLocaleString('en-IN')}`;
 const formatLakh = (value: number) => `₹${(value / 100000).toFixed(1).replace('.0', '')}L`;
 const formatFullName = (value: string) => value
@@ -124,9 +140,22 @@ const businessIndustries = [
 ] as const;
 const loanCategories = [
   ['Business / MSME loan', 'For expansion, equipment, inventory or longer-term business investment.'],
-  ['Working capital loan', 'For day-to-day cash flow, supplier payments and short-term operating needs.'],
-  ['Loan against property', 'For larger business needs when you can pledge eligible property as collateral.'],
-  ['Personal or vehicle loan', 'For eligible personal expenses or a vehicle purchase; lender terms vary by purpose.'],
+  ['Working capital loan', 'For day-to-day cash flow, supplier payments, payroll and short-term operating needs.'],
+  ['Machinery & equipment loan', 'Asset-backed financing for industrial machinery, manufacturing plants or commercial tools.'],
+  ['Loan against property (LAP)', 'High-ticket secured credit by pledging eligible residential, commercial or industrial property.'],
+  ['Invoice & bill discounting', 'Unlock immediate cash against verified unpaid client invoices and pending receivables.'],
+  ['Merchant cash advance / POS', 'Flexible repayment structure linked directly to your daily card, POS or QR swipe revenues.'],
+  ['Commercial vehicle loan', 'Vehicle financing for commercial vans, delivery fleets, logistics trucks or taxis.'],
+  ['Unsecured business credit line', 'Pre-approved revolving credit facility where interest is charged only on the withdrawn amount.'],
+] as const;
+
+const loanPurposes = [
+  'Working capital',
+  'Business expansion',
+  'Equipment or machinery',
+  'Commercial vehicle / fleet',
+  'Invoice or bill discounting',
+  'Other',
 ] as const;
 
 type Step = 'landing' | 'income' | 'business' | 'requirement' | 'calculating' | 'snapshot' | 'handoff' | 'application' | 'submitted' | 'verification' | 'assessment' | 'decision' | 'privacy' | 'terms';
@@ -150,11 +179,11 @@ const PrimaryButton = ({ children, onClick, className = '', type = 'button', dis
   <button
     type={type}
     disabled={disabled}
-    onClick={onClick}
-    className={`group inline-flex items-center justify-center gap-3 rounded-lg bg-primary px-7 py-4 font-semibold text-primary-foreground shadow-sm transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-[#0b2148] active:translate-y-0 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 ${className}`}
+    onClick={disabled ? undefined : onClick}
+    className={`group inline-flex items-center justify-center gap-3 rounded-lg bg-primary px-7 py-4 font-semibold text-primary-foreground shadow-sm transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-[#0b2148] active:translate-y-0 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0 disabled:hover:bg-primary ${className}`}
   >
     <span>{children}</span>
-    <ArrowRight size={18} className="transition-transform duration-300 group-hover:translate-x-1.5" />
+    <ArrowRight size={18} className="transition-transform duration-300 group-hover:translate-x-1.5 group-disabled:translate-x-0" />
   </button>
 );
 
@@ -404,7 +433,44 @@ type IndustryPickerProps = { value: string; onChange: (value: string) => void; i
 const IndustryPicker = ({ value, onChange, id }: IndustryPickerProps) => {
   const [open, setOpen] = useState(false);
   const selectIndustry = (industry: string) => { onChange(industry); setOpen(false); };
-  return <div className="relative"><button id={id} type="button" aria-haspopup="listbox" aria-expanded={open} onClick={() => setOpen((current) => !current)} className="flex w-full items-center justify-between rounded-2xl border border-border bg-background px-4 py-3.5 text-left font-semibold text-primary outline-none transition hover:border-accent/45 focus:border-accent focus:ring-4 focus:ring-highlight"><span className={value ? '' : 'text-muted-foreground'}>{value || 'Select your business industry'}</span><span className={`text-accent transition-transform ${open ? 'rotate-180' : ''}`}>⌄</span></button>{open ? <div role="listbox" aria-labelledby={id} className="absolute z-40 mt-2 max-h-72 w-full overflow-y-auto rounded-2xl border border-border/70 bg-[#F7F5EF] p-2 shadow-[0_20px_50px_rgba(7,20,47,0.16)]">{businessIndustries.map((industry) => <button key={industry} type="button" role="option" aria-selected={value === industry} onClick={() => selectIndustry(industry)} className={`flex w-full items-center justify-between rounded-xl px-3 py-3 text-left text-sm font-semibold transition ${value === industry ? 'bg-highlight text-accent' : 'text-primary hover:bg-white'}`}><span>{industry}</span>{value === industry ? <Check size={14} /> : null}</button>)}</div> : null}</div>;
+  return (
+    <div className="relative">
+      <button
+        id={id}
+        type="button"
+        aria-haspopup="listbox"
+        aria-expanded={open}
+        onClick={() => setOpen((current) => !current)}
+        className="flex w-full items-center justify-between rounded-2xl border border-border bg-background px-4 py-3.5 text-left font-semibold text-primary outline-none transition hover:border-accent/45 focus:border-accent focus:ring-4 focus:ring-highlight"
+      >
+        <span className={value ? '' : 'text-muted-foreground'}>{value || 'Select your business industry'}</span>
+        <span className={`text-accent transition-transform ${open ? 'rotate-180' : ''}`}>⌄</span>
+      </button>
+      {open ? (
+        <div
+          role="listbox"
+          aria-labelledby={id}
+          className="absolute z-40 mt-2 max-h-72 w-full overflow-y-auto rounded-2xl border border-border/70 bg-[#F7F5EF] dark:bg-slate-900 p-2 shadow-[0_20px_50px_rgba(7,20,47,0.16)] dark:shadow-[0_20px_50px_rgba(0,0,0,0.6)]"
+        >
+          {businessIndustries.map((industry) => (
+            <button
+              key={industry}
+              type="button"
+              role="option"
+              aria-selected={value === industry}
+              onClick={() => selectIndustry(industry)}
+              className={`flex w-full items-center justify-between rounded-xl px-3 py-3 text-left text-sm font-semibold transition ${
+                value === industry ? 'bg-highlight text-accent dark:bg-accent/20' : 'text-primary hover:bg-white dark:hover:bg-slate-800'
+              }`}
+            >
+              <span>{industry}</span>
+              {value === industry ? <Check size={14} /> : null}
+            </button>
+          ))}
+        </div>
+      ) : null}
+    </div>
+  );
 };
 
 const DocumentReadinessAssistant = ({ onReadyCountChange }: { onReadyCountChange?: (count: number) => void }) => {
@@ -715,6 +781,7 @@ export default function App() {
   const [selectedBusinessType, setSelectedBusinessType] = useState('Business owner');
   const [requestedAmount, setRequestedAmount] = useState(1500000);
   const [loanPurpose, setLoanPurpose] = useState('Working capital');
+  const [customLoanPurpose, setCustomLoanPurpose] = useState('');
   const [loanCategory, setLoanCategory] = useState<(typeof loanCategories)[number][0]>('Business / MSME loan');
   const [loanTenureYears, setLoanTenureYears] = useState(5);
   const [annualInterestRate, setAnnualInterestRate] = useState(14);
@@ -740,6 +807,29 @@ export default function App() {
   const [confirmationNotice, setConfirmationNotice] = useState('');
   const [applicantEmail, setApplicantEmail] = useState('');
 
+  const handlePurposeSelect = (purpose: string) => {
+    setLoanPurpose(purpose);
+    if (purpose !== 'Other') {
+      setCustomLoanPurpose('');
+    }
+    // Intelligently auto-match the corresponding loan category so user doesn't have to select twice:
+    if (purpose === 'Working capital') {
+      setLoanCategory('Working capital loan');
+    } else if (purpose === 'Business expansion') {
+      setLoanCategory('Business / MSME loan');
+    } else if (purpose === 'Equipment or machinery') {
+      setLoanCategory('Machinery & equipment loan');
+    } else if (purpose === 'Commercial vehicle / fleet') {
+      setLoanCategory('Commercial vehicle loan');
+    } else if (purpose === 'Invoice or bill discounting') {
+      setLoanCategory('Invoice & bill discounting');
+    }
+  };
+
+  const effectiveLoanPurpose = (loanPurpose.toLowerCase() === 'other' && customLoanPurpose.trim())
+    ? customLoanPurpose.trim()
+    : loanPurpose;
+
   useEffect(() => {
     if (!firebaseAuth) { setAuthLoading(false); return; }
     const unsubscribe = onAuthStateChanged(firebaseAuth, (user) => {
@@ -754,9 +844,19 @@ export default function App() {
 
   const signOut = async () => { if (firebaseAuth) await firebaseSignOut(firebaseAuth); setAuthUser(null); };
 
+  const isExpensesExceedingRevenue = monthlyExpenses >= monthlyRevenue || monthlyRevenue <= 0;
   const netMonthly = Math.max(0, monthlyRevenue - monthlyExpenses);
   const maxCapacity = Math.min(8000000, Math.max(1000000, Math.round((netMonthly * 36) / 100000) * 100000));
-  const minCapacity = Math.max(1000000, Math.round((maxCapacity * 0.7) / 100000) * 100000);
+  
+  // Dynamic minimum capacity that gracefully supports requests under 25L without cutting off or clamping to 0%
+  const calculatedBaselineMin = Math.round((maxCapacity * 0.25) / 100000) * 100000;
+  const minCapacity = Math.max(
+    100000,
+    requestedAmount < calculatedBaselineMin
+      ? Math.max(100000, Math.round((requestedAmount * 0.5) / 50000) * 50000)
+      : calculatedBaselineMin
+  );
+
   const loanTenureMonths = loanTenureYears * 12;
   const monthlyInterestRate = annualInterestRate / 100 / 12;
   const estimatedEmi = Math.max(0, Math.round(monthlyInterestRate === 0
@@ -768,7 +868,8 @@ export default function App() {
   const meetsIncomeRequirement = netMonthly >= 25000;
   const meetsBusinessHistoryRequirement = yearsInBusiness >= 2;
   const isReady = meetsAgeRequirement && meetsCreditRequirement && meetsIncomeRequirement && meetsBusinessHistoryRequirement && requestedAmount <= maxCapacity;
-  const canProceedWithBasicEligibility = meetsAgeRequirement && meetsCreditRequirement;
+  const isCustomIndustryValid = !businessIndustry.toLowerCase().includes('other') || customBusinessIndustry.trim().length > 0;
+  const canProceedWithBasicEligibility = meetsAgeRequirement && meetsCreditRequirement && isCustomIndustryValid;
   const requiredDocumentCount = 5;
   const hasRequiredDocuments = verifiedDocumentCount >= requiredDocumentCount;
   const ageEligibilityMessage = applicantAge < 21 ? 'You must be at least 21 years old to continue.' : applicantAge > 60 ? 'This preview supports applicants up to 60 years old. Some lenders may allow a higher age at loan maturity.' : '';
@@ -777,7 +878,9 @@ export default function App() {
   const nameParts = applicantName.trim().split(/\s+/).filter(Boolean);
   const hasValidFullName = nameParts.length >= 2 && nameParts.every((part) => /^[A-Z][a-z]{1,29}$/.test(part));
   const nameStructureHint = applicantName.length >= 5 && !hasValidFullName ? 'Enter both your first and last name.' : '';
-  const selectedIndustryLabel = businessIndustry === 'Other — not listed' ? customBusinessIndustry.trim() : businessIndustry;
+  const selectedIndustryLabel = (businessIndustry.toLowerCase().includes('other') && customBusinessIndustry.trim())
+    ? customBusinessIndustry.trim()
+    : businessIndustry;
 
   useEffect(() => {
     if (currentStep !== 'calculating') return;
@@ -789,10 +892,20 @@ export default function App() {
   }, [currentStep]);
 
   const go = (step: Step) => {
+    // If expenses >= revenue, cannot advance past income!
+    if (step !== 'landing' && step !== 'income' && step !== 'privacy' && step !== 'terms' && isExpensesExceedingRevenue) {
+      setCurrentStep('income');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
     const gatedSteps: Step[] = ['requirement', 'calculating', 'snapshot', 'handoff', 'application', 'submitted', 'verification', 'assessment', 'decision'];
     if (gatedSteps.includes(step) && !canProceedWithBasicEligibility) {
       setCurrentStep('business');
-      setEligibilityNotice(ageEligibilityMessage || creditEligibilityMessage || 'Complete the basic eligibility check before continuing.');
+      setEligibilityNotice(
+        !isCustomIndustryValid
+          ? 'Please specify your business type or industry before continuing.'
+          : ageEligibilityMessage || creditEligibilityMessage || 'Complete the basic eligibility check before continuing.'
+      );
       window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
     }
@@ -815,6 +928,7 @@ export default function App() {
       '',
       `Indicative borrowing range: ${formatCurrency(minCapacity)} – ${formatCurrency(maxCapacity)}`,
       `Requested amount: ${formatCurrency(requestedAmount)}`,
+      `Loan purpose: ${effectiveLoanPurpose}`,
       `Suggested loan category: ${loanCategory}`,
       `Illustrative EMI: ${formatCurrency(estimatedEmi)} / month`,
       `Work type: ${selectedBusinessType}`,
@@ -874,7 +988,7 @@ export default function App() {
         email: cleanEmail,
         phone: formattedPhone,
         requestedAmount: formatCurrency(requestedDisplay),
-        loanPurpose,
+        loanPurpose: effectiveLoanPurpose,
         loanCategory,
         selectedBusinessType,
         selectedIndustryLabel,
@@ -1023,10 +1137,41 @@ export default function App() {
                 <div><div className="text-xs font-bold uppercase tracking-[0.16em] text-muted-foreground">Less expenses</div><div className="mt-1 text-2xl font-bold text-primary">{formatCurrency(monthlyExpenses)}</div></div>
               </div>
               <div className="my-6 h-px bg-border" />
-              <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between"><div><div className="text-xs font-bold uppercase tracking-[0.16em] text-accent">Estimated monthly surplus</div><p className="mt-1 text-sm text-muted-foreground">A simple view of what remains after typical business expenses.</p></div><div className="text-3xl font-bold tracking-[-0.04em] text-primary sm:text-4xl">{formatCurrency(netMonthly)}</div></div>
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+                <div>
+                  <div className={`text-xs font-bold uppercase tracking-[0.16em] ${isExpensesExceedingRevenue ? 'text-destructive' : 'text-accent'}`}>
+                    Estimated monthly surplus
+                  </div>
+                  <p className="mt-1 text-sm text-muted-foreground">A simple view of what remains after typical business expenses.</p>
+                </div>
+                <div className={`text-3xl font-bold tracking-[-0.04em] sm:text-4xl ${isExpensesExceedingRevenue ? 'text-destructive' : 'text-primary'}`}>
+                  {formatCurrency(netMonthly)}
+                </div>
+              </div>
             </div>
 
-            <div className="mt-8 flex items-center justify-between gap-4"><span className="hidden text-sm font-medium text-muted-foreground sm:block">An estimate is fine, you can review everything before applying.</span><PrimaryButton onClick={() => go('business')}>Continue</PrimaryButton></div>
+            {isExpensesExceedingRevenue && (
+              <div role="alert" className="mt-6 flex items-start gap-3.5 rounded-[22px] border border-destructive/40 bg-destructive/10 p-5 text-destructive animate-soft-in">
+                <AlertCircle size={22} className="mt-0.5 shrink-0" />
+                <div>
+                  <h4 className="text-sm font-bold tracking-wide uppercase">You are not eligible for a loan</h4>
+                  <p className="mt-1.5 text-sm leading-6 opacity-95">
+                    Your monthly business expenses ({formatCurrency(monthlyExpenses)}) equal or exceed your revenue ({formatCurrency(monthlyRevenue)}). Lenders require a positive monthly cash surplus to service loan EMIs. Please adjust your revenue or expense figures if this was entered incorrectly.
+                  </p>
+                </div>
+              </div>
+            )}
+
+            <div className="mt-8 flex items-center justify-between gap-4">
+              <span className="hidden text-sm font-medium text-muted-foreground sm:block">
+                {isExpensesExceedingRevenue
+                  ? 'A positive cash surplus is required to calculate borrowing readiness.'
+                  : 'An estimate is fine, you can review everything before applying.'}
+              </span>
+              <PrimaryButton disabled={isExpensesExceedingRevenue} onClick={() => go('business')}>
+                {isExpensesExceedingRevenue ? 'Not eligible to proceed' : 'Continue'}
+              </PrimaryButton>
+            </div>
           </section>
         )}
 
@@ -1050,7 +1195,20 @@ export default function App() {
             <div className="mt-8 rounded-[24px] border border-white/80 bg-white/65 p-6 shadow-[0_18px_42px_rgba(7,20,47,0.04)] sm:p-7">
               <div className="mb-4 flex items-center justify-between"><div><div className="text-xs font-bold uppercase tracking-[0.18em] text-muted-foreground">Business industry</div><p className="mt-1 text-sm text-muted-foreground">Choose the category that best describes your business.</p></div><div className="text-xs font-semibold text-accent">02 / 03</div></div>
               <IndustryPicker id="business-industry" value={businessIndustry} onChange={(industry) => { setBusinessIndustry(industry); setCustomBusinessIndustry(''); }} />
-              {businessIndustry === 'Other — not listed' ? <div className="mt-4"><label htmlFor="custom-business-industry" className="text-xs font-bold uppercase tracking-[0.16em] text-muted-foreground">Your business type or name</label><input id="custom-business-industry" value={customBusinessIndustry} onChange={(event) => setCustomBusinessIndustry(event.target.value)} placeholder="Describe your business" className="mt-2 w-full rounded-2xl border border-border bg-background px-4 py-3.5 font-medium text-primary outline-none transition focus:border-accent focus:ring-4 focus:ring-highlight" /></div> : null}
+              {(businessIndustry === 'Other, not listed' || businessIndustry.toLowerCase().includes('other')) ? (
+                <div className="mt-4 animate-soft-in">
+                  <label htmlFor="custom-business-industry" className="text-xs font-bold uppercase tracking-[0.16em] text-muted-foreground">
+                    Specify your business type or industry
+                  </label>
+                  <input
+                    id="custom-business-industry"
+                    value={customBusinessIndustry}
+                    onChange={(event) => setCustomBusinessIndustry(event.target.value)}
+                    placeholder="e.g. Textile Printing, Solar Installation, Coaching Academy"
+                    className="mt-2 w-full rounded-2xl border border-border bg-background px-4 py-3.5 font-medium text-primary outline-none transition focus:border-accent focus:ring-4 focus:ring-highlight"
+                  />
+                </div>
+              ) : null}
             </div>
 
             <div className="mt-8">
@@ -1068,7 +1226,27 @@ export default function App() {
               <div className="mb-5"><div className="text-xs font-bold uppercase tracking-[0.18em] text-muted-foreground">Basic eligibility check</div><p className="mt-1 text-sm leading-6 text-muted-foreground">These details give an early indication only. Each lender applies its own criteria.</p></div>
               <div className="grid gap-5 sm:grid-cols-2">
                 <label><span className="text-xs font-bold uppercase tracking-[0.16em] text-primary">Your age</span><span className="mt-1 block text-xs text-muted-foreground">Applicants must be between 21 and 60 for this readiness check.</span><input type="number" min="18" max="80" value={applicantAge} aria-invalid={Boolean(ageEligibilityMessage)} onChange={(event) => { setApplicantAge(Number(event.target.value)); setEligibilityNotice(''); }} className={`mt-3 w-full rounded-2xl border bg-background px-4 py-3.5 text-xl font-bold text-primary outline-none transition focus:ring-4 focus:ring-highlight ${ageEligibilityMessage ? 'border-destructive focus:border-destructive' : 'border-border focus:border-accent'}`} />{ageEligibilityMessage ? <span role="alert" className="mt-2 block text-xs font-semibold leading-5 text-destructive">{ageEligibilityMessage}</span> : null}</label>
-                <label><span className="text-xs font-bold uppercase tracking-[0.16em] text-primary">CIBIL score</span><span className="mt-1 block text-xs text-muted-foreground">A score of 700 or higher is required for this readiness check.</span><input type="number" min="300" max="900" value={creditScore} aria-invalid={Boolean(creditEligibilityMessage)} onChange={(event) => { setCreditScore(Number(event.target.value)); setEligibilityNotice(''); }} className={`mt-3 w-full rounded-2xl border bg-background px-4 py-3.5 text-xl font-bold text-primary outline-none transition focus:ring-4 focus:ring-highlight ${creditEligibilityMessage ? 'border-destructive focus:border-destructive' : 'border-border focus:border-accent'}`} />{creditEligibilityMessage ? <span role="alert" className="mt-2 block text-xs font-semibold leading-5 text-destructive">{creditEligibilityMessage}</span> : null}</label>
+                <div>
+                  <label className="block">
+                    <span className="text-xs font-bold uppercase tracking-[0.16em] text-primary">CIBIL score</span>
+                    <span className="mt-1 block text-xs text-muted-foreground">A score of 700 or higher is required for this readiness check.</span>
+                    <input type="number" min="300" max="900" value={creditScore} aria-invalid={Boolean(creditEligibilityMessage)} onChange={(event) => { setCreditScore(Number(event.target.value)); setEligibilityNotice(''); }} className={`mt-3 w-full rounded-2xl border bg-background px-4 py-3.5 text-xl font-bold text-primary outline-none transition focus:ring-4 focus:ring-highlight ${creditEligibilityMessage ? 'border-destructive focus:border-destructive' : 'border-border focus:border-accent'}`} />
+                    {creditEligibilityMessage ? <span role="alert" className="mt-2 block text-xs font-semibold leading-5 text-destructive">{creditEligibilityMessage}</span> : null}
+                  </label>
+                  <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
+                    <a
+                      href="https://myscore.cibil.com/CreditView/enrollShort.page?enterprise=CIBIL"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 text-xs font-bold text-accent hover:underline"
+                      title="Check your free official CIBIL score on TransUnion CIBIL"
+                    >
+                      <span>Check free CIBIL score (TransUnion)</span>
+                      <ExternalLink size={13} />
+                    </a>
+                    <span className="text-[11px] text-muted-foreground">Free official check ↗</span>
+                  </div>
+                </div>
               </div>
               {eligibilityNotice ? <p role="alert" className="mt-5 rounded-2xl bg-destructive/10 px-4 py-3 text-sm font-semibold text-destructive">{eligibilityNotice}</p> : null}
             </div>
@@ -1101,21 +1279,81 @@ export default function App() {
 
               <div className="mt-9">
                 <div className="text-xs font-bold uppercase tracking-[0.18em] text-primary">Purpose</div>
-                <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                  {['Working capital', 'Business expansion', 'Equipment or machinery', 'Other'].map((purpose) => {
+                <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                  {loanPurposes.map((purpose) => {
                     const selected = loanPurpose === purpose;
-                    return <button key={purpose} type="button" onClick={() => setLoanPurpose(purpose)} className={`flex min-h-[72px] items-center justify-between rounded-[20px] border px-5 text-left transition-all duration-250 ${selected ? 'border-accent/50 bg-highlight shadow-[0_12px_28px_rgba(11,143,131,0.08)]' : 'border-border-light bg-background hover:border-accent/25 hover:bg-white'}`}><span className="font-semibold text-primary">{purpose}</span>{selected && <span className="flex h-7 w-7 items-center justify-center rounded-full bg-accent text-white"><Check size={14} /></span>}</button>;
+                    return (
+                      <button
+                        key={purpose}
+                        type="button"
+                        onClick={() => handlePurposeSelect(purpose)}
+                        className={`flex min-h-[72px] items-center justify-between rounded-[20px] border px-5 text-left transition-all duration-250 ${
+                          selected
+                            ? 'border-accent/50 bg-highlight shadow-[0_12px_28px_rgba(11,143,131,0.08)]'
+                            : 'border-border-light bg-background hover:border-accent/25 hover:bg-white'
+                        }`}
+                      >
+                        <span className="font-semibold text-primary">{purpose}</span>
+                        {selected && (
+                          <span className="flex h-7 w-7 items-center justify-center rounded-full bg-accent text-white">
+                            <Check size={14} />
+                          </span>
+                        )}
+                      </button>
+                    );
                   })}
                 </div>
+                {loanPurpose === 'Other' && (
+                  <div className="mt-4 animate-soft-in">
+                    <label htmlFor="custom-loan-purpose" className="text-xs font-bold uppercase tracking-[0.16em] text-muted-foreground">
+                      Specify your loan purpose
+                    </label>
+                    <input
+                      id="custom-loan-purpose"
+                      value={customLoanPurpose}
+                      onChange={(e) => setCustomLoanPurpose(e.target.value)}
+                      placeholder="e.g. Raw material bulk order, Warehouse lease deposit, New product launch"
+                      className="mt-2 w-full rounded-2xl border border-border bg-background px-4 py-3.5 font-medium text-primary outline-none transition focus:border-accent focus:ring-4 focus:ring-highlight"
+                    />
+                  </div>
+                )}
               </div>
 
               <div className="mt-9 border-t border-border-light pt-8">
-                <div className="text-xs font-bold uppercase tracking-[0.18em] text-primary">Loan category</div>
-                <p className="mt-2 text-sm leading-6 text-muted-foreground">Pick the loan category that best fits the purpose. It does not guarantee availability or approval.</p>
-                <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <div>
+                    <div className="text-xs font-bold uppercase tracking-[0.18em] text-primary">Loan category</div>
+                    <p className="mt-1 text-sm leading-6 text-muted-foreground">
+                      Auto-matched to your purpose. You can pick an alternative facility below if preferred.
+                    </p>
+                  </div>
+                  <span className="rounded-full bg-accent/10 px-3 py-1 text-xs font-bold text-accent">Auto-matched</span>
+                </div>
+                <div className="mt-5 grid gap-3 sm:grid-cols-2">
                   {loanCategories.map(([category, description]) => {
                     const selected = loanCategory === category;
-                    return <button key={category} type="button" onClick={() => setLoanCategory(category)} className={`min-h-[118px] rounded-[20px] border p-5 text-left transition-all duration-300 ${selected ? 'border-accent/50 bg-highlight shadow-[0_12px_28px_rgba(11,143,131,0.08)]' : 'border-border-light bg-background hover:-translate-y-0.5 hover:border-accent/25 hover:bg-white'}`}><div className="flex items-start justify-between gap-3"><span className="text-base font-bold text-primary">{category}</span>{selected ? <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-accent text-white"><Check size={14} /></span> : null}</div><p className="mt-2 text-xs leading-5 text-muted-foreground">{description}</p></button>;
+                    return (
+                      <button
+                        key={category}
+                        type="button"
+                        onClick={() => setLoanCategory(category)}
+                        className={`min-h-[118px] rounded-[20px] border p-5 text-left transition-all duration-300 ${
+                          selected
+                            ? 'border-accent/50 bg-highlight shadow-[0_12px_28px_rgba(11,143,131,0.08)]'
+                            : 'border-border-light bg-background hover:-translate-y-0.5 hover:border-accent/25 hover:bg-white'
+                        }`}
+                      >
+                        <div className="flex items-start justify-between gap-3">
+                          <span className="text-base font-bold text-primary">{category}</span>
+                          {selected ? (
+                            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-accent text-white">
+                              <Check size={14} />
+                            </span>
+                          ) : null}
+                        </div>
+                        <p className="mt-2 text-xs leading-5 text-muted-foreground">{description}</p>
+                      </button>
+                    );
                   })}
                 </div>
               </div>
@@ -1168,27 +1406,42 @@ export default function App() {
                   <div className="relative">
                     <div className="flex items-center justify-between gap-4"><div className="text-xs font-bold uppercase tracking-[0.18em] text-muted-foreground">Indicative borrowing range</div><span className="rounded-full bg-surface px-3 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground">Subject to verification</span></div>
                     <div className="mt-3 text-5xl font-bold tracking-[-0.055em] text-primary sm:text-6xl">{formatCurrency(minCapacity)} <span className="font-normal text-muted-foreground">–</span> {formatCurrency(maxCapacity)}</div>
-                    <div className="mt-3 text-sm font-semibold text-muted-foreground">You asked for <span className="text-primary">{formatCurrency(requestedAmount)}</span> for {loanPurpose.toLowerCase()}.</div>
+                    <div className="mt-3 text-sm font-semibold text-muted-foreground">You asked for <span className="text-primary">{formatCurrency(requestedAmount)}</span> for {effectiveLoanPurpose.toLowerCase()}.</div>
                     <div className="mt-9">
                       {(() => {
                         const safeRangeMin = Math.min(minCapacity, 8000000);
                         const safeRangeMax = Math.min(Math.max(maxCapacity, safeRangeMin + 100000), 8000000);
                         const clampedRequest = Math.min(Math.max(requestedAmount, safeRangeMin), safeRangeMax);
-                        const position = safeRangeMax === safeRangeMin ? 50 : ((clampedRequest - safeRangeMin) / (safeRangeMax - safeRangeMin)) * 100;
+                        const rawPosition = safeRangeMax === safeRangeMin ? 50 : ((clampedRequest - safeRangeMin) / (safeRangeMax - safeRangeMin)) * 100;
+                        const position = Math.max(0, Math.min(100, rawPosition));
+                        const badgeTransform = position < 14 ? 'translateX(0%)' : position > 86 ? 'translateX(-100%)' : 'translateX(-50%)';
+                        const badgeLeft = position < 14 ? '0%' : position > 86 ? '100%' : `${position}%`;
                         return (
                           <>
-                            <div className="relative pt-9">
-                              <div className="absolute top-0 -translate-x-1/2 whitespace-nowrap rounded-full border border-primary/10 bg-primary px-3 py-1.5 text-[10px] font-bold tracking-[0.08em] text-white shadow-[0_8px_18px_rgba(7,20,47,0.12)]" style={{ left: `${position}%` }}>
+                            <div className="relative pt-9 px-1">
+                              <div
+                                className="absolute top-0 whitespace-nowrap rounded-full border border-primary/10 bg-primary px-3 py-1.5 text-[10px] font-bold tracking-[0.08em] text-white shadow-[0_8px_18px_rgba(7,20,47,0.12)] transition-all duration-300"
+                                style={{ left: badgeLeft, transform: badgeTransform }}
+                              >
                                 {formatLakh(requestedAmount)} requested
                               </div>
-                              <div className="relative h-1.5 rounded-full bg-[#E8E6DF]">
-                                <div className="absolute inset-y-0 left-0 rounded-full bg-accent" style={{ width: `${position}%` }} />
-                                <div className="absolute -top-[9px] -translate-x-1/2" style={{ left: `${position}%` }}>
-                                  <div className="h-6 w-6 rounded-full border-[5px] border-white bg-accent shadow-[0_0_0_6px_rgba(11,143,131,0.08),0_8px_18px_rgba(7,20,47,0.14)]" />
+                              <div className="relative h-2 rounded-full bg-[#E8E6DF] dark:bg-slate-700">
+                                <div
+                                  className="absolute inset-y-0 left-0 rounded-full bg-accent transition-all duration-300"
+                                  style={{ width: `${Math.max(2, Math.min(100, position))}%` }}
+                                />
+                                <div
+                                  className="absolute -top-[7px] transition-all duration-300"
+                                  style={{
+                                    left: `${Math.max(2, Math.min(98, position))}%`,
+                                    transform: 'translateX(-50%)',
+                                  }}
+                                >
+                                  <div className="h-6 w-6 rounded-full border-[5px] border-white dark:border-slate-800 bg-accent shadow-[0_0_0_6px_rgba(11,143,131,0.08),0_8px_18px_rgba(7,20,47,0.14)]" />
                                 </div>
                               </div>
                             </div>
-                            <div className="mt-4 flex justify-between text-xs font-semibold text-muted-foreground"><span>{formatLakh(safeRangeMin)}</span><span className="text-accent">Indicative range</span><span>{formatLakh(safeRangeMax)}</span></div>
+                            <div className="mt-4 flex justify-between text-xs font-semibold text-muted-foreground"><span>{formatLakh(safeRangeMin)}</span><span className="text-accent font-bold">Indicative range</span><span>{formatLakh(safeRangeMax)}</span></div>
                           </>
                         );
                       })()}
@@ -1280,7 +1533,7 @@ export default function App() {
             <div className="mt-8 rounded-[26px] border border-white/80 bg-highlight/75 p-5 sm:p-6">
               <div className="text-xs font-bold uppercase tracking-[0.16em] text-accent">Your loan outlook</div>
               <div className="mt-4 grid gap-3 sm:grid-cols-4">
-                {[['Requested', formatCurrency(requestedDisplay)], ['Purpose', loanPurpose], ['Business age', `${yearsInBusiness}${yearsInBusiness >= 4 ? '+' : ''} years`], ['Illustrative EMI', formatCurrency(estimatedEmi) + ' / mo']].map(([label, value]) => <div key={label} className="rounded-[18px] bg-white/70 p-4"><div className="text-[11px] font-bold uppercase tracking-[0.12em] text-muted-foreground">{label}</div><div className="mt-1 text-sm font-bold text-primary">{value}</div></div>)}
+                {[['Requested', formatCurrency(requestedDisplay)], ['Purpose', effectiveLoanPurpose], ['Business age', `${yearsInBusiness}${yearsInBusiness >= 4 ? '+' : ''} years`], ['Illustrative EMI', formatCurrency(estimatedEmi) + ' / mo']].map(([label, value]) => <div key={label} className="rounded-[18px] bg-white/70 p-4"><div className="text-[11px] font-bold uppercase tracking-[0.12em] text-muted-foreground">{label}</div><div className="mt-1 text-sm font-bold text-primary">{value}</div></div>)}
               </div>
               <div className="mt-4 text-xs leading-5 text-muted-foreground">Your indicative range: <span className="font-semibold text-primary">{formatLakh(minCapacity)} – {formatLakh(maxCapacity)}</span>. Final pricing and approval depend on lender verification and assessment.</div>
             </div>
@@ -1342,9 +1595,9 @@ export default function App() {
                   <p className="mt-1.5 text-[11px] text-muted-foreground">We will send your reference ID and EMI schedule to this email.</p>
                 </div>
                 <div><label htmlFor="work-type" className="text-xs font-bold uppercase tracking-[0.16em] text-muted-foreground">Work type</label><select id="work-type" value={selectedBusinessType} onChange={(event) => setSelectedBusinessType(event.target.value)} className="mt-2 w-full rounded-2xl border border-border bg-background px-4 py-3.5 font-medium text-primary outline-none transition focus:border-accent focus:ring-4 focus:ring-highlight"><option>Business owner</option><option>Freelancer</option><option>Self-employed professional</option><option>Other</option></select></div>
-                <div><label htmlFor="review-business-industry" className="text-xs font-bold uppercase tracking-[0.16em] text-muted-foreground">Business industry</label><div className="mt-2"><IndustryPicker id="review-business-industry" value={businessIndustry} onChange={(industry) => { setBusinessIndustry(industry); setCustomBusinessIndustry(''); setApplicationError(''); }} /></div>{businessIndustry === 'Other — not listed' ? <input value={customBusinessIndustry} onChange={(event) => { setCustomBusinessIndustry(event.target.value); setApplicationError(''); }} placeholder="Enter your business type or name" className="mt-3 w-full rounded-2xl border border-border bg-background px-4 py-3.5 font-medium text-primary outline-none transition focus:border-accent focus:ring-4 focus:ring-highlight" /> : null}</div>
+                <div><label htmlFor="review-business-industry" className="text-xs font-bold uppercase tracking-[0.16em] text-muted-foreground">Business industry</label><div className="mt-2"><IndustryPicker id="review-business-industry" value={businessIndustry} onChange={(industry) => { setBusinessIndustry(industry); setCustomBusinessIndustry(''); setApplicationError(''); }} /></div>{(businessIndustry === 'Other, not listed' || businessIndustry.toLowerCase().includes('other')) ? <input value={customBusinessIndustry} onChange={(event) => { setCustomBusinessIndustry(event.target.value); setApplicationError(''); }} placeholder="Enter your business type or industry" className="mt-3 w-full rounded-2xl border border-border bg-background px-4 py-3.5 font-medium text-primary outline-none transition focus:border-accent focus:ring-4 focus:ring-highlight" /> : null}</div>
                 <div><div className="text-xs font-bold uppercase tracking-[0.16em] text-muted-foreground">Monthly revenue</div><div className="mt-2 rounded-2xl border border-border bg-surface px-4 py-3.5 font-semibold text-primary">{formatCurrency(monthlyRevenue)}</div></div>
-                <div><div className="text-xs font-bold uppercase tracking-[0.16em] text-muted-foreground">Loan requirement</div><div className="mt-2 rounded-2xl border border-border bg-surface px-4 py-3.5 font-semibold text-primary">{formatCurrency(requestedDisplay)}</div></div>
+                <div><div className="text-xs font-bold uppercase tracking-[0.16em] text-muted-foreground">Loan purpose & facility</div><div className="mt-2 rounded-2xl border border-border bg-surface px-4 py-3.5 font-semibold text-primary">{effectiveLoanPurpose} <span className="text-xs font-normal text-muted-foreground">({loanCategory})</span></div></div>
               </div>
               {nameInputHint || nameStructureHint ? <p role="alert" className="mt-3 text-sm font-medium text-destructive">{nameInputHint || nameStructureHint}</p> : null}
               {applicationError ? <p role="alert" className="mt-4 rounded-2xl bg-destructive/10 px-4 py-3 text-sm font-medium text-destructive">{applicationError}</p> : null}
@@ -1499,7 +1752,7 @@ export default function App() {
             </div>
             <div className="mt-8 grid gap-4 sm:grid-cols-3">
               <div className="rounded-[24px] bg-surface p-6"><div className="text-xs font-bold uppercase tracking-[0.16em] text-muted-foreground">Requested</div><div className="mt-2 text-2xl font-bold text-primary">{formatCurrency(requestedDisplay)}</div></div>
-              <div className="rounded-[24px] bg-surface p-6"><div className="text-xs font-bold uppercase tracking-[0.16em] text-muted-foreground">Purpose</div><div className="mt-2 text-xl font-bold text-primary">{loanPurpose}</div></div>
+              <div className="rounded-[24px] bg-surface p-6"><div className="text-xs font-bold uppercase tracking-[0.16em] text-muted-foreground">Purpose</div><div className="mt-2 text-xl font-bold text-primary">{effectiveLoanPurpose}</div></div>
               <div className="rounded-[24px] bg-surface p-6"><div className="text-xs font-bold uppercase tracking-[0.16em] text-muted-foreground">Current state</div><div className="mt-2 text-xl font-bold text-primary">Pending decision</div></div>
             </div>
             <div className="mt-8 rounded-[24px] bg-highlight/75 p-5 text-sm leading-6 text-primary"><strong>Prototype note:</strong> no real approval or rejection is being made here. This stage exists so you can demonstrate the complete post-submission experience.</div>
