@@ -172,6 +172,13 @@ export default function DigitalLendingLanding({
             <a href="#calculator" className="transition hover:text-primary whitespace-nowrap">EMI Calculator</a>
             <a href="#comparison" className="hidden 2xl:inline transition hover:text-primary whitespace-nowrap">Why MoneyQuick</a>
             <a href="#faqs" className="transition hover:text-primary whitespace-nowrap">FAQs</a>
+            <button
+              type="button"
+              onClick={() => onNavigate('tracking')}
+              className="text-accent font-bold transition hover:text-[#5145CE] whitespace-nowrap"
+            >
+              Track Loan
+            </button>
           </nav>
 
           {/* Right Action Buttons */}
@@ -290,6 +297,16 @@ export default function DigitalLendingLanding({
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M5 12h14" /><path d="m12 5 7 7-7 7" />
                   </svg>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => onNavigate('tracking')}
+                  className="inline-flex items-center justify-center gap-2 rounded-xl border border-border bg-surface/70 px-6 py-4 text-base font-semibold text-primary transition-all hover:border-accent hover:text-accent hover:bg-surface active:scale-[0.98] shadow-sm"
+                >
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" />
+                  </svg>
+                  <span>Track Application Status</span>
                 </button>
               </div>
 
@@ -1322,6 +1339,11 @@ export default function DigitalLendingLanding({
             <div>
               <div className="text-xs font-bold uppercase tracking-wider text-primary">Company &amp; Legal</div>
               <ul className="mt-4 space-y-2.5 text-xs">
+                <li>
+                  <button onClick={() => onNavigate('tracking')} className="hover:text-primary transition font-semibold text-accent">
+                    Track Application Status
+                  </button>
+                </li>
                 <li>
                   <button onClick={() => onNavigate('privacy')} className="hover:text-primary transition">
                     Privacy Policy

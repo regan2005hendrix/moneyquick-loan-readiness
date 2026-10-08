@@ -1,11 +1,12 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import type { User } from 'firebase/auth';
 import { createUserWithEmailAndPassword, onAuthStateChanged, sendPasswordResetEmail, signInWithEmailAndPassword, signInWithPopup, signOut as firebaseSignOut, updateProfile } from 'firebase/auth';
-import { firebaseAuth, googleProvider, isFirebaseConfigured, saveLoanApplication } from './firebase';
+import { firebaseAuth, googleProvider, isFirebaseConfigured, saveLoanApplication, getRecentSavedApplications } from './firebase';
 import { sendApplicationConfirmationEmail, type LoanApplicationEmailPayload } from './services/emailService';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import TermsAndConditions from './pages/TermsAndConditions';
 import DigitalLendingLanding from './pages/DigitalLendingLanding';
+import LoanTracker from './pages/LoanTracker';
 
 const Mail = ({ size = 18, className = '' }: { size?: number; className?: string }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden="true">
@@ -158,7 +159,7 @@ const loanPurposes = [
   'Other',
 ] as const;
 
-type Step = 'landing' | 'income' | 'business' | 'requirement' | 'calculating' | 'snapshot' | 'handoff' | 'application' | 'submitted' | 'verification' | 'assessment' | 'decision' | 'privacy' | 'terms';
+type Step = 'landing' | 'income' | 'business' | 'requirement' | 'calculating' | 'snapshot' | 'handoff' | 'application' | 'submitted' | 'tracking' | 'verification' | 'assessment' | 'decision' | 'privacy' | 'terms';
 
 type PrimaryButtonProps = {
   children: React.ReactNode;
@@ -273,7 +274,14 @@ const Topbar = ({ step, onReset, onNavigate, user, onSignOut, onProfileUpdated, 
           )}
         </button>
         <ProfileMenu user={user} onSignOut={onSignOut} onProfileUpdated={onProfileUpdated} />
-        {step !== 'landing' && step !== 'calculating' && step !== 'privacy' && step !== 'terms' ? (
+        <button
+          type="button"
+          onClick={() => onNavigate('tracking')}
+          className="rounded-lg border border-border bg-background px-3 py-1.5 text-xs font-semibold text-primary transition hover:border-accent hover:text-accent shadow-sm"
+        >
+          Track Loan
+        </button>
+        {step !== 'landing' && step !== 'calculating' && step !== 'privacy' && step !== 'terms' && step !== 'tracking' ? (
           <button type="button" onClick={onReset} className="hidden rounded-lg px-4 py-2 text-sm font-medium text-muted-foreground transition hover:bg-white/70 hover:text-primary sm:inline-flex">Start over</button>
         ) : null}
         <div className="hidden items-center gap-3 ml-2 border-l border-border pl-3 sm:flex">
@@ -796,6 +804,7 @@ export default function App() {
   });
   const [phoneInputHint, setPhoneInputHint] = useState('');
   const [submittedAppId, setSubmittedAppId] = useState('');
+  const [activeTrackingAppId, setActiveTrackingAppId] = useState('');
   const [isSubmittingApp, setIsSubmittingApp] = useState(false);
   const [applicationError, setApplicationError] = useState('');
   const [nameInputHint, setNameInputHint] = useState('');
@@ -893,7 +902,7 @@ export default function App() {
 
   const go = (step: Step) => {
     // If expenses >= revenue, cannot advance past income!
-    if (step !== 'landing' && step !== 'income' && step !== 'privacy' && step !== 'terms' && isExpensesExceedingRevenue) {
+    if (step !== 'landing' && step !== 'income' && step !== 'privacy' && step !== 'terms' && step !== 'tracking' && isExpensesExceedingRevenue) {
       setCurrentStep('income');
       window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
@@ -1063,6 +1072,17 @@ export default function App() {
         />
       );
     }
+    if (currentStep === 'tracking') {
+      return (
+        <LoanTracker
+          initialAppId={activeTrackingAppId || submittedAppId}
+          onBackToHome={() => go('landing')}
+          onStartNewApplication={() => setShowAuthModal(true)}
+          theme={theme}
+          toggleTheme={toggleTheme}
+        />
+      );
+    }
     return (
       <DigitalLendingLanding
         onGetStarted={() => setShowAuthModal(true)}
@@ -1075,10 +1095,30 @@ export default function App() {
     );
   }
 
+  if (currentStep === 'tracking') {
+    return (
+      <LoanTracker
+        initialAppId={activeTrackingAppId || submittedAppId}
+        onBackToHome={() => go('landing')}
+        onStartNewApplication={() => go('income')}
+        theme={theme}
+        toggleTheme={toggleTheme}
+      />
+    );
+  }
+
   if (currentStep === 'landing') {
     return (
       <DigitalLendingLanding
-        onGetStarted={() => go('income')}
+        onGetStarted={() => {
+          const recent = getRecentSavedApplications();
+          if (recent.length > 0 || submittedAppId) {
+            setActiveTrackingAppId(submittedAppId || recent[0].applicationId);
+            go('tracking');
+          } else {
+            go('income');
+          }
+        }}
         onSignIn={() => go('income')}
         onNavigate={go}
         theme={theme}
@@ -1696,6 +1736,17 @@ export default function App() {
             </div>
 
             <div className="mt-7 flex flex-wrap justify-center gap-3">
+              <button
+                type="button"
+                onClick={() => {
+                  setActiveTrackingAppId(submittedAppId || 'MQ-APP-782914');
+                  go('tracking');
+                }}
+                className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-accent to-[#0B8F83] px-6 py-3.5 text-sm font-bold text-white shadow-lg transition hover:brightness-110 active:scale-95"
+              >
+                <span>Track Application Live</span>
+                <span>&rarr;</span>
+              </button>
               <PrimaryButton onClick={() => go('verification')}>Continue to verification</PrimaryButton>
               <SecondaryButton onClick={() => go('snapshot')} icon={<ArrowUpRight size={16} />}>View snapshot</SecondaryButton>
             </div>

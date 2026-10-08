@@ -1,6 +1,6 @@
 import { getApp, getApps, initializeApp } from 'firebase/app';
 import { getAuth, GoogleAuthProvider } from 'firebase/auth';
-import { getFirestore, collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { getFirestore, collection, addDoc, serverTimestamp, query, where, getDocs, limit } from 'firebase/firestore';
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -65,6 +65,66 @@ export async function saveLoanApplication(data: Record<string, unknown>): Promis
     return docId;
   } catch (error) {
     console.warn('Unable to persist application to Firestore (continuing safely):', error);
+    return null;
+  }
+}
+
+/**
+ * Retrieve recently saved applications from localStorage
+ */
+export function getRecentSavedApplications(): Record<string, any>[] {
+  try {
+    const list = JSON.parse(localStorage.getItem('moneyquick_saved_applications') || '[]');
+    if (Array.isArray(list)) return list;
+  } catch (e) {
+    console.warn('Error reading saved applications:', e);
+  }
+  return [];
+}
+
+/**
+ * Look up a saved application by Application ID (e.g. MQ-APP-XXXXXX) or phone number
+ */
+export async function fetchSavedApplication(searchQuery: string): Promise<Record<string, any> | null> {
+  const cleanQuery = searchQuery.trim().toLowerCase();
+  if (!cleanQuery) return null;
+
+  // 1. Check local storage first (instantaneous)
+  const localList = getRecentSavedApplications();
+  const matchedLocal = localList.find((app) => {
+    const appId = String(app.applicationId || '').toLowerCase();
+    const phone = String(app.phone || '').replace(/\D/g, '');
+    const cleanDigits = cleanQuery.replace(/\D/g, '');
+    return appId.includes(cleanQuery) || (cleanDigits.length >= 6 && phone.includes(cleanDigits));
+  });
+
+  if (matchedLocal) {
+    return matchedLocal;
+  }
+
+  // 2. Fall back to Firestore if configured
+  if (!firebaseDb) return null;
+
+  try {
+    const timeoutPromise = new Promise<null>((_, reject) => {
+      setTimeout(() => reject(new Error('Firestore search timed out')), 2500);
+    });
+
+    const searchFirestore = async (): Promise<Record<string, any> | null> => {
+      const col = collection(firebaseDb, 'loan_applications');
+      // Search by applicationId
+      const q = query(col, where('applicationId', '==', searchQuery.trim().toUpperCase()), limit(1));
+      const snap = await getDocs(q);
+      if (!snap.empty) {
+        return snap.docs[0].data();
+      }
+      return null;
+    };
+
+    const doc = await Promise.race([searchFirestore(), timeoutPromise]);
+    return doc;
+  } catch (err) {
+    console.warn('Firestore lookup error:', err);
     return null;
   }
 }
