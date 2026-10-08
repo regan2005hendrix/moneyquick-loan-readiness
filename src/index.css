@@ -157,7 +157,15 @@ button {
    ========================================================================== */
 
 /* Automatically adapt translucent and white cards in dark mode */
-.dark [class*="bg-white/"]:not(.keep-white) {
+.dark [class~="bg-white\/45"]:not(.keep-white),
+.dark [class~="bg-white\/55"]:not(.keep-white),
+.dark [class~="bg-white\/60"]:not(.keep-white),
+.dark [class~="bg-white\/65"]:not(.keep-white),
+.dark [class~="bg-white\/70"]:not(.keep-white),
+.dark [class~="bg-white\/75"]:not(.keep-white),
+.dark [class~="bg-white\/80"]:not(.keep-white),
+.dark [class~="bg-white\/85"]:not(.keep-white),
+.dark [class~="bg-white\/90"]:not(.keep-white) {
   background-color: var(--card-bg) !important;
 }
 
@@ -183,7 +191,7 @@ button {
   background-color: #1E293B !important;
 }
 
-.dark [class*="hover:bg-white"]:hover:not(.keep-white) {
+.dark [class*="hover:bg-white"]:hover:not(.keep-white):not(.btn-white-contrast) {
   background-color: rgba(30, 41, 59, 0.85) !important;
 }
 
@@ -228,27 +236,26 @@ button {
 }
 
 /* Brand Primary Button in dark mode */
-.dark button.bg-primary:not(.btn-white-contrast):not([class*="bg-white"]):not([class*="!bg-white"]) {
+.dark button.bg-primary:not(.btn-white-contrast):not(.keep-white) {
   background-color: #0B8F83 !important;
   color: #FFFFFF !important;
 }
 
-.dark button.bg-primary:hover:not(:disabled):not(.btn-white-contrast):not([class*="bg-white"]):not([class*="!bg-white"]) {
+.dark button.bg-primary:hover:not(:disabled):not(.btn-white-contrast):not(.keep-white) {
   background-color: #0D9488 !important;
 }
 
-/* Any button or element with explicit white background in dark mode MUST maintain crisp dark text */
-.dark button[class*="bg-white"],
-.dark button[class*="!bg-white"],
+/* Only buttons explicitly marked to remain high-contrast solid white in dark mode */
 .dark .btn-white-contrast,
-.dark button.btn-white-contrast {
+.dark button.btn-white-contrast,
+.dark .keep-white {
   background-color: #FFFFFF !important;
   color: #0C1B47 !important;
 }
 
-.dark button[class*="bg-white"] *,
-.dark button[class*="!bg-white"] *,
-.dark .btn-white-contrast * {
+.dark .btn-white-contrast *,
+.dark button.btn-white-contrast *,
+.dark .keep-white * {
   color: #0C1B47 !important;
 }
 
@@ -289,13 +296,13 @@ button {
   border-color: rgba(20, 184, 166, 0.25) !important;
 }
 
-/* Ensure text-primary is crisp and readable, except inside explicit white containers */
-.dark .text-primary:not([class*="bg-white"]):not(.btn-white-contrast) {
-  color: #F8FAFC !important;
+/* Ensure text-primary and muted text are crisp and readable in dark mode */
+.dark .text-primary:not(.keep-white):not(.btn-white-contrast) {
+  color: #F8FAFC;
 }
 
-.dark .text-muted-foreground:not([class*="bg-white"]) {
-  color: #94A3B8 !important;
+.dark .text-muted-foreground:not(.keep-white):not(.btn-white-contrast) {
+  color: #94A3B8;
 }
 
 /* Dropdown listbox items */

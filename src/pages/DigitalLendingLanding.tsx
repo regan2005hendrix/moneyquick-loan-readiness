@@ -1272,10 +1272,10 @@ export default function DigitalLendingLanding({
             <button
               type="button"
               onClick={onGetStarted}
-              className="inline-flex items-center gap-2 rounded-xl bg-white px-8 py-4 text-base font-bold text-primary shadow-lg transition hover:bg-white/90 active:scale-95"
+              className="btn-white-contrast inline-flex items-center gap-2 rounded-xl bg-white px-8 py-4 text-base font-bold !text-[#0C1B47] shadow-lg transition hover:bg-slate-100 active:scale-95"
             >
-              <span>Check Loan Readiness Now</span>
-              <span>&rarr;</span>
+              <span className="font-bold text-[#0C1B47]">Check Loan Readiness Now</span>
+              <span className="text-[#0C1B47]">&rarr;</span>
             </button>
             <button
               type="button"

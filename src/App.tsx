@@ -245,7 +245,7 @@ const ProfileMenu = ({ user, onSignOut, onProfileUpdated }: { user: User; onSign
   };
 
   const details = [['Email', user.email || 'Not available'], ['Contact', phone || 'Not added'], ['Address', address || 'Not added']];
-  return <div className="relative"><button type="button" onClick={() => { setOpen((value) => !value); setEditing(false); }} aria-expanded={open} className="flex items-center gap-2 rounded-lg border border-white/70 bg-white/75 py-1.5 pl-1.5 pr-3 text-left shadow-sm transition hover:bg-white"><span className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent text-xs font-bold text-white">{displayName.charAt(0).toUpperCase()}</span><span className="hidden max-w-28 truncate text-sm font-semibold text-primary sm:block">{displayName}</span><span className="text-xs text-muted-foreground">⌄</span></button>{open ? <div className="absolute right-0 top-[calc(100%+10px)] w-[min(380px,calc(100vw-2rem))] overflow-hidden rounded-xl border border-white/80 bg-[#F7F5EF] shadow-xl"><div className="bg-primary px-5 pb-5 pt-6 text-white"><div className="flex items-center gap-3"><span className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/15 text-base font-bold">{displayName.charAt(0).toUpperCase()}</span><div className="min-w-0"><div className="truncate text-lg font-bold">{displayName}</div><div className="truncate text-xs text-white/65">Your secure account</div></div></div></div><div className="p-5">{editing ? <form onSubmit={saveProfile} className="space-y-3"><label className="block text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground">Profile name<input value={fullName} onChange={(event) => setFullName(formatFullName(event.target.value))} placeholder="Your full name" className="mt-1.5 w-full rounded-lg border border-border bg-white px-3 py-2.5 text-sm font-medium text-primary outline-none focus:border-accent focus:ring-4 focus:ring-highlight" /></label><label className="block text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground">Contact number<input value={phone} onChange={(event) => setPhone(event.target.value.replace(/[^0-9+\s-]/g, ''))} inputMode="tel" placeholder="Your mobile number" className="mt-1.5 w-full rounded-lg border border-border bg-white px-3 py-2.5 text-sm font-medium text-primary outline-none focus:border-accent focus:ring-4 focus:ring-highlight" /></label><label className="block text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground">Address<textarea value={address} onChange={(event) => setAddress(event.target.value)} placeholder="Your address" rows={3} className="mt-1.5 w-full resize-none rounded-lg border border-border bg-white px-3 py-2.5 text-sm font-medium text-primary outline-none focus:border-accent focus:ring-4 focus:ring-highlight" /></label><div className="flex justify-end gap-2 pt-1"><button type="button" onClick={() => setEditing(false)} className="rounded-lg px-4 py-2 text-sm font-semibold text-muted-foreground hover:bg-white">Cancel</button><button type="submit" disabled={saving} className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white disabled:opacity-50">{saving ? 'Saving…' : 'Save changes'}</button></div></form> : <><div className="text-xs font-bold uppercase tracking-[0.15em] text-accent">Account details</div><div className="mt-3 divide-y divide-border-light">{details.map(([label, value]) => <div key={label} className="py-3 first:pt-0"><div className="text-[10px] font-bold uppercase tracking-[0.12em] text-muted-foreground">{label}</div><div className="mt-1 break-words text-sm font-semibold text-primary">{value}</div></div>)}</div><button type="button" onClick={() => setEditing(true)} className="mt-5 w-full rounded-lg bg-highlight px-4 py-2.5 text-sm font-bold text-accent transition hover:bg-accent hover:text-white">Edit profile</button></>}{notice ? <p role="status" className="mt-3 rounded-lg bg-highlight px-3 py-2 text-xs font-medium text-primary">{notice}</p> : null}<button type="button" onClick={onSignOut} className="mt-3 w-full rounded-lg px-4 py-2 text-sm font-semibold text-muted-foreground transition hover:bg-white hover:text-primary">Sign out</button></div></div> : null}</div>;
+  return <div className="relative"><button type="button" onClick={() => { setOpen((value) => !value); setEditing(false); }} aria-expanded={open} className="flex items-center gap-2 rounded-lg border border-border/80 dark:border-slate-800 bg-surface/75 dark:bg-slate-900/80 py-1.5 pl-1.5 pr-3 text-left shadow-sm transition hover:bg-surface dark:hover:bg-slate-800"><span className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent text-xs font-bold text-white">{displayName.charAt(0).toUpperCase()}</span><span className="hidden max-w-28 truncate text-sm font-semibold text-primary sm:block">{displayName}</span><span className="text-xs text-muted-foreground">⌄</span></button>{open ? <div className="absolute right-0 top-[calc(100%+10px)] w-[min(380px,calc(100vw-2rem))] overflow-hidden rounded-xl border border-border dark:border-slate-800 bg-surface dark:bg-slate-900 shadow-xl"><div className="bg-primary dark:bg-slate-950 px-5 pb-5 pt-6 text-white"><div className="flex items-center gap-3"><span className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/15 text-base font-bold">{displayName.charAt(0).toUpperCase()}</span><div className="min-w-0"><div className="truncate text-lg font-bold">{displayName}</div><div className="truncate text-xs text-white/65">Your secure account</div></div></div></div><div className="p-5">{editing ? <form onSubmit={saveProfile} className="space-y-3"><label className="block text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground">Profile name<input value={fullName} onChange={(event) => setFullName(formatFullName(event.target.value))} placeholder="Your full name" className="mt-1.5 w-full rounded-lg border border-border dark:border-slate-800 bg-background dark:bg-slate-950 px-3 py-2.5 text-sm font-medium text-primary outline-none focus:border-accent focus:ring-4 focus:ring-highlight" /></label><label className="block text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground">Contact number<input value={phone} onChange={(event) => setPhone(event.target.value.replace(/[^0-9+\s-]/g, ''))} inputMode="tel" placeholder="Your mobile number" className="mt-1.5 w-full rounded-lg border border-border dark:border-slate-800 bg-background dark:bg-slate-950 px-3 py-2.5 text-sm font-medium text-primary outline-none focus:border-accent focus:ring-4 focus:ring-highlight" /></label><label className="block text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground">Address<textarea value={address} onChange={(event) => setAddress(event.target.value)} placeholder="Your address" rows={3} className="mt-1.5 w-full resize-none rounded-lg border border-border dark:border-slate-800 bg-background dark:bg-slate-950 px-3 py-2.5 text-sm font-medium text-primary outline-none focus:border-accent focus:ring-4 focus:ring-highlight" /></label><div className="flex justify-end gap-2 pt-1"><button type="button" onClick={() => setEditing(false)} className="rounded-lg px-4 py-2 text-sm font-semibold text-muted-foreground hover:bg-surface dark:hover:bg-slate-800">Cancel</button><button type="submit" disabled={saving} className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white disabled:opacity-50">{saving ? 'Saving…' : 'Save changes'}</button></div></form> : <><div className="text-xs font-bold uppercase tracking-[0.15em] text-accent">Account details</div><div className="mt-3 divide-y divide-border-light dark:divide-slate-800">{details.map(([label, value]) => <div key={label} className="py-3 first:pt-0"><div className="text-[10px] font-bold uppercase tracking-[0.12em] text-muted-foreground">{label}</div><div className="mt-1 break-words text-sm font-semibold text-primary">{value}</div></div>)}</div><button type="button" onClick={() => setEditing(true)} className="mt-5 w-full rounded-lg bg-highlight px-4 py-2.5 text-sm font-bold text-accent transition hover:bg-accent hover:text-white">Edit profile</button></>}{notice ? <p role="status" className="mt-3 rounded-lg bg-highlight px-3 py-2 text-xs font-medium text-primary">{notice}</p> : null}<button type="button" onClick={onSignOut} className="mt-3 w-full rounded-lg px-4 py-2 text-sm font-semibold text-muted-foreground transition hover:bg-surface dark:hover:bg-slate-800 hover:text-primary">Sign out</button></div></div> : null}</div>;
 };
 
 const Topbar = ({ step, onReset, onNavigate, user, onSignOut, onProfileUpdated, theme, toggleTheme }: { step: Step; onReset: () => void; onNavigate: (step: Step) => void; user: User; onSignOut: () => void; onProfileUpdated: (user: User) => void; theme: 'light' | 'dark'; toggleTheme: () => void }) => {
@@ -282,7 +282,7 @@ const Topbar = ({ step, onReset, onNavigate, user, onSignOut, onProfileUpdated, 
           Track Loan
         </button>
         {step !== 'landing' && step !== 'calculating' && step !== 'privacy' && step !== 'terms' && step !== 'tracking' ? (
-          <button type="button" onClick={onReset} className="hidden rounded-lg px-4 py-2 text-sm font-medium text-muted-foreground transition hover:bg-white/70 hover:text-primary sm:inline-flex">Start over</button>
+          <button type="button" onClick={onReset} className="hidden rounded-lg px-4 py-2 text-sm font-medium text-muted-foreground transition hover:bg-surface dark:hover:bg-slate-800 hover:text-primary sm:inline-flex">Start over</button>
         ) : null}
         <div className="hidden items-center gap-3 ml-2 border-l border-border pl-3 sm:flex">
           <button onClick={() => onNavigate('privacy')} className="text-[11px] font-semibold text-muted-foreground transition hover:text-primary">Privacy</button>
@@ -295,7 +295,7 @@ const Topbar = ({ step, onReset, onNavigate, user, onSignOut, onProfileUpdated, 
 
 const BackButton = ({ onClick }: { onClick: () => void }) => (
   <button type="button" onClick={onClick} className="group mb-8 inline-flex items-center gap-2 rounded-lg py-2 pr-3 text-sm font-semibold text-muted-foreground transition hover:text-primary">
-    <span className="flex h-9 w-9 items-center justify-center rounded-lg border border-border bg-white/60 transition group-hover:border-primary group-hover:bg-white"><ChevronLeft size={16} /></span>
+    <span className="flex h-9 w-9 items-center justify-center rounded-lg border border-border dark:border-slate-800 bg-surface/70 dark:bg-slate-800 transition group-hover:border-primary group-hover:bg-surface dark:group-hover:bg-slate-700"><ChevronLeft size={16} /></span>
     Back
   </button>
 );
@@ -530,28 +530,28 @@ const DocumentReadinessAssistant = ({ onReadyCountChange }: { onReadyCountChange
   useEffect(() => { onReadyCountChange?.(readyCount); }, [onReadyCountChange, readyCount]);
 
   return (
-    <div className="rounded-xl border border-white/80 bg-surface/90 p-6 shadow-sm sm:p-7">
+    <div className="rounded-xl border border-border/80 dark:border-slate-800 bg-surface/90 dark:bg-slate-900/90 p-6 shadow-sm sm:p-7">
       <div className="flex items-start justify-between gap-4">
         <div className="flex items-center gap-3"><span className="flex h-10 w-10 items-center justify-center rounded-lg bg-background text-accent"><FileText size={18} /></span><div><div className="text-xs font-bold uppercase tracking-[0.16em] text-muted-foreground">Document readiness</div><div className="text-lg font-bold text-primary">Upload what you have</div></div></div>
-        <span className="rounded-lg bg-white/75 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.12em] text-accent">{readyCount} / {documentChecklist.length} ready</span>
+        <span className="rounded-lg bg-surface/80 dark:bg-slate-800 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.12em] text-accent">{readyCount} / {documentChecklist.length} ready</span>
       </div>
       <p className="mt-4 text-xs leading-5 text-muted-foreground">Upload one PDF, JPG, PNG or WebP file for each required document. Aadhaar and PAN are checked independently.</p>
-      <label className="mt-4 flex cursor-pointer items-start gap-3 rounded-xl bg-white/70 p-4 text-xs leading-5 text-muted-foreground"><input type="checkbox" checked={hasConsented} onChange={(event) => setHasConsented(event.target.checked)} className="mt-0.5 h-4 w-4 accent-[#0B8F83]" /><span>I consent to upload these documents for this application.</span></label>
+      <label className="mt-4 flex cursor-pointer items-start gap-3 rounded-xl bg-surface/70 dark:bg-slate-800/80 p-4 text-xs leading-5 text-muted-foreground"><input type="checkbox" checked={hasConsented} onChange={(event) => setHasConsented(event.target.checked)} className="mt-0.5 h-4 w-4 accent-[#0B8F83]" /><span>I consent to upload these documents for this application.</span></label>
       <div className="mt-5 space-y-3">
         {documentChecklist.map((item) => {
           const review = reviews[item.id];
           const isAnalyzing = review.status === 'analyzing';
           const isReady = review.status === 'ready';
           const needsReview = review.status === 'needs_review';
-          return <div key={item.id} className={`rounded-lg border p-4 transition-all duration-300 ${isReady ? 'border-accent/25 bg-highlight/55' : needsReview ? 'border-warning/25 bg-warning/5' : 'border-white/80 bg-white/65'}`}>
-            <div className="flex items-start justify-between gap-3"><div className="flex min-w-0 gap-3"><span className={`mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${isReady ? 'bg-accent text-white' : needsReview ? 'bg-warning/15 text-warning' : 'bg-background text-muted-foreground'}`}>{isReady ? <Check size={14} /> : isAnalyzing ? <span className="h-3 w-3 rounded-full border-2 border-accent border-t-transparent animate-spin" /> : <FileText size={14} />}</span><div className="min-w-0"><div className="text-sm font-semibold text-primary">{item.title}</div><div className="mt-1 text-xs leading-5 text-muted-sforeground">{review.fileName ? review.fileName : item.description}</div></div></div><span className={`shrink-0 text-[10px] font-bold uppercase tracking-[0.1em] ${isReady ? 'text-accent' : needsReview ? 'text-warning' : isAnalyzing ? 'text-accent' : 'text-muted-foreground'}`}>{isReady ? 'Ready' : needsReview ? 'Review needed' : isAnalyzing ? 'Checking' : 'Not uploaded'}</span></div>
+          return <div key={item.id} className={`rounded-lg border p-4 transition-all duration-300 ${isReady ? 'border-accent/25 bg-highlight/55 dark:bg-accent/15' : needsReview ? 'border-warning/25 bg-warning/5 dark:bg-amber-950/20' : 'border-border/80 dark:border-slate-800 bg-surface/60 dark:bg-slate-800/60'}`}>
+            <div className="flex items-start justify-between gap-3"><div className="flex min-w-0 gap-3"><span className={`mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${isReady ? 'bg-accent text-white' : needsReview ? 'bg-warning/15 text-warning' : 'bg-background dark:bg-slate-900 text-muted-foreground'}`}>{isReady ? <Check size={14} /> : isAnalyzing ? <span className="h-3 w-3 rounded-full border-2 border-accent border-t-transparent animate-spin" /> : <FileText size={14} />}</span><div className="min-w-0"><div className="text-sm font-semibold text-primary">{item.title}</div><div className="mt-1 text-xs leading-5 text-muted-foreground">{review.fileName ? review.fileName : item.description}</div></div></div><span className={`shrink-0 text-[10px] font-bold uppercase tracking-[0.1em] ${isReady ? 'text-accent' : needsReview ? 'text-warning' : isAnalyzing ? 'text-accent' : 'text-muted-foreground'}`}>{isReady ? 'Ready' : needsReview ? 'Review needed' : isAnalyzing ? 'Checking' : 'Not uploaded'}</span></div>
             {review.status !== 'not_started' ? <p className={`mt-3 text-xs leading-5 ${needsReview ? 'text-warning' : 'text-muted-foreground'}`}>{review.note}</p> : null}
-            <div className="mt-4 flex flex-wrap items-center gap-2"><label className={`inline-flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-semibold transition ${isAnalyzing || !hasConsented ? 'cursor-not-allowed bg-surface text-muted-foreground' : 'cursor-pointer bg-primary text-white hover:bg-[#0b2148]'}`}><input type="file" accept={item.accept} disabled={isAnalyzing || !hasConsented} onChange={(event) => reviewFile(item.id, event.target.files?.[0])} className="sr-only" />{isAnalyzing ? 'Checking document…' : !hasConsented ? 'Give consent to upload' : review.fileName ? 'Choose another file' : 'Upload & check'}</label>{review.fileName ? <button type="button" onClick={() => resetReview(item.id)} disabled={isAnalyzing} className="rounded-lg px-3 py-2 text-xs font-semibold text-muted-foreground transition hover:bg-white hover:text-primary disabled:opacity-50">Remove</button> : null}</div>
+            <div className="mt-4 flex flex-wrap items-center gap-2"><label className={`inline-flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-semibold transition ${isAnalyzing || !hasConsented ? 'cursor-not-allowed bg-surface text-muted-foreground' : 'cursor-pointer bg-primary text-white hover:bg-[#0b2148]'}`}><input type="file" accept={item.accept} disabled={isAnalyzing || !hasConsented} onChange={(event) => reviewFile(item.id, event.target.files?.[0])} className="sr-only" />{isAnalyzing ? 'Checking document…' : !hasConsented ? 'Give consent to upload' : review.fileName ? 'Choose another file' : 'Upload & check'}</label>{review.fileName ? <button type="button" onClick={() => resetReview(item.id)} disabled={isAnalyzing} className="rounded-lg px-3 py-2 text-xs font-semibold text-muted-foreground transition hover:bg-surface dark:hover:bg-slate-800 hover:text-primary disabled:opacity-50">Remove</button> : null}</div>
           </div>;
         })}
       </div>
       {readyCount === documentChecklist.length ? (
-        <div className="mt-6 rounded-xl border border-accent/20 bg-highlight/65 p-5">
+        <div className="mt-6 rounded-xl border border-accent/20 bg-highlight/65 dark:bg-slate-900/80 p-5">
           <div className="text-xs font-bold uppercase tracking-[0.16em] text-accent">Three-step verification</div>
           <p className="mt-2 text-sm leading-6 text-primary">All five uploads are complete. Your documents move through these stages:</p>
           <div className="mt-4 grid gap-3 sm:grid-cols-3">
@@ -560,7 +560,7 @@ const DocumentReadinessAssistant = ({ onReadyCountChange }: { onReadyCountChange
               ['02', 'Human expert', 'A trained expert reviews the submitted documents.'],
               ['03', 'Moderator', 'Final quality and process review.'],
             ].map(([number, title, description]) => (
-              <div key={number} className="rounded-lg bg-white/75 p-4">
+              <div key={number} className="rounded-lg bg-surface/80 dark:bg-slate-800/80 p-4">
                 <div className="text-xs font-bold text-accent">{number}</div>
                 <div className="mt-2 text-sm font-bold text-primary">{title}</div>
                 <div className="mt-1 text-xs leading-5 text-muted-foreground">{description}</div>
@@ -1184,15 +1184,15 @@ export default function App() {
 
             <div className="mt-10 grid gap-4 md:grid-cols-2">
               {[['Revenue', monthlyRevenue, setMonthlyRevenue, 'Monthly average'], ['Business expenses', monthlyExpenses, setMonthlyExpenses, 'Monthly average']].map(([label, value, setter, note]) => (
-                <label key={label as string} className="group rounded-[26px] border border-white/80 bg-white/65 p-6 shadow-[0_18px_44px_rgba(7,20,47,0.05)] backdrop-blur-sm transition focus-within:-translate-y-0.5 focus-within:border-accent/40 focus-within:bg-white/90 focus-within:shadow-[0_22px_46px_rgba(11,143,131,0.07)]">
+                <label key={label as string} className="group rounded-[26px] border border-border/80 dark:border-slate-800 bg-surface/70 dark:bg-slate-900/80 p-6 shadow-sm backdrop-blur-sm transition focus-within:-translate-y-0.5 focus-within:border-accent/40 focus-within:bg-surface dark:focus-within:bg-slate-900">
                   <div className="flex items-center justify-between"><span className="text-xs font-bold uppercase tracking-[0.18em] text-primary">{label as string}</span><span className="text-xs text-muted-foreground">{note as string}</span></div>
                   <div className="mt-4 flex items-center gap-2"><span className="text-2xl font-semibold text-muted-foreground">₹</span><input type="number" value={value as number} onChange={(e) => (setter as React.Dispatch<React.SetStateAction<number>>)(Number(e.target.value))} className="w-full bg-transparent text-4xl font-bold tracking-[-0.04em] text-primary outline-none placeholder:text-muted-foreground/30" /></div>
-                  <div className="mt-4 h-1 rounded-full bg-surface"><div className={`h-1 rounded-full bg-accent transition-all duration-500 ${label === 'Revenue' ? 'w-[76%]' : 'w-[39%]'}`} /></div>
+                  <div className="mt-4 h-1 rounded-full bg-surface dark:bg-slate-800"><div className={`h-1 rounded-full bg-accent transition-all duration-500 ${label === 'Revenue' ? 'w-[76%]' : 'w-[39%]'}`} /></div>
                 </label>
               ))}
             </div>
 
-            <div className="relative mt-5 overflow-hidden rounded-[26px] border border-white/80 bg-surface/90 p-6 sm:p-8">
+            <div className="relative mt-5 overflow-hidden rounded-[26px] border border-border/80 dark:border-slate-800 bg-surface/90 dark:bg-slate-900/90 p-6 sm:p-8">
               <div className="absolute -right-16 -top-16 h-40 w-40 rounded-full bg-highlight blur-3xl opacity-70" />
               <div className="relative grid gap-6 md:grid-cols-[1fr_auto_1fr] md:items-center">
                 <div><div className="text-xs font-bold uppercase tracking-[0.16em] text-muted-foreground">Revenue</div><div className="mt-1 text-2xl font-bold text-primary">{formatCurrency(monthlyRevenue)}</div></div>
@@ -1250,12 +1250,12 @@ export default function App() {
               <div className="grid gap-3 sm:grid-cols-2">
                 {['Business owner', 'Freelancer', 'Self-employed professional', 'Other'].map((type) => {
                   const selected = selectedBusinessType === type;
-                  return <button key={type} type="button" onClick={() => setSelectedBusinessType(type)} className={`group flex min-h-[92px] items-center justify-between rounded-[22px] border px-5 text-left transition-all duration-300 ${selected ? 'border-accent/50 bg-highlight shadow-[0_12px_28px_rgba(11,143,131,0.09)]' : 'border-white/80 bg-white/55 hover:-translate-y-0.5 hover:bg-white/85'}`}><div className="flex items-center gap-4"><span className={`flex h-11 w-11 items-center justify-center rounded-full ${selected ? 'bg-accent text-white' : 'bg-surface text-muted-foreground'}`}><Briefcase size={18} /></span><div><div className="font-semibold text-primary">{type}</div><div className="mt-1 text-xs text-muted-foreground">{selected ? 'Selected' : 'Choose one'}</div></div></div>{selected && <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white text-accent shadow-sm"><Check size={16} /></span>}</button>;
+                  return <button key={type} type="button" onClick={() => setSelectedBusinessType(type)} className={`group flex min-h-[92px] items-center justify-between rounded-[22px] border px-5 text-left transition-all duration-200 ${selected ? 'border-2 border-accent bg-accent/15 dark:bg-accent/20 shadow-[0_12px_28px_rgba(20,184,166,0.12)]' : 'border-border/80 dark:border-slate-800 bg-surface/60 dark:bg-slate-900/70 hover:-translate-y-0.5 hover:border-accent/40 hover:bg-surface dark:hover:bg-slate-800/80'}`}><div className="flex items-center gap-4"><span className={`flex h-11 w-11 items-center justify-center rounded-full ${selected ? 'bg-accent text-white' : 'bg-surface dark:bg-slate-800 text-muted-foreground'}`}><Briefcase size={18} /></span><div><div className={`font-semibold ${selected ? 'text-accent font-bold' : 'text-primary'}`}>{type}</div><div className="mt-1 text-xs text-muted-foreground">{selected ? 'Selected' : 'Choose one'}</div></div></div>{selected && <span className="flex h-8 w-8 items-center justify-center rounded-full bg-accent text-white shadow-sm"><Check size={16} /></span>}</button>;
                 })}
               </div>
             </div>
 
-            <div className="mt-8 rounded-[24px] border border-white/80 bg-white/65 p-6 shadow-[0_18px_42px_rgba(7,20,47,0.04)] sm:p-7">
+            <div className="mt-8 rounded-[24px] border border-border/80 dark:border-slate-800 bg-surface/80 dark:bg-slate-900/80 p-6 shadow-sm sm:p-7">
               <div className="mb-4 flex items-center justify-between"><div><div className="text-xs font-bold uppercase tracking-[0.18em] text-muted-foreground">Business industry</div><p className="mt-1 text-sm text-muted-foreground">Choose the category that best describes your business.</p></div><div className="text-xs font-semibold text-accent">02 / 03</div></div>
               <IndustryPicker id="business-industry" value={businessIndustry} onChange={(industry) => { setBusinessIndustry(industry); setCustomBusinessIndustry(''); }} />
               {(businessIndustry === 'Other, not listed' || businessIndustry.toLowerCase().includes('other')) ? (
@@ -1280,12 +1280,12 @@ export default function App() {
                 {[1, 2, 3, 4].map((years) => {
                   const selected = yearsInBusiness === years;
                   const label = years === 4 ? '4+ years' : `${years} year${years === 1 ? '' : 's'}`;
-                  return <button key={years} type="button" onClick={() => setYearsInBusiness(years)} className={`min-h-[86px] rounded-[20px] border p-4 text-left transition-all duration-300 ${selected ? 'border-accent/50 bg-highlight shadow-[0_12px_28px_rgba(11,143,131,0.09)]' : 'border-white/80 bg-white/55 hover:-translate-y-0.5 hover:bg-white/85'}`}><div className="flex items-center justify-between"><span className="text-lg font-bold text-primary">{label}</span>{selected ? <span className="flex h-6 w-6 items-center justify-center rounded-full bg-accent text-white"><Check size={13} /></span> : null}</div><div className="mt-2 text-xs text-muted-foreground">Business history</div></button>;
+                  return <button key={years} type="button" onClick={() => setYearsInBusiness(years)} className={`min-h-[86px] rounded-[20px] border p-4 text-left transition-all duration-200 ${selected ? 'border-2 border-accent bg-accent/15 dark:bg-accent/20 shadow-[0_12px_28px_rgba(20,184,166,0.12)]' : 'border-border/80 dark:border-slate-800 bg-surface/60 dark:bg-slate-900/70 hover:-translate-y-0.5 hover:border-accent/40 hover:bg-surface dark:hover:bg-slate-800/80'}`}><div className="flex items-center justify-between"><span className={`text-lg font-bold ${selected ? 'text-accent' : 'text-primary'}`}>{label}</span>{selected ? <span className="flex h-6 w-6 items-center justify-center rounded-full bg-accent text-white"><Check size={13} /></span> : null}</div><div className="mt-2 text-xs text-muted-foreground">Business history</div></button>;
                 })}
               </div>
             </div>
 
-            <div className="mt-8 rounded-[24px] border border-white/80 bg-white/65 p-6 shadow-[0_18px_42px_rgba(7,20,47,0.04)] sm:p-7">
+            <div className="mt-8 rounded-[24px] border border-border/80 dark:border-slate-800 bg-surface/80 dark:bg-slate-900/80 p-6 shadow-sm sm:p-7">
               <div className="mb-5"><div className="text-xs font-bold uppercase tracking-[0.18em] text-muted-foreground">Basic eligibility check</div><p className="mt-1 text-sm leading-6 text-muted-foreground">These details give an early indication only. Each lender applies its own criteria.</p></div>
               <div className="grid gap-5 sm:grid-cols-2">
                 <label><span className="text-xs font-bold uppercase tracking-[0.16em] text-primary">Your age</span><span className="mt-1 block text-xs text-muted-foreground">Applicants must be between 21 and 60 for this readiness check.</span><input type="number" min="18" max="80" value={applicantAge} aria-invalid={Boolean(ageEligibilityMessage)} onChange={(event) => { setApplicantAge(Number(event.target.value)); setEligibilityNotice(''); }} className={`mt-3 w-full rounded-2xl border bg-background px-4 py-3.5 text-xl font-bold text-primary outline-none transition focus:ring-4 focus:ring-highlight ${ageEligibilityMessage ? 'border-destructive focus:border-destructive' : 'border-border focus:border-accent'}`} />{ageEligibilityMessage ? <span role="alert" className="mt-2 block text-xs font-semibold leading-5 text-destructive">{ageEligibilityMessage}</span> : null}</label>
@@ -1314,8 +1314,8 @@ export default function App() {
               {eligibilityNotice ? <p role="alert" className="mt-5 rounded-2xl bg-destructive/10 px-4 py-3 text-sm font-semibold text-destructive">{eligibilityNotice}</p> : null}
             </div>
 
-            <div className="mt-8 rounded-[24px] border border-white/80 bg-surface/90 p-6 sm:p-7">
-              <div className="flex gap-4"><div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-background text-accent"><Info size={17} /></div><div><div className="text-sm font-bold uppercase tracking-[0.14em] text-primary">Why this matters</div><p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">Business history and stability help us understand which parts of your loan picture may need closer verification later.</p></div></div>
+            <div className="mt-8 rounded-[24px] border border-border/80 dark:border-slate-800 bg-surface/90 dark:bg-slate-900/90 p-6 sm:p-7">
+              <div className="flex gap-4"><div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-background dark:bg-slate-800 text-accent"><Info size={17} /></div><div><div className="text-sm font-bold uppercase tracking-[0.14em] text-primary">Why this matters</div><p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">Business history and stability help us understand which parts of your loan picture may need closer verification later.</p></div></div>
             </div>
 
             <div className="mt-8 flex items-center justify-between gap-4"><span className="hidden text-sm font-medium text-muted-foreground sm:block">We’ll compare your request with the indicative range, not make a final credit decision.</span><PrimaryButton onClick={() => go('requirement')} disabled={!canProceedWithBasicEligibility}>Continue</PrimaryButton></div>
@@ -1332,7 +1332,7 @@ export default function App() {
               <p className="mt-4 max-w-2xl text-lg leading-8 text-muted-foreground sm:text-xl">Your amount and purpose help put the estimate in context. You can change this later.</p>
             </div>
 
-            <div className="mt-10 rounded-[28px] border border-white/80 bg-white/70 p-6 shadow-[0_20px_50px_rgba(7,20,47,0.05)] sm:p-8">
+            <div className="mt-10 rounded-[28px] border border-border/80 dark:border-slate-800 bg-surface/90 dark:bg-slate-900/90 p-6 shadow-sm sm:p-8">
               <label className="block">
                 <div className="flex items-center justify-between"><span className="text-xs font-bold uppercase tracking-[0.18em] text-primary">Loan amount</span><span className="text-xs text-muted-foreground">Indicative range will be shown next</span></div>
                 <div className="mt-4 flex items-center gap-2"><span className="text-2xl font-semibold text-muted-foreground">₹</span><input type="number" min="100000" step="50000" value={requestedAmount} onChange={(e) => setRequestedAmount(Math.max(0, Number(e.target.value)))} className="w-full bg-transparent text-5xl font-bold tracking-[-0.05em] text-primary outline-none focus:text-accent sm:text-6xl" /></div>
@@ -1350,13 +1350,13 @@ export default function App() {
                         key={purpose}
                         type="button"
                         onClick={() => handlePurposeSelect(purpose)}
-                        className={`flex min-h-[72px] items-center justify-between rounded-[20px] border px-5 text-left transition-all duration-250 ${
+                        className={`flex min-h-[72px] items-center justify-between rounded-[20px] border px-5 text-left transition-all duration-200 ${
                           selected
-                            ? 'border-accent/50 bg-highlight shadow-[0_12px_28px_rgba(11,143,131,0.08)]'
-                            : 'border-border-light bg-background hover:border-accent/25 hover:bg-white'
+                            ? 'border-2 border-accent bg-accent/15 dark:bg-accent/20 shadow-[0_12px_28px_rgba(20,184,166,0.12)]'
+                            : 'border-border/80 dark:border-slate-800 bg-surface/60 dark:bg-slate-950/70 hover:border-accent/40 hover:bg-surface dark:hover:bg-slate-800/80'
                         }`}
                       >
-                        <span className="font-semibold text-primary">{purpose}</span>
+                        <span className={`font-semibold ${selected ? 'text-accent font-bold' : 'text-primary'}`}>{purpose}</span>
                         {selected && (
                           <span className="flex h-7 w-7 items-center justify-center rounded-full bg-accent text-white">
                             <Check size={14} />
@@ -1382,7 +1382,7 @@ export default function App() {
                 )}
               </div>
 
-              <div className="mt-9 border-t border-border-light pt-8">
+              <div className="mt-9 border-t border-border/80 dark:border-slate-800 pt-8">
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <div>
                     <div className="text-xs font-bold uppercase tracking-[0.18em] text-primary">Loan category</div>
@@ -1400,14 +1400,14 @@ export default function App() {
                         key={category}
                         type="button"
                         onClick={() => setLoanCategory(category)}
-                        className={`min-h-[118px] rounded-[20px] border p-5 text-left transition-all duration-300 ${
+                        className={`min-h-[118px] rounded-[20px] border p-5 text-left transition-all duration-200 ${
                           selected
-                            ? 'border-accent/50 bg-highlight shadow-[0_12px_28px_rgba(11,143,131,0.08)]'
-                            : 'border-border-light bg-background hover:-translate-y-0.5 hover:border-accent/25 hover:bg-white'
+                            ? 'border-2 border-accent bg-accent/15 dark:bg-accent/20 shadow-[0_12px_28px_rgba(20,184,166,0.12)]'
+                            : 'border-border/80 dark:border-slate-800 bg-surface/60 dark:bg-slate-950/70 hover:-translate-y-0.5 hover:border-accent/40 hover:bg-surface dark:hover:bg-slate-800/80'
                         }`}
                       >
                         <div className="flex items-start justify-between gap-3">
-                          <span className="text-base font-bold text-primary">{category}</span>
+                          <span className={`text-base font-bold ${selected ? 'text-accent' : 'text-primary'}`}>{category}</span>
                           {selected ? (
                             <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-accent text-white">
                               <Check size={14} />
@@ -1421,10 +1421,10 @@ export default function App() {
                 </div>
               </div>
 
-              <div className="mt-9 border-t border-border-light pt-8">
-                <div className="flex flex-col justify-between gap-2 sm:flex-row sm:items-end"><div><div className="text-xs font-bold uppercase tracking-[0.18em] text-primary">Repayment plan</div><p className="mt-2 text-sm leading-6 text-muted-foreground">Choose a tenure and an illustrative annual interest assumption to see a monthly EMI. This is not a lender offer or an APR.</p></div><div className="rounded-2xl bg-highlight px-4 py-3 text-right"><div className="text-[10px] font-bold uppercase tracking-[0.12em] text-accent">Illustrative EMI</div><div className="mt-1 text-xl font-bold text-primary">{formatCurrency(estimatedEmi)}<span className="ml-1 text-xs font-medium text-muted-foreground">/ month</span></div></div></div>
-                <div className="mt-6"><div className="text-xs font-bold uppercase tracking-[0.14em] text-primary">How long do you want the loan for?</div><div className="mt-3 grid grid-cols-3 gap-2 sm:grid-cols-5">{[1, 2, 3, 4, 5].map((years) => <button key={years} type="button" onClick={() => setLoanTenureYears(years)} className={`rounded-2xl border px-3 py-3 text-sm font-bold transition ${loanTenureYears === years ? 'border-accent bg-highlight text-accent' : 'border-border-light bg-background text-primary hover:border-accent/35'}`}>{years} {years === 1 ? 'year' : 'years'}</button>)}</div></div>
-                <label className="mt-7 block"><div className="flex items-center justify-between gap-3"><span className="text-xs font-bold uppercase tracking-[0.14em] text-primary">Illustrative annual interest rate</span><span className="rounded-full bg-primary px-3 py-1 text-sm font-bold text-white">{annualInterestRate.toFixed(2)}%</span></div><input aria-label="Illustrative annual interest rate" type="range" min="8" max="24" step="0.25" value={annualInterestRate} onChange={(event) => setAnnualInterestRate(Number(event.target.value))} className="mt-4 w-full accent-[#0B8F83]" /><div className="mt-2 flex justify-between text-xs font-medium text-muted-foreground"><span>8%</span><span>24%</span></div></label>
+              <div className="mt-9 border-t border-border/80 dark:border-slate-800 pt-8">
+                <div className="flex flex-col justify-between gap-2 sm:flex-row sm:items-end"><div><div className="text-xs font-bold uppercase tracking-[0.18em] text-primary">Repayment plan</div><p className="mt-2 text-sm leading-6 text-muted-foreground">Choose a tenure and an illustrative annual interest assumption to see a monthly EMI. This is not a lender offer or an APR.</p></div><div className="rounded-2xl bg-highlight dark:bg-slate-800 px-4 py-3 text-right"><div className="text-[10px] font-bold uppercase tracking-[0.12em] text-accent">Illustrative EMI</div><div className="mt-1 text-xl font-bold text-primary">{formatCurrency(estimatedEmi)}<span className="ml-1 text-xs font-medium text-muted-foreground">/ month</span></div></div></div>
+                <div className="mt-6"><div className="text-xs font-bold uppercase tracking-[0.14em] text-primary">How long do you want the loan for?</div><div className="mt-3 grid grid-cols-3 gap-2 sm:grid-cols-5">{[1, 2, 3, 4, 5].map((years) => <button key={years} type="button" onClick={() => setLoanTenureYears(years)} className={`rounded-2xl border px-3 py-3 text-sm font-bold transition ${loanTenureYears === years ? 'border-2 border-accent bg-accent/15 text-accent dark:bg-accent/20' : 'border-border/80 dark:border-slate-800 bg-surface/60 dark:bg-slate-950/70 text-primary hover:border-accent/35 dark:hover:bg-slate-800/80'}`}>{years} {years === 1 ? 'year' : 'years'}</button>)}</div></div>
+                <label className="mt-7 block"><div className="flex items-center justify-between gap-3"><span className="text-xs font-bold uppercase tracking-[0.14em] text-primary">Illustrative annual interest rate</span><span className="rounded-full bg-primary px-3 py-1 text-sm font-bold text-white dark:text-slate-900">{annualInterestRate.toFixed(2)}%</span></div><input aria-label="Illustrative annual interest rate" type="range" min="8" max="24" step="0.25" value={annualInterestRate} onChange={(event) => setAnnualInterestRate(Number(event.target.value))} className="mt-4 w-full accent-[#0B8F83]" /><div className="mt-2 flex justify-between text-xs font-medium text-muted-foreground"><span>8%</span><span>24%</span></div></label>
               </div>
             </div>
 
@@ -1463,11 +1463,11 @@ export default function App() {
 
             <div className="mt-10 grid gap-6 lg:grid-cols-[1.34fr_0.86fr]">
               <div className="space-y-6">
-                <div className="relative overflow-hidden rounded-[30px] border border-white/80 bg-white/80 p-7 shadow-[0_30px_80px_rgba(7,20,47,0.10)] backdrop-blur-xl sm:p-10">
+                <div className="relative overflow-hidden rounded-[30px] border border-border/80 dark:border-slate-800 bg-surface/90 dark:bg-slate-900/95 p-7 shadow-[0_30px_80px_rgba(7,20,47,0.10)] dark:shadow-[0_30px_80px_rgba(0,0,0,0.5)] backdrop-blur-xl sm:p-10">
                   <div className="absolute -right-20 -top-24 h-64 w-64 rounded-full bg-highlight blur-3xl opacity-70" />
                   <div className="absolute inset-0 opacity-[0.06] [background-image:linear-gradient(rgba(7,20,47,0.08)_1px,transparent_1px),linear-gradient(90deg,rgba(7,20,47,0.08)_1px,transparent_1px)] [background-size:28px_28px]" />
                   <div className="relative">
-                    <div className="flex items-center justify-between gap-4"><div className="text-xs font-bold uppercase tracking-[0.18em] text-muted-foreground">Indicative borrowing range</div><span className="rounded-full bg-surface px-3 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground">Subject to verification</span></div>
+                    <div className="flex items-center justify-between gap-4"><div className="text-xs font-bold uppercase tracking-[0.18em] text-muted-foreground">Indicative borrowing range</div><span className="rounded-full bg-surface dark:bg-slate-800 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground">Subject to verification</span></div>
                     <div className="mt-3 text-5xl font-bold tracking-[-0.055em] text-primary sm:text-6xl">{formatCurrency(minCapacity)} <span className="font-normal text-muted-foreground">–</span> {formatCurrency(maxCapacity)}</div>
                     <div className="mt-3 text-sm font-semibold text-muted-foreground">You asked for <span className="text-primary">{formatCurrency(requestedAmount)}</span> for {effectiveLoanPurpose.toLowerCase()}.</div>
                     <div className="mt-9">
@@ -1510,31 +1510,31 @@ export default function App() {
                       })()}
                     </div>
                     <div className="mt-10 grid gap-3 sm:grid-cols-3">
-                      {[['Illustrative EMI', formatCurrency(estimatedEmi) + ' / mo'], ['Repayment plan', `${loanTenureYears} years · ${annualInterestRate.toFixed(2)}%`], ['Monthly surplus', formatCurrency(netMonthly)]].map(([label, value], index) => <div key={label} className={`rounded-[20px] p-5 ${index === 0 ? 'bg-primary text-white' : 'bg-surface text-primary'}`}><div className={`text-xs ${index === 0 ? 'text-white/65' : 'text-muted-foreground'}`}>{label}</div><div className="mt-1 text-xl font-bold tracking-[-0.02em]">{value}</div></div>)}
+                      {[['Illustrative EMI', formatCurrency(estimatedEmi) + ' / mo'], ['Repayment plan', `${loanTenureYears} years · ${annualInterestRate.toFixed(2)}%`], ['Monthly surplus', formatCurrency(netMonthly)]].map(([label, value], index) => <div key={label} className={`rounded-[20px] p-5 ${index === 0 ? 'bg-primary text-white' : 'bg-surface dark:bg-slate-800/80 text-primary'}`}><div className={`text-xs ${index === 0 ? 'text-white/65' : 'text-muted-foreground'}`}>{label}</div><div className="mt-1 text-xl font-bold tracking-[-0.02em]">{value}</div></div>)}
                     </div>
-                    <div className="mt-7 rounded-[22px] bg-highlight/75 p-5 sm:p-6">
+                    <div className="mt-7 rounded-[22px] bg-highlight/75 dark:bg-slate-800/80 p-5 sm:p-6">
                       <div className="flex items-start justify-between gap-4">
                         <div><div className="text-xs font-bold uppercase tracking-[0.15em] text-accent">How we got here</div><p className="mt-1 max-w-2xl text-sm leading-6 text-primary">Three signals shape this prototype's indicative picture. A real lender would combine these with credit history, verified documents and its own underwriting policy.</p></div>
-                        <span className="hidden rounded-full bg-white/70 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.12em] text-muted-foreground sm:inline-flex">Indicative only</span>
+                        <span className="hidden rounded-full bg-surface/80 dark:bg-slate-700/80 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.12em] text-muted-foreground sm:inline-flex">Indicative only</span>
                       </div>
                       <div className="mt-5 grid gap-2 sm:grid-cols-3">
-                        {[['Business history', `${yearsInBusiness}${yearsInBusiness >= 4 ? '+' : ''} years`], ['Cash flow', formatCurrency(netMonthly)], ['Loan request', formatCurrency(requestedAmount)], ['Repayment plan', `${loanTenureYears} years at ${annualInterestRate.toFixed(2)}%`]].map(([label, value]) => <div key={label} className="rounded-[18px] bg-white/70 p-4"><div className="text-[11px] font-bold uppercase tracking-[0.12em] text-muted-foreground">{label}</div><div className="mt-1 text-sm font-bold text-primary">{value}</div></div>)}
+                        {[['Business history', `${yearsInBusiness}${yearsInBusiness >= 4 ? '+' : ''} years`], ['Cash flow', formatCurrency(netMonthly)], ['Loan request', formatCurrency(requestedAmount)], ['Repayment plan', `${loanTenureYears} years at ${annualInterestRate.toFixed(2)}%`]].map(([label, value]) => <div key={label} className="rounded-[18px] bg-surface/80 dark:bg-slate-900/80 p-4"><div className="text-[11px] font-bold uppercase tracking-[0.12em] text-muted-foreground">{label}</div><div className="mt-1 text-sm font-bold text-primary">{value}</div></div>)}
                       </div>
                       <div className="mt-4 text-xs leading-5 text-muted-foreground">Verification of income, business documents and credit profile happens during formal assessment.</div>
                     </div>
                   </div>
                 </div>
 
-                <div className="rounded-[26px] border border-white/80 bg-white/45 p-6 sm:p-8">
+                <div className="rounded-[26px] border border-border/80 dark:border-slate-800 bg-surface/70 dark:bg-slate-900/80 p-6 sm:p-8">
                   <div className="flex items-center justify-between"><div><div className="text-xs font-bold uppercase tracking-[0.16em] text-muted-foreground">Your next move</div><h3 className="mt-2 text-2xl font-bold tracking-[-0.03em] text-primary">Prepare, then apply with context.</h3></div><span className="hidden h-12 w-12 items-center justify-center rounded-full bg-highlight text-accent sm:flex"><ArrowUpRight size={20} /></span></div>
                   <div className="mt-7 grid gap-3 sm:grid-cols-5">
-                    {['Gather documents', 'Start application', 'Verify information', 'Assessment', 'Decision'].map((item, i) => <div key={item} className={`rounded-2xl p-4 ${i === 0 ? 'bg-highlight text-primary' : 'bg-surface text-muted-foreground'}`}><div className={`text-xs font-bold ${i === 0 ? 'text-accent' : 'text-muted-foreground'}`}>0{i + 1}</div><div className="mt-2 text-sm font-semibold leading-5">{item}</div></div>)}
+                    {['Gather documents', 'Start application', 'Verify information', 'Assessment', 'Decision'].map((item, i) => <div key={item} className={`rounded-2xl p-4 ${i === 0 ? 'bg-highlight text-primary' : 'bg-surface dark:bg-slate-800/80 text-muted-foreground'}`}><div className={`text-xs font-bold ${i === 0 ? 'text-accent' : 'text-muted-foreground'}`}>0{i + 1}</div><div className="mt-2 text-sm font-semibold leading-5">{item}</div></div>)}
                   </div>
                 </div>
               </div>
 
               <aside className="space-y-5">
-                <div className="rounded-[28px] border border-white/80 bg-highlight/65 p-6 shadow-[0_18px_42px_rgba(7,20,47,0.04)] sm:p-7">
+                <div className="rounded-[28px] border border-border/80 dark:border-slate-800 bg-highlight/65 dark:bg-slate-900/80 p-6 shadow-[0_18px_42px_rgba(7,20,47,0.04)] sm:p-7">
                   <div className="text-xs font-bold uppercase tracking-[0.16em] text-accent">Basic eligibility requirements</div>
                   <p className="mt-2 text-sm leading-6 text-muted-foreground">A helpful pre-check, not a lender decision. Eligibility and maturity-age limits vary by lender and product.</p>
                   <div className="mt-5 space-y-3">
@@ -1543,14 +1543,14 @@ export default function App() {
                       ['CIBIL score 700+', `${creditScore}`, meetsCreditRequirement],
                       ['Stable income', `${formatCurrency(netMonthly)} monthly surplus`, meetsIncomeRequirement],
                       ['Business history', `${yearsInBusiness}${yearsInBusiness >= 4 ? '+' : ''} years`, meetsBusinessHistoryRequirement],
-                    ].map(([label, value, met]) => <div key={label as string} className="flex items-center justify-between gap-3 rounded-2xl bg-white/70 px-4 py-3"><div className="flex items-center gap-3"><span className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full ${met ? 'bg-accent text-white' : 'bg-warning/15 text-warning'}`}>{met ? <Check size={13} /> : <Info size={13} />}</span><span className="text-sm font-semibold text-primary">{label as string}</span></div><span className="text-right text-xs font-medium text-muted-foreground">{value as string}</span></div>)}
+                    ].map(([label, value, met]) => <div key={label as string} className="flex items-center justify-between gap-3 rounded-2xl bg-surface/80 dark:bg-slate-800/80 px-4 py-3"><div className="flex items-center gap-3"><span className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full ${met ? 'bg-accent text-white' : 'bg-warning/15 text-warning'}`}>{met ? <Check size={13} /> : <Info size={13} />}</span><span className="text-sm font-semibold text-primary">{label as string}</span></div><span className="text-right text-xs font-medium text-muted-foreground">{value as string}</span></div>)}
                   </div>
                 </div>
 
-                <div className="rounded-[28px] border border-white/80 bg-white/55 p-6 shadow-[0_18px_42px_rgba(7,20,47,0.04)] sm:p-7">
+                <div className="rounded-[28px] border border-border/80 dark:border-slate-800 bg-surface/60 dark:bg-slate-900/80 p-6 shadow-[0_18px_42px_rgba(7,20,47,0.04)] sm:p-7">
                   <div className="text-xs font-bold uppercase tracking-[0.16em] text-muted-foreground">What lenders typically verify</div>
                   <div className="mt-4 space-y-3">
-                    {[['Business continuity', `${yearsInBusiness}${yearsInBusiness >= 4 ? '+' : ''} years shared`], ['Cash flow', `${formatCurrency(netMonthly)} estimated surplus`], ['Credit profile', 'Checked during assessment']].map(([label, value]) => <div key={label} className="flex items-center justify-between gap-4 border-b border-border-light pb-3 last:border-0 last:pb-0"><span className="text-sm font-semibold text-primary">{label}</span><span className="text-right text-xs font-medium text-muted-foreground">{value}</span></div>)}
+                    {[['Business continuity', `${yearsInBusiness}${yearsInBusiness >= 4 ? '+' : ''} years shared`], ['Cash flow', `${formatCurrency(netMonthly)} estimated surplus`], ['Credit profile', 'Checked during assessment']].map(([label, value]) => <div key={label} className="flex items-center justify-between gap-4 border-b border-border-light dark:border-slate-800 pb-3 last:border-0 last:pb-0"><span className="text-sm font-semibold text-primary">{label}</span><span className="text-right text-xs font-medium text-muted-foreground">{value}</span></div>)}
                   </div>
                 </div>
 
@@ -1582,7 +1582,7 @@ export default function App() {
             <BackButton onClick={() => go('snapshot')} />
             <div className="max-w-2xl"><div className="inline-flex items-center gap-2 rounded-full bg-highlight px-4 py-2 text-xs font-bold uppercase tracking-[0.15em] text-accent"><CheckCircle size={14} /> Clearer next step</div><h2 className="mt-6 text-4xl font-bold leading-[1.02] tracking-[-0.045em] text-primary sm:text-5xl lg:text-6xl">You're ready for the next step.</h2><p className="mt-5 text-lg leading-8 text-muted-foreground">We've already captured the information you shared. You won't need to start from scratch.</p></div>
             <div className="mt-10 grid gap-4 md:grid-cols-3"><div className="rounded-[24px] bg-surface p-6"><div className="text-xs text-muted-foreground">Your request</div><div className="mt-2 text-2xl font-bold text-primary">{formatCurrency(requestedDisplay)}</div></div><div className="rounded-[24px] bg-surface p-6"><div className="text-xs text-muted-foreground">Indicative range</div><div className="mt-2 text-2xl font-bold text-primary">{formatLakh(minCapacity)} – {formatLakh(maxCapacity)}</div></div><div className="rounded-[24px] bg-surface p-6"><div className="text-xs text-muted-foreground">Illustrative EMI</div><div className="mt-2 text-2xl font-bold text-primary">{formatCurrency(estimatedEmi)}</div></div></div>
-            <div className="mt-8 rounded-[28px] border border-white/80 bg-white/65 p-7 sm:p-8"><div className="text-xs font-bold uppercase tracking-[0.16em] text-muted-foreground">What happens next</div><div className="mt-6 grid gap-3 sm:grid-cols-4">{['Complete application', 'Verify details', 'Assessment', 'Decision'].map((item, i) => <div key={item} className="rounded-[18px] bg-background p-4"><div className="flex h-8 w-8 items-center justify-center rounded-full bg-highlight text-xs font-bold text-accent">0{i + 1}</div><div className="mt-3 text-sm font-semibold text-primary">{item}</div></div>)}</div></div>
+            <div className="mt-8 rounded-[28px] border border-border/80 dark:border-slate-800 bg-surface/80 dark:bg-slate-900/80 p-7 sm:p-8"><div className="text-xs font-bold uppercase tracking-[0.16em] text-muted-foreground">What happens next</div><div className="mt-6 grid gap-3 sm:grid-cols-4">{['Complete application', 'Verify details', 'Assessment', 'Decision'].map((item, i) => <div key={item} className="rounded-[18px] bg-background dark:bg-slate-800 p-4"><div className="flex h-8 w-8 items-center justify-center rounded-full bg-highlight text-xs font-bold text-accent">0{i + 1}</div><div className="mt-3 text-sm font-semibold text-primary">{item}</div></div>)}</div></div>
             <div className="mt-8 flex flex-wrap items-center gap-3"><PrimaryButton onClick={() => go('application')}>Continue to formal application</PrimaryButton><SecondaryButton onClick={() => go('snapshot')}>Review loan outlook</SecondaryButton></div>
           </section>
         )}
@@ -1593,15 +1593,15 @@ export default function App() {
             <Progress current={1} total={4} label="Application · Step 1 of 4" />
             <div className="max-w-3xl"><div className="text-xs font-bold uppercase tracking-[0.18em] text-accent">Final review</div><h2 className="mt-3 text-4xl font-bold tracking-[-0.045em] text-primary sm:text-5xl">Complete your application.</h2><p className="mt-4 text-lg leading-8 text-muted-foreground">Your earlier answers are carried forward so you can focus on confirming the details that matter.</p></div>
 
-            <div className="mt-8 rounded-[26px] border border-white/80 bg-highlight/75 p-5 sm:p-6">
+            <div className="mt-8 rounded-[26px] border border-border/80 dark:border-slate-800 bg-highlight/75 dark:bg-slate-900/80 p-5 sm:p-6">
               <div className="text-xs font-bold uppercase tracking-[0.16em] text-accent">Your loan outlook</div>
               <div className="mt-4 grid gap-3 sm:grid-cols-4">
-                {[['Requested', formatCurrency(requestedDisplay)], ['Purpose', effectiveLoanPurpose], ['Business age', `${yearsInBusiness}${yearsInBusiness >= 4 ? '+' : ''} years`], ['Illustrative EMI', formatCurrency(estimatedEmi) + ' / mo']].map(([label, value]) => <div key={label} className="rounded-[18px] bg-white/70 p-4"><div className="text-[11px] font-bold uppercase tracking-[0.12em] text-muted-foreground">{label}</div><div className="mt-1 text-sm font-bold text-primary">{value}</div></div>)}
+                {[['Requested', formatCurrency(requestedDisplay)], ['Purpose', effectiveLoanPurpose], ['Business age', `${yearsInBusiness}${yearsInBusiness >= 4 ? '+' : ''} years`], ['Illustrative EMI', formatCurrency(estimatedEmi) + ' / mo']].map(([label, value]) => <div key={label} className="rounded-[18px] bg-surface/80 dark:bg-slate-800/80 p-4"><div className="text-[11px] font-bold uppercase tracking-[0.12em] text-muted-foreground">{label}</div><div className="mt-1 text-sm font-bold text-primary">{value}</div></div>)}
               </div>
               <div className="mt-4 text-xs leading-5 text-muted-foreground">Your indicative range: <span className="font-semibold text-primary">{formatLakh(minCapacity)} – {formatLakh(maxCapacity)}</span>. Final pricing and approval depend on lender verification and assessment.</div>
             </div>
 
-            <div className="mt-7 rounded-[28px] border border-white/80 bg-white/65 p-6 shadow-[0_20px_50px_rgba(7,20,47,0.05)] sm:p-8">
+            <div className="mt-7 rounded-[28px] border border-border/80 dark:border-slate-800 bg-surface/80 dark:bg-slate-900/80 p-6 shadow-[0_20px_50px_rgba(7,20,47,0.05)] sm:p-8">
               <div className="mb-5"><div className="text-xs font-bold uppercase tracking-[0.16em] text-muted-foreground">Confirm your details</div><h3 className="mt-2 text-xl font-bold text-primary">Review before you submit</h3></div>
               <div className="grid gap-7 md:grid-cols-2">
                 <div><label htmlFor="full-name" className="text-xs font-bold uppercase tracking-[0.16em] text-muted-foreground">Full name</label><input id="full-name" placeholder="Enter your full name" value={applicantName} inputMode="text" autoComplete="name" aria-invalid={Boolean(nameInputHint || nameStructureHint)} onChange={(event) => { const rawName = event.target.value; const cleanName = formatFullName(rawName); setApplicantName(cleanName); setApplicationError(''); setNameInputHint(rawName === rawName.replace(/[^a-zA-Z\s]/g, '') ? '' : 'Only letters and spaces are allowed in your name.'); }} className={`mt-2 w-full rounded-2xl border bg-background px-4 py-3.5 font-medium text-primary outline-none transition focus:ring-4 focus:ring-highlight ${nameInputHint || nameStructureHint ? 'border-destructive focus:border-destructive' : 'border-border focus:border-accent'}`} /></div>
@@ -1749,7 +1749,7 @@ export default function App() {
                   key={item}
                   type="button"
                   onClick={() => go(target)}
-                  className={`group rounded-[20px] p-5 text-left transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_16px_34px_rgba(7,20,47,0.08)] ${target === 'submitted' ? 'bg-highlight text-primary' : 'bg-surface text-muted-foreground hover:bg-white'}`}
+                  className={`group rounded-[20px] p-5 text-left transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_16px_34px_rgba(7,20,47,0.08)] ${target === 'submitted' ? 'bg-highlight text-primary' : 'bg-surface dark:bg-slate-900/70 text-muted-foreground hover:bg-surface dark:hover:bg-slate-800'}`}
                 >
                   <div className={`text-xs font-bold uppercase tracking-[0.14em] ${target === 'submitted' ? 'text-accent' : 'text-muted-foreground'}`}>0{i + 1}</div>
                   <div className={`mt-2 text-sm font-semibold ${target === 'submitted' ? 'text-primary' : 'text-primary'}`}>{item}</div>
@@ -1787,7 +1787,7 @@ export default function App() {
             </div>
             <div className="mt-8 grid gap-4 md:grid-cols-3">
               {[['Business continuity', `${yearsInBusiness}${yearsInBusiness >= 4 ? '+' : ''} years shared`], ['Cash flow', `${formatCurrency(netMonthly)} estimated surplus`], ['Loan request', formatCurrency(requestedDisplay)]].map(([label, value]) => (
-                <div key={label} className="rounded-[24px] bg-surface p-6"><div className="text-xs font-bold uppercase tracking-[0.16em] text-muted-foreground">{label}</div><div className="mt-2 text-xl font-bold text-primary">{value}</div></div>
+                <div key={label} className="rounded-[24px] bg-surface dark:bg-slate-900/80 p-6"><div className="text-xs font-bold uppercase tracking-[0.16em] text-muted-foreground">{label}</div><div className="mt-2 text-xl font-bold text-primary">{value}</div></div>
               ))}
             </div>
             <div className="mt-8 flex flex-wrap items-center gap-3"><PrimaryButton onClick={() => go('assessment')}>Continue to assessment</PrimaryButton><SecondaryButton onClick={() => go('submitted')}>Back</SecondaryButton></div>
@@ -1803,9 +1803,9 @@ export default function App() {
               <h2 className="mt-5 text-4xl font-bold leading-[1.03] tracking-[-0.045em] text-primary sm:text-5xl">Your application moves to assessment.</h2>
               <p className="mt-4 text-lg leading-8 text-muted-foreground">This prototype shows the stage after verification. A real lender would assess the verified information using its own underwriting policy.</p>
             </div>
-            <div className="mt-8 rounded-[28px] border border-white/80 bg-white/65 p-7 shadow-[0_20px_50px_rgba(7,20,47,0.05)] sm:p-8">
+            <div className="mt-8 rounded-[28px] border border-border/80 dark:border-slate-800 bg-surface/80 dark:bg-slate-900/80 p-7 shadow-[0_20px_50px_rgba(7,20,47,0.05)] sm:p-8">
               <div className="text-xs font-bold uppercase tracking-[0.16em] text-muted-foreground">Assessment checklist</div>
-              <div className="mt-5 divide-y divide-border-light">
+              <div className="mt-5 divide-y divide-border-light dark:divide-slate-800">
                 {['Verified business information', 'Reviewed financial information', 'Checked credit profile', 'Applied lender assessment policy'].map((item, i) => (
                   <div key={item} className="flex items-center gap-3 py-4 first:pt-0 last:pb-0"><span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-highlight text-accent"><Check size={14} /></span><span className="text-sm font-semibold text-primary">{item}</span></div>
                 ))}
@@ -1820,33 +1820,33 @@ export default function App() {
             <BackButton onClick={() => go('assessment')} />
             <Progress current={4} total={4} label="After submission · Stage 4 of 4" />
             <div className="max-w-3xl">
-              <div className="inline-flex items-center gap-2 rounded-full bg-surface px-4 py-2 text-xs font-bold uppercase tracking-[0.15em] text-muted-foreground">Decision stage</div>
+              <div className="inline-flex items-center gap-2 rounded-full bg-surface dark:bg-slate-900/80 px-4 py-2 text-xs font-bold uppercase tracking-[0.15em] text-muted-foreground">Decision stage</div>
               <h2 className="mt-5 text-4xl font-bold leading-[1.03] tracking-[-0.045em] text-primary sm:text-5xl">Your application is at the decision stage.</h2>
               <p className="mt-4 text-lg leading-8 text-muted-foreground">In this prototype, this is the end of the post-submission journey. A real decision would depend on the lender's verified assessment.</p>
             </div>
             <div className="mt-8 grid gap-4 sm:grid-cols-3">
-              <div className="rounded-[24px] bg-surface p-6"><div className="text-xs font-bold uppercase tracking-[0.16em] text-muted-foreground">Requested</div><div className="mt-2 text-2xl font-bold text-primary">{formatCurrency(requestedDisplay)}</div></div>
-              <div className="rounded-[24px] bg-surface p-6"><div className="text-xs font-bold uppercase tracking-[0.16em] text-muted-foreground">Purpose</div><div className="mt-2 text-xl font-bold text-primary">{effectiveLoanPurpose}</div></div>
-              <div className="rounded-[24px] bg-surface p-6"><div className="text-xs font-bold uppercase tracking-[0.16em] text-muted-foreground">Current state</div><div className="mt-2 text-xl font-bold text-primary">Pending decision</div></div>
+              <div className="rounded-[24px] bg-surface dark:bg-slate-900/80 p-6"><div className="text-xs font-bold uppercase tracking-[0.16em] text-muted-foreground">Requested</div><div className="mt-2 text-2xl font-bold text-primary">{formatCurrency(requestedDisplay)}</div></div>
+              <div className="rounded-[24px] bg-surface dark:bg-slate-900/80 p-6"><div className="text-xs font-bold uppercase tracking-[0.16em] text-muted-foreground">Purpose</div><div className="mt-2 text-xl font-bold text-primary">{effectiveLoanPurpose}</div></div>
+              <div className="rounded-[24px] bg-surface dark:bg-slate-900/80 p-6"><div className="text-xs font-bold uppercase tracking-[0.16em] text-muted-foreground">Current state</div><div className="mt-2 text-xl font-bold text-primary">Pending decision</div></div>
             </div>
-            <div className="mt-8 rounded-[24px] bg-highlight/75 p-5 text-sm leading-6 text-primary"><strong>Prototype note:</strong> no real approval or rejection is being made here. This stage exists so you can demonstrate the complete post-submission experience.</div>
+            <div className="mt-8 rounded-[24px] bg-highlight/75 dark:bg-slate-900/80 p-5 text-sm leading-6 text-primary"><strong>Prototype note:</strong> no real approval or rejection is being made here. This stage exists so you can demonstrate the complete post-submission experience.</div>
             <div className="mt-8 flex flex-wrap items-center gap-3"><PrimaryButton onClick={() => go('snapshot')}>Back to snapshot</PrimaryButton><SecondaryButton onClick={() => go('submitted')}>View journey</SecondaryButton></div>
           </section>
         )}
       </main>
 
-      <footer className="relative z-10 border-t border-border-light bg-white/35 px-5 py-7 sm:px-8 lg:px-12">
+      <footer className="relative z-10 border-t border-border-light dark:border-slate-800 bg-surface/50 dark:bg-slate-950/70 px-5 py-7 sm:px-8 lg:px-12">
         <div className="mx-auto grid w-full max-w-[1440px] gap-4 text-base text-muted-foreground sm:grid-cols-3">
-          <div className="min-w-0 rounded-2xl bg-white/55 p-5">
+          <div className="min-w-0 rounded-2xl bg-surface/70 dark:bg-slate-900/80 p-5">
             <div className="text-lg font-bold leading-6 text-primary">Have a query?<br />Reach out to us.</div>
             <div className="mt-4 text-sm font-bold uppercase tracking-[0.12em] text-muted-foreground">Email</div>
             <a href="https://mail.google.com/mail/?view=cm&fs=1&to=regan.hendriques%40bombaydc.com&su=Hi%20I%20need%20your%20help" target="_blank" rel="noreferrer" className="mt-1 block break-all text-base font-bold text-accent underline-offset-4 transition hover:text-primary hover:underline">regan.hendriques@bombaydc.com</a>
           </div>
-          <div className="rounded-2xl bg-white/55 p-5">
+          <div className="rounded-2xl bg-surface/70 dark:bg-slate-900/80 p-5">
             <div className="text-sm font-bold uppercase tracking-[0.12em] text-muted-foreground">Phone</div>
             <a href="tel:+918976030646" className="mt-2 inline-block text-base font-bold text-accent underline-offset-4 transition hover:text-primary hover:underline">+91 8976030646</a>
           </div>
-          <div className="rounded-2xl bg-white/55 p-5">
+          <div className="rounded-2xl bg-surface/70 dark:bg-slate-900/80 p-5">
             <div className="text-sm font-bold uppercase tracking-[0.12em] text-muted-foreground">Address</div>
             <div className="mt-2 text-base font-bold leading-6 text-primary">Lotus Signature Building, 1602 Floor,<br />Jogeshwari West</div>
           </div>
