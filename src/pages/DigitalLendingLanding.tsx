@@ -1296,20 +1296,6 @@ export default function DigitalLendingLanding({
                 </thead>
                 <tbody className="divide-y divide-border">
                   <tr>
-                    <td className="py-4 px-6 font-semibold text-primary">Time to Go Live</td>
-                    <td className="py-4 px-6 font-semibold text-[#10B981] bg-highlight/20">
-                      ⚡ Easy integration &amp; live in 2 weeks
-                    </td>
-                    <td className="py-4 px-6 text-muted-foreground">Difficult integrations, 3-6 months onboarding delay</td>
-                  </tr>
-                  <tr>
-                    <td className="py-4 px-6 font-semibold text-primary">Product Suite Architecture</td>
-                    <td className="py-4 px-6 font-semibold text-[#10B981] bg-highlight/20">
-                      🎯 One-stop unified solution: Low-code APIs &amp; merchant dashboard
-                    </td>
-                    <td className="py-4 px-6 text-muted-foreground">Fragmented and siloed systems requiring 4+ distinct vendor contracts</td>
-                  </tr>
-                  <tr>
                     <td className="py-4 px-6 font-semibold text-primary">Bank Redundancy &amp; Downtime</td>
                     <td className="py-4 px-6 font-semibold text-[#10B981] bg-highlight/20">
                       🏦 Multi-bank escrow &amp; automated failover routing
